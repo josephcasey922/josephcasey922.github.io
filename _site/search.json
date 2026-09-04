@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "MySite",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "We will study important fields foundational to machine learing:\n\nOptimization\nStatistics\n\nWe will review important python packages related to scientific programming and machine learning:\n\nNumPy\nSciPy\npandas\nscikit-learn\nPyTorch\nTensorflow\n\nFinally, we can work on coding projects in python aimed at understanding\n\nFoundational ML Problems\nNeural Networks (MLP, CNN, RNN, LSTM, GAN)\nLLMs (Transformers)\n\nWith these understood, we can move towards research in NNs/LLMs/Transformers.\nLocally trained models are important to have, use of my research in distributed ML can facilitate working with multiple locally trained models between yourself or peers without need of a shared dataset. KD is a simple alternative."
+  },
+  {
+    "objectID": "mathematics.html",
+    "href": "mathematics.html",
+    "title": "Mathematics",
+    "section": "",
+    "text": "Here we include foundational work in optimization and statistics most relevant to ML."
+  },
+  {
+    "objectID": "research.html",
+    "href": "research.html",
+    "title": "Research",
+    "section": "",
+    "text": "Here we include work regarding Distributed Machine Learning."
+  }
+]

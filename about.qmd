@@ -1,0 +1,29 @@
+---
+title: "About"
+---
+
+We will study important fields foundational to machine learing:
+
+- Optimization
+- Statistics
+
+We will review important python packages related to scientific programming and machine learning:
+
+- NumPy
+- SciPy
+- pandas
+- scikit-learn
+- PyTorch
+- Tensorflow
+
+Finally, we can work on coding projects in python aimed at understanding 
+
+- Foundational ML Problems
+- Neural Networks (MLP, CNN, RNN, LSTM, GAN)
+- LLMs (Transformers)
+
+With these understood, we can move towards research in NNs/LLMs/Transformers.
+
+Locally trained models are important to have, use of my research in distributed ML
+can facilitate working with multiple locally trained models between yourself or peers
+without need of a shared dataset. KD is a simple alternative.
