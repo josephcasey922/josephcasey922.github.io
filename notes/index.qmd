@@ -1,0 +1,10 @@
+---
+title: "Notes"
+---
+
+This section contains notes on mathematics, statistics, machine learning, and other various topics.
+
+
+## Mathematics
+
+- [Convex Optimization](mathematics/convex-optimization)

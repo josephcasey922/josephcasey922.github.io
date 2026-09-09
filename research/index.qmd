@@ -1,0 +1,26 @@
+---
+title: "Research"
+---
+
+My research focuses on Distributed Machine Learning (DML) and Federated Learning (FL). Soon I will include an introduction to this topic in the [Teaching section $\rightarrow$](../teaching).
+
+
+## Dissertation
+
+### Representatives Learning for Distributed Support Vector Machines
+
+The primary focus of this dissertation is modifying the standard SVM optimization problem to allow for stronger representatives (or pseudo data points) to be shared between nodes
+in DML. Further work should investigate applications of this research to SVMs involved in deep learning architectures.
+
+[View Dissertation (PDF)](files/dissertation.pdf)
+
+
+## Publications
+
+### Distributed Collaborative Learning with Representative Knowledge Sharing
+
+Joseph Casey, Qianjiao Chen, Mengchen Fan, Baocheng Geng, Roman Shterenberg, Zhong Chen, and Keren Li
+
+*Mathematics*, 2025.
+
+[View Publication](https://www.mdpi.com/2227-7390/13/6/1004)

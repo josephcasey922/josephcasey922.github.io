@@ -1,0 +1,26 @@
+---
+title: "Teaching"
+---
+
+This page contains topics that I have developed lectures or other teaching material for during my graduate studies. The aim is to introduce readers to important topics related to my research.
+These topics include:
+
+- Optimization
+- Support Vector Machines
+- Distributed Machine Learning
+
+In the near future, I will upload and discuss materials relating to each in the sections below
+
+
+## Optimization
+
+Material covering topics in mathematical optimization.
+
+## Support Vector Machines
+
+Lectures covering the theory and implementation of support vector machines.
+
+
+## Distributed Machine Learning
+
+Material on distributed machine learning.

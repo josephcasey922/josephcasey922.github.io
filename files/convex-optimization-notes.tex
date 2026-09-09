@@ -1,0 +1,2923 @@
+\documentclass[12pt,a4paper]{article}
+\setcounter{secnumdepth}{3}
+
+%%%% Packages %%%%
+
+%\usepackage[numbers]{natbib} % for IEEEtran style
+\usepackage{natbib} % for chicago style
+\usepackage{url} % for chicago style
+
+\usepackage[margin=0.97in]{geometry} 
+%\usepackage[dvips]{graphicx}
+\usepackage{graphicx}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{amsfonts}
+\usepackage{color}
+\usepackage{physics}
+\usepackage{amsthm} % provides the environment proof
+\usepackage{derivative}
+
+
+\usepackage{booktabs} % for toprule and midrule
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{threeparttable}
+\usepackage[tableposition=top]{caption}
+
+
+\usepackage[plain,noend]{algorithm2e}
+\usepackage{hyperref}
+\SetKwProg{Init}{initial}{}{}
+
+%%%% New commands %%%%
+
+%\theoremstyle{plain}
+\newtheorem*{remark}{Remark}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}{Proposition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{definition}{Definition}[section]
+
+
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\Root}{root}
+%\DeclareMathOperator{\tr}{tr}
+%\DeclareMathOperator{\Pro}{Pr}
+%\newcommand{\RN}[1]{%
+	%	\textup{\uppercase\expandafter{\romannumeral#1}}
+	%}
+%\hyphenation{op-tical net-works semi-conduc-tor}
+\newcommand*{\pd}[3][]{\ensuremath{\frac{\partial^{#1} #2}{\partial #3}}}
+\newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}\\}
+\newcommand{\hlabel}{\phantomsection\label}
+
+\begin{document}
+	\pagestyle{plain}
+	%\pagenumbering{arabic}
+	%\title{\vspace{-2.0cm}Stuff}	
+	%	\maketitle
+	\pagenumbering{gobble}
+	
+	\begingroup  
+	\centering
+	% \vspace{cm}
+	\LARGE Introductory Lectures on Convex Optimization (Nesterov) Proofs
+	
+	\endgroup
+	
+	% \section*{Remaining to do}
+	% \begin{itemize}
+	% 	\item \hyperref[lem223]{Lemma 2.2.3} final step
+	% 	\item Explain the process in \hyperref[sec22]{Section 2.2} of finding an optimal method for minimizing a function.
+	% 	\item change optimization methods to be inside enumerate blocks starting at $0$ rather than itemize blocks
+	% 	\item below Lemma 2.3.3 assumption
+	% 	\item Proof of theorem 2.3.6 (I was lazy to do algebra at this time).
+	% 	\item proof of lemma 2.3.6
+	% \end{itemize}
+
+	\section*{\underline{Definitions/Notation}}\label{sec:Def}
+	Here, we give meaning behind these terms, rather than the technical definitions.\\
+	\textbf{Basic Feasible Set}: The set of points in the domain of the optimization problem\\
+	\textbf{Feasible Set}: The set of points in the domain that satisfy the functional constraints\\
+	\textbf{Model}: A known part of a given problem. This refers to things like the formulation of the optimization problem itself and details about the object function and constraints. (continuous, differentiable, convex, etc...)\\
+	\textbf{Performance}: (Of M on P) Total amount of computational efforts required by method M to solve problem P.\\
+	\textbf{Oracle}: Answers questions asked by the chosen method. These answers are used by the method to solve a problem. \\
+	\textbf{Analytical Complexity}: Number of calls to the oracle to solve a problem approximately\\
+	\textbf{Arithmetical Complexity}: Total number of operations (method+oracle) to approximately solve a problem\\
+	\textbf{Local Black Box}: This refers to an assumption where we only know the oracle's answers, and a small variation of the problem from a point x, does not change the oracle's answer at x. This helps when calculating the analytical complexity for a given class of problems.\\
+	\textbf{Relaxation Sequence}: A non-increasing sequence of numbers\\
+	$\mathbf{C_L^{k,p}}(Q)$: is defined as the class of functions k times differentiable on Q with the pth derivative Lipschitz continuous. \\
+	\textbf{Goldenstein-Armijo Rule:}
+	find $x_{k+1} = x_k - hf'(x_k)$ such that, 
+	\begin{align*}
+		\alpha \langle f'(x_k), x_k - x_{k+1} \rangle \leq f(x_k) - f(x_{k+1}), \\
+		\beta \langle f'(x_k), x_k - x_{k+1} \rangle \geq f(x_k) - f(x_{k+1})
+	\end{align*} 
+	for some $0<\alpha<\beta<1$\\
+	
+	\textbf{Penalty function:} (or penalty) A continuous function $\phi(x)$ on a closed set $Q$ is a penalty function if:
+	\begin{itemize}
+		\item $\phi(x) = 0$ for any $x \in Q$
+		\item $\phi(x)>0$ for any $x \notin Q$
+	\end{itemize}
+	
+	\textbf{Barrier function:} (barrier) A continuous function $F(x)$ on a closed set $Q$ with non-empty interior if a barrier function for $Q$ if $F(x)\rightarrow \infty$ when $x$ approaches the boundary of $Q$.
+	\subsection*{Rates of Convergence:}
+	(these are usually defined in terms of a limit, but here we will define them based on analytical complexity).\\
+	\textbf{Sublinear:} Described in terms of a power function of the iteration counter. (e.g. $r_k \leq \frac{c}{\sqrt{k}}$, with an upper complexity bound $(\frac{c}{\epsilon})^2$.\\
+	\textbf{Linear:} Exponential function of the iteration counter (e.g. $r_k \leq c(1 - q)^k$ with complexity bound $\frac{1}{q}(\ln c + \ln \frac{1}{\epsilon})$)\\
+	\textbf{Quadratic:} double exponential function of the iteration counter (e.g. $r_{k+1} \leq cr_k^2$ with complexity estimate depending on a double logarithm $\ln \ln \frac{1}{\epsilon}$) \\
+	\textbf{Convex:} A continuously differentiable function $f(x)$ is convex on $\mathbb{R}^n$ ($f \in \mathcal{F}^1(\mathbb{R}^n)$) if for any $x,y\in \mathbb{R}^n$ we have:
+	\begin{align*}
+		f(y)\geq f(x) + \langle f'(x), y-x \rangle 
+	\end{align*}
+	\textbf{$\mathcal{F}_L^{k,l}$} is defined to be the functions from our class of convex functions $\mathcal{F}$ that are $k$ times continuously differentiable and $lth$ derivative Lipschitz continuous with constant $L$. \\
+	\textbf{Strongly Convex Function}: A continuously differentiable function $f(x)$ is called strongly convex on $\mathbb{R}^n$ ($f \in \mathcal{S}_\mu^1(\mathbb{R}^n)$) if there exists a constant $\mu > 0$ such that for any $x,y \in \mathbb{R}^n$ we have:
+	\begin{align*}
+		f(y) \geq f(x) + \langle f'(x), y - x \rangle + \frac{1}{2}\mu \norm{y - x}^2
+	\end{align*}
+	\textbf{$\mathcal{S}_{\mu, L}^{k,l}$} is then the class of strongly convex functions with convexity parameter $\mu$, that are $k$ times continuously differentiable with $lth$ derivative Lipschitz continuous with respect to $L$.\\
+	\textbf{Upper/Lower Complexity Bounds:} Lower complexity bounds refer to lower bounds on the analytical complexity for a given problem. That is, given a problem, criterion, oracle type, and class a function, we want to know what is the minimum number of calls to the oracle we need to solve the problem. To show this, we consider a very poor function or stubborn oracle and then guarantee even the strongest algorithms cannot do better than a certain number of calls. Then conclude that any algorithm and function from the class will need at least this many calls to the oracle.   \\
+	Upper complexity bounds are the opposite. We look to guarantee that no algorithm or function from the class could require more than a certain number of calls to the oracle. This is, in general, harder to find. \\
+	\textbf{Estimate Sequence}: For a given function $f$, the pair of sequence $\{\phi_k(x)\}_{k=0}^{\infty}$ and $\{\lambda_k\}_{k=0}^{\infty}, \lambda \geq 0$ is called an estimate sequence of $f(x)$ if
+	\begin{align*}
+		\lambda_k \rightarrow 0
+	\end{align*}
+	and for any $x \in \mathbb{R}^n$ and all $k \geq 0$
+	\begin{align*}
+		\phi_k(x) \leq (1-\lambda_k)f(x) + \lambda_k\phi_0(x)
+	\end{align*}
+	
+	\textbf{Convex Set}: A set $Q$ is convex if for any $x,y \in Q$ and $\alpha \in [0,1]$ we have
+	\begin{align*}
+		\alpha x + (1 - \alpha)y \in Q
+	\end{align*}
+	
+	\textbf{Gradient Mapping:} fix $\gamma > 0$ and denote:
+	\begin{align*}
+		&x_Q(\bar{x};\gamma) = \argmin_{x \in Q}[f(\bar{x}) + \langle f'(\bar{x}), x - \bar{x} \rangle + \frac{\gamma}{2}\norm{x - \bar{x}}^2], \\
+		&g_Q(\bar{x}; \gamma) = \gamma(\bar{x} - x_Q(\bar{x};\gamma))
+	\end{align*}
+	Then $g_Q(\gamma,x)$ is the gradient mapping of $f$ on $Q$.
+	
+	\section*{Chapter 1: Nonlinear Optimization}\label{sec:Ch1}
+	
+	\subsection*{Theorem 1.1.1, pg 9}\label{ssec:thm111}
+	
+	
+	Let $f^*$ be the global optimal value of
+	\begin{align*}
+		\min_{x \in B_n}f(x)
+	\end{align*}
+	where $B_n$ is a unit box in $\mathbb{R}^n$. Suppose f is Lipschitz continuous. Form a uniform grid of p points in n dimensions and let $\bar{x}$ be the smallest argument of f. Then 
+	\begin{align*}
+		f(\bar{x}) - f^* \leq \frac{L}{2p}
+	\end{align*}
+	\textbf{proof:} Let $(i_1, i_2, \ldots i_n)$ be coordinates such that $x = x_{(i_1, i_2, \ldots i_n)} \leq x_* \leq  y=x_{(i_1+1, i_2+1, \ldots i_n+1)}$ where $x_*$ is the global minimizer of f. Namely, the global minimum lies within one of the boxes made by our grid, with each component bigger than and less than the grid points lying in the corners which we are calling x and y.
+	Note that $y^{(i)} - x^{(i)} = \frac{1}{p}$ for each $i$ and
+	\begin{align*}
+		x_*^{(i)} \in [x^{(i)},y^{(i)}], i=1, \ldots n
+	\end{align*}
+	that is, for points x and y in adjacent corners, each component differs by $\frac{1}{p}$ and the global minimizer's coordinates lie between the components of the corner points. 
+	Let $\hat{x} = (x+y)/2$ (the point in the center of the box) and define:
+	\begin{align*} \tilde{x}^{(i)} = 
+		\begin{cases}
+			y^{(i)}, \text{ if } x_*^{(i)} \geq \hat{x}^{(i)} \\
+			x^{(i)}, \text{ otherwise}
+		\end{cases}
+	\end{align*}
+	that is, we make a new point with the closest components from either of the corner points. This will choose the closest point out of the four corners of the box. Then the maximum distance for each component of our new point and the global minimum is cut in half: $\abs{\tilde{x}^{(i)} - x_*^{(i)}} \leq \frac{1}{2p}$ for each $i$. 
+	That is, we have sectioned off the quadrant of the box the optimal point is in, and selected our choice as the corresponding corner of the quadrant.
+	Therefore,
+	\begin{align*}
+		\norm{\tilde{x} - x^*}_\infty = \max_{1 \leq i \leq n} \abs{\tilde{x}^{(i)} - x_*^{(i)}} \leq \frac{1}{2p}
+	\end{align*}
+	Conclude:
+	\begin{align*}
+		f(\bar{x}) - f(x_*) \leq f(\tilde{x}) - f(x_*) \leq L \norm{\tilde{x} - x_*}_\infty \leq \frac{L}{2p}
+	\end{align*}
+	\qed
+	
+	\subsection*{Corollary 1.1.1, pg 9}\label{cor111}
+	Suppose we wish to find, via this uniform points method:
+	\begin{align*}
+		\bar{x} \in B_n \text{ s.t. } f(\bar{x}) - f^* \leq \epsilon
+	\end{align*}
+	The Analytical Complexity is then:
+	\begin{align*}
+		\mathcal{A}(\mathcal{G}) = (\lfloor \frac{L}{2\epsilon} \rfloor + 2)^n
+	\end{align*}
+	where analytical complexity refers to the number of calls to the oracle, the returning of information to us based on some question.\\
+	\textbf{proof:} Let p = $\lfloor \frac{L}{2\epsilon} \rfloor$ + 1. Then $p \geq \frac{L}{2\epsilon}$. Thus $f(\bar{x}) - f^* \leq \frac{L}{2p} \leq \epsilon$. Recall for a zero-order oracle, the analytical complexity will just be the number of function values it returns. Here, each dimension has p+1 points, thus the upper bound complexity is given by the equation above. 
+	
+	\subsection*{Theorem 1.1.2, pg 11}\label{thm112}
+	Consider the class of problems C: minimize the function value inside the n-dimensional box as above where f is Lipschitz continuous with respect to the infinity norm. The oracle is once again, a zero-order local black box, and we wish to find an approximate solution to the minimizer of f.\\
+	For $\epsilon < \frac{1}{2}L$ the analytical complexity of C is at least $ (\lfloor \frac{L}{2\epsilon} \rfloor )^n$. (that is, we are finding a low bound on the complexity for this class for any Method.)\\
+	\textbf{proof}: Let $p = ( \lfloor \frac{L}{2\epsilon} \rfloor )$ where $L > 2\epsilon$. Assume by contradiction there is a method which only needs $N < p^n$ calls of the oracle to solve any given problem from class C. (The strategy here is usually contradiction since we will make the oracle as resistant as possible). Suppose the oracle only returns $f(x) = 0$ for any point x. Such a method is then only able to find $\bar{x}$ with $f(\bar{x}) = 0$. Now, there must exist $\hat{x} \in B_n$ such that:
+	\begin{align*}
+		\hat{x} + \frac{1}{p}e \in B_n
+	\end{align*}
+	(here e is the vector in $\mathbb{R}^n$ of all 1's). But there are no test points inside the box $B = \{x | \hat{x} \leq x \leq \hat{x} + \frac{1}{p}e\}$. ($B_n$ can we split maximally into $p^n$ regions. If all have a test point, then we have $p^n$ test points in need of that many calls to the oracle. But we assume $N < p^n$ so one of these boxes must have no test points). 
+	
+	Now let $x_* = \hat{x} + \frac{1}{2p}e$ and consider:
+	\begin{align*}
+		\bar{f}(x) = \min \{0, L \norm{x-x_*}_\infty - \epsilon\}
+	\end{align*}
+	Obviously this is Lipschitz continuous with $L$, and its optimal value is $-\epsilon$ at $ x = x_*$. It's clear that $\bar{f}$ only differs from zero inside the box $B' = \{x| \norm{x - x_*}_\infty \leq \frac{\epsilon}{L}\}$.  Since $2p \leq \frac{L}{\epsilon}$ (and thus $\frac{1}{2p} \geq \frac{\epsilon}{L}$), we conclude :
+	\begin{align*}
+		B' \subseteq B = \{x | \norm{x - \tilde{x}}_\infty \leq \frac{1}{2p}\}
+	\end{align*}
+	This means that $\bar{f}(x)$ is zero at all test points for our method (recall $x_*$ is  just the midpoint of the box which contains no test points and is selected to make the optimal value as far as possible). 
+	
+	However, the accuracy of this method is assumed to be $\epsilon$. Thus, if the number of calls to the oracle is $N < p^n$, the accuracy cannot be better than $\epsilon$. \qed
+	
+	(don't forget here than the oracle is useless and thus we have to select all of the points without knowing how close each one is).
+	
+	So, we assumed our accuracy was $\epsilon$ but we found that our accuracy for some case was worse than $\frac{\epsilon}{L}$ and we assumed $L > \epsilon$ so this is a contradiction. Thus we cannot have $\epsilon$ accuracy if $N < p^n$ where recall that $p$ is the floor of $\frac{L}{2\epsilon}$. Also recall that the theorem's assumption said $\epsilon < \frac{1}{2}L$, and this was used in the assumption $p \geq 1$.
+	
+	Also note, if $\epsilon = L/n$, the upper and lower bounds coincide up to a constant and thus our method is optimal (I suppose this means of the same order as the lower bound complexity).
+	
+	\subsection*{Lemma 1.2.1}\hlabel{lem121}
+	Let $\mathcal{L}_f(\alpha) = \{x \in \mathbb{R}^n | f(x) \leq \alpha \}$. and Let $S_f(\bar{x})$ be the directions that are tangent to $\mathcal{L}_f(f(\bar{x}))$ at $\bar{x}$:
+	\begin{align*}
+		S_f(\bar{x}) = \{s \in \mathbb{R}^n | s = \lim_{y_k \rightarrow \bar{x}, f(y_k)=f(\bar{x})} 
+		\frac{y_k - \bar{x}}{\norm{y_k - \bar{x}}}\}
+	\end{align*}
+	here, the norm is the standard euclidean one. $f(y_k)$ travels along the level curve of the function towards $f(\bar{x})$/ $y_k$ travels along the outside of the level set towards $\bar{x}$. We divide by the norm here to  make these vectors unit. Using the limit means we will end up with all possible directions of approaching the point $\bar{x}$ while keeping the output fixed. Since the output is fixed, these directions must be orthogonal to the gradient vector. Thus:
+	
+	If $s \in S_f(\bar{x})$, then $\langle f'(\bar{x}), s \rangle = 0$ \\
+	\textbf{proof}:  since $f(y_k) = f(\bar{x})$, we have by the first order Taylor approximation at $\bar{x}$:
+	\begin{align*}
+		f(y_k) = f(\bar{x}) + \langle f'(\bar{x}), y_k - \bar{x} \rangle + o(\norm{y_k - \bar{x}}) = f(\bar{x})
+	\end{align*}
+	(here, the "$o$" refers to higher order terms or more specifically, $o(r)$ is such that: $\lim_{r\rightarrow 0^+} \frac{1}{r}o(r) = 0$ for $r \geq 0$ and $o(0) = 0$.)
+	
+	Then $ \langle f'(\bar{x}), y_k - \bar{x} \rangle + o(\norm{y_k - \bar{x}}) = 0$. Divide both sides by $\norm{y_k - \bar{x}}$ and take the limit as $y_k \rightarrow \bar{x}$. By definition, $o$ goes to zero and $f'(\bar{x})$ is inner product with an element $s\in S_f(\bar{x})$ and is equal to zero. 
+	
+	\subsection*{Lemma 1.2.1.1 (added)}\label{lem1211}
+	We wish to prove that the negative gradient is the direction of fastest local decrease of a function at a point.
+	
+	\textbf{proof}: Let $s$ be a direction in $\mathbb{R}^n$. Then the local decrease (directional derivative) of $f(x)$ along $s$ at $\bar{x}$ is:
+	\begin{align*}
+		\Delta{s} = \lim_{\alpha \rightarrow 0} \frac{1}{\alpha}[f(\bar{x} + \alpha s) - f(\bar{x})]
+	\end{align*}
+	Note that $f(\bar{x} + \alpha s) - f(\bar{x})$ = $\alpha \langle f'(\bar{x}), s \rangle + o(\alpha)$ 
+	(take the first order Taylor approximation of f(x) at $\bar{x}$ and plug in $\bar{x} +  \alpha s$ and remember that $s$ is unit.)
+	
+	Thus:
+	\begin{align*}
+		\Delta s = \langle f'(\bar{x}), s \rangle 
+	\end{align*}
+	
+	Now, by C.S. inequality, $\langle x, y \rangle \leq \norm{x} \norm{y}$ we have:
+	$\Delta s = \langle f'(\bar{x}), s \rangle \geq - \norm{f'(\bar{x})}$
+	
+	Letting $\bar{s} = \frac{-f'(\bar{x})}{\norm{f'(\bar{x})}}$ we get:
+	\begin{align*}
+		\Delta \bar{s} = - \norm{f'(\bar{x})}
+	\end{align*}
+	That is, when we take the direction to be the negative gradient, we reach a lower bound on the directional derivative (i.e. the minimum). \qed 
+	
+	\subsection*{Theorem 1.2.1}\label{thm121}
+	Let $x^*$ be a local minimum of a differentiable function $f(x)$. Then 
+	\begin{align*}
+		f'(x^*) = 0
+	\end{align*}
+	
+	\textbf{proof}: Since $x^*$ is a local minimum of $f(x)$, there exists $r \geq 0$ such that for all $y$ where $\norm{y-x^*} \leq r$, $f(y) \geq f(x^*)$. Again:
+	\begin{align*}
+		f(y) = f(x^*) + \langle f'(x^*), y - x^* \rangle + o(\norm{y-x^*}) \geq f(x^*)
+	\end{align*}
+	Thus, by dividing through by the norm of $y - x^*$ and taking the limit $y \rightarrow x^*$, we have $\langle f'(x^*), s \rangle \geq 0$ for any tangent direction at $x^*$. Letting $s = -s$ tells us $\langle f'(x^*), s \rangle = 0$. Namely, this holds for all $e_i$ simultaneously, meaning $f'(x^*) = 0$. \qed
+	
+	\subsection*{Corollary 1.2.1}\label{cor121}
+	Let $x^*$ be a local minimum of differentiable $f(x)$ subject to the linear equality constraints:
+	\begin{align*}
+		x \in \mathcal{L} = \{x \in \mathbb{R}^n | Ax = b \} \neq \emptyset
+	\end{align*}
+	where $A$ is and $mxn$ matrix and $b \in \mathbb{R}^m, m<n$ (that is, the number of constraints is less than the dimension of x), then there exists a vector of multipliers $\lambda^*$ such that
+	\begin{align*}
+		f'(x^*) = A^T\lambda^*
+	\end{align*}
+	
+	\textbf{proof}: Consider a basis of the null space of $A$, $u_i, i=1, \ldots k$ (non trivial since $m < n$). Then any $x \in \mathcal{L}$ can be represented as
+	\begin{align*}
+		x = x(y) = x^* + \sum_{i=1}^{k}y^{(i)}u_i
+	\end{align*}
+	for $y \in \mathbb{R}^k$. (This is because $x - x^*$ is in the null space as both satisfy the constraint equation). 
+	
+	Consider the function $\phi(y) = f(x(y))$. $y = 0$ is a local minimum since $x(0) = x^*$ which is a local minimum of $f$ by assumption. Then $\phi ' (0) = 0$ by \hyperref[thm121]{Theorem 1.2.1}. So,
+	\begin{align*}
+		\langle f'(x^*), u_i \rangle = 0
+	\end{align*}
+	that is, $f'(x^*)$ is orthogonal to the nullspace of $A$, hence is in the row space of $A^T$. Thus $f(x^*) = A^T\lambda^*$ where the transpose makes it a linear combination of the rows instead of columns. \qed
+	
+	
+	\subsection*{Theorem 1.2.2}\label{thm122}
+	Let $x^*$ be a local minimum of a twice differentiable function $f(x)$. Then
+	\begin{align*}
+		f'(x^*) = 0 \text{ and } f''(x^*) \succeq 0
+	\end{align*}
+	that is, the Hessian is positive semi-definite. 
+	
+	\textbf{proof}: Let $r \geq 0$ be such that for all $\norm{y - x^*} \leq r$ we have:
+	\begin{align*}
+		f(y) \geq f(x^*)
+	\end{align*}
+	 and thus $f'(x^*) = 0$. Again, for any such y,
+	 \begin{align*}
+	 	f(y) = f(x^*) + \langle f''(x^*)(y-x^*), y-x^* \rangle + o(\norm{y-x^*}^2) \geq f(x^*)
+	 \end{align*}
+	which is the second order Taylor expansion of $f(x)$ around $x^*$. The first order term is gone due to the derivative condition, and the 1/2 won't play a role. Dividing through by the norm square of $y-x^*$ and taking limit $y \rightarrow x^*$, we have $\langle f''(x^*)s,s \rangle \geq 0$ for all s, $\norm{s} = 1$. (for the first inner product, we divide give each part one of these norms so that they each become a tangent vector). Now this is the definition of positive semi-definite and the scale is unimportant. \qed 
+	
+	For the first derivative, we only had a necessary condition, since we know derivatives can be zero for saddle points. But here we have the following theorem for sufficiency:
+	
+	\subsection*{Theorem 1.2.3}\label{thm123}
+	Assume the converse of theorem 1.2.2 with strict positive definiteness. Then $x^*$ is a strict local minimum of $f(x)$. (recall if the Hessian is zero (where it has eigenvalue zero), we cannot conclude).
+	
+	\textbf{proof:} Consider a small neighborhood of $x^*$ where $f(x)$ can be represented as:
+	\begin{align*}
+		f(y) = f(x^*) + \frac{1}{2} \langle f''(x^*)(y-x^*), y-x^* \rangle + o(\norm{y-x^*}^2)
+	\end{align*}
+	
+	Now, we know $\frac{o(r)}{r} \rightarrow 0$ as $r \rightarrow 0$. Thus, there exists $\bar{r}$ such that for all $\bar{r} \in [0,\bar{r}]$ we have:
+	\begin{align*}
+		\abs{o(r)} \leq \frac{r}{4}\lambda_1(f''(x^*))
+	\end{align*}
+	where $\lambda_1$ is a function returning the smallest eigenvalue of $f''(x^*)$. By positive definiteness, we know this eigenvalue is positive. Therefore, for any $y$ such that $\norm{y-x^*} \leq \bar{r}$ we have:
+	\begin{align*}
+		f(y) \geq f(x^*) + \frac{1}{2} \lambda_1(f''(x^*)) \norm{y-x^*}^2 + o(\norm{y-x^*}^2) \geq \\
+		\geq f(x^*) + \frac{1}{4}\lambda_1(f''(x^*))\norm{y-x^*}^2 > f(x^*)
+	\end{align*}
+	where recall that the quadratic form of a symmetric matrix is bounded by the smallest and largest eigenvalues for the first inequality, and for the second inequality we use the absolute value bound above. Using that $o$ is bigger than the negative of that term. Then by positive eigenvalues, we get the final inequality. Showing that for y close by, $x^*$ is a minimum. \qed 
+	
+	
+	\subsection*{Lemma 1.2.2}\label{lem122}
+	Function $f(x)$ belonds to $C_L^{2,1}(\mathbb{R}^n) \subset C_L^{1,1}(\mathbb{R}^n)$ iff
+	\begin{align*}
+		\norm{f''(x)} \leq L, \text{  for all x }
+	\end{align*}
+	
+	\textbf{proof:} For any $x,y \in \mathbb{R}^n$ we have:
+	\begin{align*}
+		f'(y) = f'(x) + \int_{0}^{1}f''(x + \tau(y-x))(y-x)d\tau = \\
+		= f'(x) + (\int_{0}^{1}f''(x + \tau(y-x))d\tau)\cdot (y-x)
+	\end{align*}
+	The first equality is an application of the Fundamental Theorem of Calculus. Namely, if $g(\tau) = f'(x + \tau(y-x))$ where $\tau \in [0,1]$, then $g$ connects $f'(x)$ and $f'(y)$ with a line. So, 
+	\begin{align*}
+		g(1) - g(0) = \int_{0}^{1} g'(\tau)d\tau
+	\end{align*}
+	or 
+	\begin{align*}
+		f'(y) - f'(x) = \int_{0}^{1}f''(x + \tau(y-x))(y-x)d\tau
+	\end{align*}
+	
+	Now suppose $\norm{f''(x)} \leq L$ for all x in $\mathbb{R}^n$. Then:
+	\begin{align*}
+		\norm{f'(y) - f'(x)} =&
+			 \norm{(\int_{0}^{1}f''(x + \tau(y-x))d\tau)\cdot (y-x)} \\
+			 &\leq \norm{(\int_{0}^{1}f''(x + \tau(y-x))d\tau)}\cdot \norm{(y-x)} \\
+			 &\leq \int_{0}^{1}\norm{f''(x + \tau(y-x))}d\tau \cdot \norm{y-x} \\
+			 &\leq L \norm{y-x}
+	\end{align*}
+	Now, in the other direction, suppose $f \in C_L^{2,1}(\mathbb{R}^n)$, then for any $s \in \mathbb{R}^n$ and $\alpha>0$ we have,
+	\begin{align*}
+		\norm{(\int_{0}^{\alpha} f''(x+\tau s)d\tau) \cdot s } = \norm{f'(x+\alpha s) - f'(x)} \leq \alpha L \norm{s}
+	\end{align*}
+	which once again follows from the fundamental theorem of calculus. Lastly, divide the inequality by $\alpha$ and let $\alpha \rightarrow 0$. Then the left becomes $f''(x)$ and the right is $L\norm{s}$. Particularly, take $s$ to have norm $1$. \qed
+	
+	This gives an easy way to check if a function is "L-smooth" (first derivative Lipschitz continuous).
+	
+	\subsection*{Lemma 1.2.3}\label{lem123}
+	Let $f \in C_L^{1,1}(\mathbb{R}^n)$. Then for any $x,y \in \mathbb{R}^n$ we have
+	\begin{align*}
+		\abs{f(y) - f(x) - \langle f'(x),y-x \rangle} \leq \frac{L}{2}\norm{y-x}^2
+	\end{align*}
+	(Here, we have the linear approximation of $f$ at $y$ around $x$ and thus we get a bound on how bad the linear approximation is).\\
+	\textbf{proof:} For all $x,y \in \mathbb{R}^n$ we have:
+	\begin{align*}
+		f(y) = f(x) + \int_{0}^{1}\langle f'(x + \tau(y-x)), y-x \rangle d\tau = \\
+		= f(x) + \langle f'(x),y-x \rangle + \int_{0}^{1}\langle f'(x + \tau(y-x)) - f'(x), y-x \rangle d\tau 
+	\end{align*}
+	Then:
+	\begin{align*}
+		\abs{f(y) - f(x) - \langle f'(x),y-x\rangle} &= \abs{\int_{0}^{1} \langle f'(x + \tau(y-x)) - f'(x),y-x \rangle d\tau} \\
+		&\leq \int_{0}^{1} \abs{\langle f'(x + \tau(y-x)) - f'(x),y-x \rangle} d\tau \\
+		&\leq \int_{0}^{1}\norm{f'(x + \tau(y-x)) - f'(x)} \cdot \norm{y-x}d\tau \\
+		&\leq \int_{0}^{1}\tau L \norm{y-x}^2 d\tau = \frac{L}{2}\norm{y-x}^2
+	\end{align*}
+	\qed
+	
+	We can use this fact to understand geometrically this class of functions. Namely, we can bound the graph of a function from this class between two quadratic functions using the positive and negative of this bound. That is, the graph of $f(x)$ lies between
+	\begin{align*}
+		\phi_1(x) = f(x_0) + \langle f'(x_0), x - x_0 \rangle + \frac{L}{2}\norm{x - x_0}^2, \\
+		\phi_2(x) = f(x_0) + \langle f'(x_0), x - x_0 \rangle - \frac{L}{2}\norm{x - x_0}^2
+	\end{align*}
+	for any fixed $x_0 \in \mathbb{R}^n$ (fix $x$ and let $y$ vary from the lemma).
+	
+	
+	\subsection*{Lemma 1.2.4}\label{lem124}
+	Let $f \in C_M^{2,2}(\mathbb{R}^n)$. Then for any $x,y \in \mathbb{R}^n$ we have
+	\begin{align*}
+		\norm{f'(y) - f'(x) - f''(x)(y-x)} \leq \frac{M}{2}\norm{y-x}^2, \\
+		\abs{f(y) - f(x) - \langle f'(x), y-x \rangle - \frac{1}{2}\langle f''(x)(y-x), y-x \rangle } \\
+		\leq \frac{M}{6}\norm{y-x}^2
+	\end{align*}
+	
+	\textbf{proof:} (excluded, similar to previous)
+	
+	\subsection*{Corollary 1.2.2}\label{cor122}
+	Let $f \in C_M^{2,2}(\mathbb{R}^n)$ and $\norm{y-x} = r$. Then 
+	\begin{align*}
+		f''(x) - MrI_n \preceq f''(y) \preceq f''(x) + MrI_n
+	\end{align*}
+	where $I_n$ is the unit matrix and $A \succeq B$ means $A-B \succeq 0$.
+	
+	\textbf{proof:}
+	Let $G=f''(y) - f''(x)$. Then $\norm{G}\leq Mr$ by the Hessian Lipschitz continuous with $M$. That is, the eigenvalues of $G$ satisfy:
+	\begin{align*}
+		\abs{\lambda_i(G)}\leq Mr \text{  for all i}
+	\end{align*}
+	Thus we have our inequalities, since if every eigenvalue of A is less than every eigenvalue of B, we have $A\preceq B$. Namely,
+	\begin{align*}
+		-MrI_n \preceq G \preceq MrI_n
+	\end{align*}
+	\qed
+	
+	\subsection*{1.2.3 Gradient Method}\label{sec123}
+	\subsection*{Theorem: Gradient Step-Size, pg 25}\label{thmgradstep}
+	Claim: stepsize should be $\frac{1}{L}$ wrt \hyperref[lem123]{Lemma 1.2.3}.\\
+	\textbf{proof:} Assume $f \in C_L^{1,1}(\mathbb{R}^n)$. Consider $y = x - hf'(x)$. Then by $1.2.5$, we have:
+	\begin{align*}
+		f(y) &\leq f(x) + \langle f'(x), y-x \rangle + \frac{L}{2}\norm{y-x}^2 \\
+		&= f(x) - h \norm{f'(x)}^2 + \frac{h^2}{2}L \norm{f'(x)}^2 \\
+		&= f(x) - h(1 - \frac{h}{2})\norm{f'(x)}^2
+	\end{align*}
+	To make the best estimate for the largest decrease in the function, we would like $-h(1-\frac{h}{2}) \norm{f'(x)}^2$ to be as small as possible (recall we would like $f(y)$ to be smaller than $f(x)$). This gives us that:
+	\begin{align*}
+		hL - 1 = 0, \\
+		h = \frac{1}{L}
+	\end{align*}
+	and such step-size has the property:
+	\begin{align*}
+		f(y) \leq f(x) - \frac{1}{2L}\norm{f'(x)}^2.
+	\end{align*}
+	\qed
+	
+	\subsection*{Goldstein-Armijo, pg 26}\label{GAbound}
+	Consider a function of step-size $h$ where $x \in \mathbb{R}^n$ is fixed :
+	\begin{align*}
+		\phi(h) = f(x - hf'(x)), h \geq 0
+	\end{align*}
+	Acceptable values of h belong to the part of the graph of $\phi$ between two linear functions:
+	\begin{align*}
+		\phi_1(h) = f(x) - \alpha h \norm{f'(x)}^2, \text{  and   } \phi_2(h) = f(x) - \beta h \norm{f'(x)}^2
+	\end{align*}
+	where $\phi(0) = \phi_1(0) = \phi_2(0)$ and $\phi'(0) < \phi_2'(0) < \phi_1'(0) < 0$. Then acceptable values of h exist as long as $\phi(h)$ is not bounded below.\\
+	
+	\textbf{proof:} The Goldstein-Armijo rule requires the following conditions to be met with regards to $h$:\\
+	find $x_{k+1} = x_k - hf'(x_k)$ such that, 
+	\begin{align*}
+		\alpha \langle f'(x_k), x_k - x_{k+1} \rangle \leq f(x_k) - f(x_{k+1}), \\
+		\beta \langle f'(x_k), x_k - x_{k+1} \rangle \geq f(x_k) - f(x_{k+1})
+	\end{align*} 
+	for some $0<\alpha<\beta<1$. Now define $\phi(h) = f(x - hf'(x))$. GA requires that the step-size be large enough to be useful, but small enough to not go too far. Therefore, we expect some interval of $h$ that is acceptable to not make $\phi(h)$ too large nor too small. Another way to think of this is that the average rate of change of f between $x_k$ and $x_{k+1}$ should be smaller than some scaled down version of $f'(x_k)$ and bigger than some other scaled down version of $f'(x_k)$. Now, here $\phi(h)$ is just $f(x_{k+1})$, and $x_{k} - x_{k+1} = hf'(x_k) $. making this replacement in GA rules, solving for $f(x_{k+1}):= \phi(h)$ gives us that we are bounded between the two linear functions of $h$, for example:
+	\begin{align*}
+		\alpha \langle f'(x_k), x_k - x_{k+1} \rangle \leq f(x_k) - f(x_{k+1}) \\
+		\implies f(x_{k+1}) \leq f(x_k) - \alpha \langle f'(x_k), x_k - x_{k+1} \rangle \\
+		\implies f(x_{k+1}) \leq f(x_k) - \alpha \langle f'(x_k), hf'(x_k) \rangle \\
+		\implies f(x_{k+1}) \leq f(x_k) - \alpha h \langle f'(x_k), f'(x_k) \rangle \\
+		\implies f(x_{k+1}) \leq f(x_k) - \alpha h\norm{f'(x_k)}^2
+	\end{align*}
+	Similarly for the other requirement we have:
+	\begin{align*}
+		f(x_{k+1}) \geq f(x_k) - \beta h \norm{f'(x_k)}^2
+	\end{align*}
+	More generally, we have:
+	\begin{align*}
+		f(x) - \beta h \norm{f'(x)}^2 \leq f(x - hf'(x)) \leq f(x) - \alpha h \norm{f'(x)}^2
+	\end{align*}
+	viewing these as functions of $h$ verifies the claim above. The equalities and inequalities claimed above are also clear. At $h=0$ these are all equal to $f(x)$ and if we differentiate each piece with respect to $h$ we have:
+	\begin{align*}
+		-\beta \norm{f'(x)}^2 \\
+		\langle f'(x - h f'(x)), (- f'(x)) \rangle \\
+		-\alpha \norm{f'(x)}^2
+	\end{align*}
+	plugging in $h=0$:
+	\begin{align*}
+		-\beta \norm{f'(x)}^2 \\
+		-\norm{f'(x)}^2 \\
+		-\alpha \norm{f'(x)}^2
+	\end{align*}
+	Verifying the inequalities claimed about $\phi'$ above. Now, we can see that acceptable values of $h$ exist as long as $f(x - hf'(x)) $ is bounded below. This is because the derivative at $h=0$ is the smallest for this function and can stay the smallest only if it is not bounded below. When bounded below, we can always choose $h$ large enough to satisfy the inequalities since $f(x_{k+1})$ cannot be arbitrarily small. 
+	
+	\subsection*{Gradient Method Global Convergence, pg 26-28}\label{gradGlobConv}
+	Here, we will show that the gradient methods mentioned, under certain assumptions, all have the property:
+	\begin{align*}
+		f(x_k) - f(x_{k+1}) \geq \frac{\omega}{L}\norm{f'(x_k)}^2
+	\end{align*}
+	
+	\textbf{proof:}
+	Consider 
+	\begin{align*}
+		\min_{x \in \mathbb{R}^n}f(x)
+	\end{align*}
+	where $f \in C_L^{1,1}(\mathbb{R}^n)$ is bounded below. We showed above that:
+	\begin{align*}
+		f(y) \leq f(x) - h(1- \frac{h}{2}L)\norm{f'(x)}^2
+	\end{align*}
+	and to get the best estimate, we choose h to decrease the objective function the most: $h = \frac{1}{L}$. That is, the h value minimizing the constant to make it as negative as possible, making the objective change the most. Therefore one step of the gradient method will decrease the objective at least:
+	\begin{align*}
+		f(y) \leq f(x) - \frac{1}{2L}\norm{f'(x)}^2
+	\end{align*}
+	Now let $x_{k+1} = x_k - h_kf'(x_k)$ and first consider the constant step-size strategy where $h_k = h$. We have
+	\begin{align*}
+		f(x_k) - f(x_{k+1}) \geq h(1 - \frac{1}{2}Lh)\norm{f'(x_k)}^2
+	\end{align*}
+	To simplify and make this constant dependent on $L$, let $h = \frac{2\alpha}{L}$. where $\alpha \in (0,1)$. Then,
+	\begin{align*}
+		f(x_k) - f(x_{k+1}) \geq \frac{2}{L}\alpha(1-\alpha)\norm{f'(x_k)}^2
+	\end{align*}
+	where the optimal choice is of course $\frac{1}{L}$. \\
+	Next consider the full relaxation strategy, we must have:
+	\begin{align*}
+		f(x_k) - f(x_{k+1}) \geq \frac{1}{2L} \norm{f'(x_k)}^2
+	\end{align*}
+	since full relaxation means find the maximal decrease in the objective, which cannot be worse than our estimate with $h_k = \frac{1}{L}$. Lastly, for Goldstein-Armijo:
+	\begin{align*}
+		f(x_k) - f(x_{k+1}) \leq \beta h_k \norm{f'(x_k)}^2
+	\end{align*}
+	(we explained this in the proofs before regarding GA). We also know that:
+	\begin{align*}
+		f(x_k) - f(x_{k+1}) \geq h_k (1 - \frac{h_k}{2}L)\norm{f'(x_k)}^2
+	\end{align*}
+	by pluggin the gradient method into lemma 1.2.3. That is, $h_k \geq \frac{2}{L}(1-\beta)$ for GA. Additionally:
+	\begin{align*}
+		f(x_k) - f(x_{k+1}) &\geq \alpha h_k\norm{f'(x_k)}^2 \\
+		&\geq \frac{2}{L} \alpha (1 - \beta)\norm{f'(x_k)}^2
+	\end{align*}
+	where the last inequality comes from plugging in the inequality for $h_k$. Now we have shown the original claim about the gradient method. \qed
+	
+	\subsection*{Gradient Method Global Convergence Rate}\label{gradGlobConvRate}
+	Now, we know $f(x_k) - f(x_{k+1}) \geq \frac{\omega}{L}\norm{f'(x_k)}^2$ for some constant $\omega$. Summing up over the gradient method, gives us:
+	\begin{align*}
+		\frac{\omega}{L}\sum_{k=0}^{N}\norm{f'(x_k)}^2 \leq f(x_0) - f(x_{N+1}) \leq f(x_0) - f^*
+	\end{align*}
+	where $f^*$ is the minimum value. That is, we must have $\norm{f'(x_k)} \rightarrow 0$ as $k \rightarrow \infty$ since the sum is bounded by a constant. This tells us that the gradient goes to zero, but doesn't tell us how fast. 
+	
+	Let 
+	\begin{align*}
+		g_N^* = \min_{0 \leq k \leq N}g_k
+	\end{align*}
+	where $g_k = \norm{f'(x_k)}$. Then we have:
+	\begin{align*}
+		g_N^* \leq \frac{1}{\sqrt{N+1}}[\frac{1}{\omega}L(f(x_0) - f^*)]^{1/2}
+	\end{align*}
+	
+	\textbf{proof:} Consider:
+	\begin{align*}
+		\frac{\omega}{L}\sum_{k=0}^{N}\norm{f'(x_k)}^2 \leq f(x_0) - f^* \\
+		\implies \sum_{k=0}^{N}\norm{f'(x_k)}^2 \leq \frac{L}{\omega}(f(x_0) - f^*)
+	\end{align*}	
+	Now, 
+	\begin{align*}
+		\sum_{k=0}^{N}\norm{f'(x_k)}^2 \geq \sum_{k=0}^{N} (g_N^*)^2
+	\end{align*}
+	Thus,
+	\begin{align*}
+		(N+1)(g_N^*)^2 \leq \frac{L}{\omega}(f(x_0) - f^*) \\
+	\end{align*}
+	dividing by $N+1$ and square rooting both sides gives the result:
+	\begin{align*}
+		g_N^* \leq \frac{1}{\sqrt(N+1)}[\frac{1}{\omega}L(f(x_0) - f^*)]^{1/2}
+	\end{align*}
+	\qed
+	
+	(It can be seen by simple examples that this method cannot guarantee finding a local minimum, only a stationary point of f)
+	
+	\subsection*{Complexity of Gradient Method}\label{gradcomplex}
+	Recall that the upper complexity bound for a problem class is the number of oracle calls needed to be within $\epsilon$ accuracy. That is, if we set $g_N^* \leq \frac{1}{\sqrt{N+1}}[\frac{1}{\omega}L(f(x_0) - f^*)]^{1/2} \leq \epsilon$, we find $N+1 \geq \frac{L}{\omega \epsilon^2}(f(x_0) - f^*)$ works for the problem class of L-smooth, unconstrained optimization, bounded below functions with a first order black box. This is nice, since it does not depend on the dimension of our data.
+	
+	\subsection*{Theorem 1.2.4}\label{thm124}
+	Consider the unconstrained minimization problem $\min_{x \in \mathbb{R}^n}f(x)$ along with the following assumptions:
+	\begin{itemize}
+		\item $f \in C_M^{2,2}(\mathbb{R}^n)$
+		\item There exists a local minimum of function f at which the Hessian is positive definite (i.e. second derivative test is conclusive).
+		\item We have bounds for the Hessian at the optimal value $x^*$:
+		\begin{align*}
+			l I_n \preceq f''(x^*) \preceq LI_n
+		\end{align*} 
+		\item Our starting point $x_0$ is close to $x^*$
+	\end{itemize}
+	Then, with starting point $x_0$ satisfying:
+	\begin{align*}
+		r_0 = \norm{x_0 - x^*} < \bar{r}=\frac{2l}{M}
+	\end{align*}
+	The gradient method with step-size $h_k = \frac{2}{L+1}$ converges:
+	\begin{align*}
+		\norm{x_k - x^*} \leq \frac{\bar{r}r_0}{\bar{r} - r_0}(1 - \frac{2l}{L + 3l})^k
+	\end{align*}
+	
+	\textbf{proof:} Suppose $f'(x^*) = 0$ and consider the gradient process $x_{k+1} = x_k - h_kf'(x_k)$. Since f is twice differentiable, we have:
+	\begin{align*}
+		f'(x_k) &= f'(x_k) - f'(x^*) = \int_{0}^{1}f''(x^* + \tau(x_k - x^*))(x_k - x^*)d\tau \\
+		&= G_k(x_k - x^*)
+	\end{align*}
+	(see proof of \hyperref[lem122]{Lemma 1.2.2})\\
+	where $G_k = \int_{0}^{1}f''(x^* + \tau(x_k - x^*)) $. Therefore:
+	\begin{align*}
+		x_{k+1} - x^* = x_k - x^* - h_kG_k(x_k - x^*) = (I - h_kG_k)(x_k-x^*)
+	\end{align*}
+	Now, we continue our analysis of this process using techniques based on "contraction mappings". (a contraction map is a function from a space onto itself which reduced distances between two points $x,y$ by some factor of $k < 1$)
+	This works as follows: Let $\{a_k\}$ be a sequence:
+	\begin{align*}
+		a_0 \in \mathbb{R}^n, \hspace{10pt}a_{k+1} = A_ka_k
+	\end{align*}
+	where $A_k$ are ($n$ x $n$) matrices s.t. $\norm{A_k} \leq 1-q$ where $q \in (0,1)$. Then the convergence rate is estimated:
+	\begin{align*}
+		\norm{a_{k+1}} \leq (1-q)\norm{a_k}\leq (1-q)^{k+1}\norm{a_0} \rightarrow 0
+	\end{align*}
+	Now we are interested in the sequence $\norm{I_n - h_kG_k}$. Let $r_k = \norm{x_k - x^*}$. Then, by \hyperref[cor122]{Corollary 1.2.2}, 
+	\begin{align*}
+		f''(x^*) - \tau Mr_kI_n \preceq f''(x^* + \tau(x_k - x^*)) \preceq f''(x^*) + \tau Mr_kI_n
+	\end{align*}
+	(where $ x \rightarrow x^*$ and $y \rightarrow (x^* + \tau(x_k - x^*))$). That is, the norm difference in our $x$ and $y$ is $\tau r_k$. 
+	Then by our assumption on Hessian bounds at the solution, we have:
+	\begin{align*}
+		(l - \frac{r_k}{2}M)I_n \preceq G_k \preceq (L+\frac{r_k}{2}M)I_n
+	\end{align*}
+	(We replace $f''$  on the left and right with the Hessian bounds at the solution, and then integrate the inequality over $\tau \in (0,1)$. Then the middle becomes $G_k$, the left and right replace $\tau$ by $\frac{1}{2}$). \\
+	Then:
+	\begin{align*}
+		(1 - h_k(L+ \frac{r_k}{2}))I_n \preceq I_n - h_kG_k \preceq (1 - h_k(l - \frac{r_k}{2}))I_n
+	\end{align*}
+	(multiple by negative $h_k$ and add $I_n$). We then conclude:
+	\begin{align*}
+		\norm{I_n - h_kG_k} \leq \max\{a_k(h_k), b_k(h_k)\}
+	\end{align*}
+	where $a_k(h) = 1 - h(l - \frac{r_k}{2}M)$ and $b_k(h) = h(L + \frac{r_k}{2}M) - 1$. 
+	Note that $a_k(0) = 1$ and $b_k(0) = -1$. Thus if $r_k < \bar{r} = \frac{2l}{M}$, then $a_k(h)$ is a strictly decreasing function of $h$ and we can ensure:
+	\begin{align*}
+		\norm{I_n - h_kG_k} < 1
+	\end{align*}
+	as long as $h_k$ is small enough. If this norm is less than 1, it means that $x_{k+1}$ will be closer to $x^*$ than $x_k$, that is, $r_{k+1} < r_k$. Thus, we need to have a good strategy for choosing step-size. If we consider the "optimal" strategy,
+	\begin{align*}
+		\min_h \max\{a_k(h),b_k(h)\}
+	\end{align*}
+	Then if we assume $r_0 < \bar{r}$ and form the sequence of $\{x_k\}$ using our optimal strategy, we will always have $r_{k+1} < r_k < \bar{r}$. Since we will always be shrinking the distance to the optimal value as mentioned earlier. 
+	
+	We claim that the optimal step-size can be found from setting:
+	\begin{align*}
+		a_k(h) = b_k(h)
+	\end{align*}
+	This is because $a_k$ is decreasing from $1$ and $b_k$ is increasing from $-1$ as $h$ increases. Solving this equation gives:
+	\begin{align*}
+		h_k^* = \frac{2}{L+l}
+	\end{align*}
+	where recall that $L,l$ are the Hessian bounds near $x^*$. That is, the step-size does not actually depend on the Lipschitz bound for the Hessian. We then obtain the following,
+	\begin{align*}
+		r_{k+1} \leq \frac{(L-l)r_k}{L+l}+ \frac{Mr_k^2}{L+l}
+	\end{align*}
+	This can be shown by using that $\norm{x_{k+1} - x^*} = \norm{I_n - h_kG_k}r_k$ and then using that $\norm{I_n - h_kG_k}r_k \leq a_k = b_k$, plugging in and simplifying with $h_k = \frac{2}{L+l}$. Now we can finally estimate the convergence rate.
+	
+	Let $q = \frac{2l}{L+l}$ and $a_k = \frac{M}{L+l}r_k$. Notice that $a_k < q$ since we assume above that $r_k < \frac{2l}{M}$. Then:
+	\begin{align*}
+		a_{k+1} \leq (1-q)a_k + a_k^2 = a_k(1 + (a_k - q)) = \frac{a_k(1 - (a_k - q)^2)}{1 - (a_k - q)} \leq \frac{a_k}{1 + q - a_k}
+	\end{align*}
+	(Each of these can be checked easily.)
+	Therefore $\frac{1}{a_{k+1}} \geq \frac{1+q}{a_k} - 1$ (flip the above inequality and divide out the $a_k$), or
+	\begin{align*}
+		\frac{q}{a_{k+1}} - 1 \geq \frac{q(1+q)}{a_k} - q - 1 = (1+q)(\frac{q}{a_k} - 1)
+	\end{align*}
+	(multiply by $q$ and subtract $1$ from both sides).
+	Hence, 
+	\begin{align*}
+		\frac{q}{a_k} -1 \geq (1 + q)^k(\frac{q}{a_0}-1) &= (1+q)^k(\frac{2l}{L+l}\cdot \frac{L+l}{r_0M} - 1) \\
+		&= (1+q)^k(\frac{\bar{r}}{r_0} - 1)
+	\end{align*}
+	Thus:
+	\begin{align*}
+		a_k \leq \frac{qr_0}{r_0 + (1+q)^k(\bar{r}-r_0)} \leq \frac{qr_0}{\bar{r}-r_0}(\frac{1}{1+q})^k
+	\end{align*} 
+	\qed
+	
+	Note that this means we have linear convergence rate. Recall that definition of having $\mu$ rate of convergence of order $q$ to $L$:
+	\begin{align*}
+		\lim_{k \rightarrow \infty}\frac{\abs{x_{k+1} - L}}{\abs{x_k - L}^q} = \mu
+	\end{align*}
+	where here $L = x^*$. That is, we consider:
+	\begin{align*}
+		\lim_{k\rightarrow \infty} \frac{r_{k+1}}{r_k^q} 
+	\end{align*}
+	Namely, we have linear convergence because at each iteration, our error decreases by a constant factor of $1 - \frac{2l}{L+3l}$ times the previous error, ($q = 1$). If we reduce by the square of the previous error, then we have quadratic. If the error goes to zero, we have superlinear convergence.
+	
+	\subsection*{Newton's Method}
+	Recall that for Newton's Method, we look to solve $\phi(t^*) = 0$. If we choose $t$ close to $t^*$ then we can rely on linear approximations as follows:
+	\begin{align*}
+		\phi(t+ \Delta t) = \phi(t) + \phi'(t)\Delta t + o(\abs{\Delta t})
+	\end{align*}
+	Thus to solve $\phi(t+\Delta t) = 0$, we can just solve $\phi(t) + \phi'(t)\Delta t = 0$. That is, the $\Delta t$ for the solution of this equation should be close to the optimal one $\Delta t^*$. That is, we can view Newton's Method as a method for solving the optimal $\Delta t$ rather than the updated guess $t$.  
+	
+	We wish to extend Newton's Method to finding a solution to a system of nonlinear equations:
+	\begin{align*}
+		F(x) = 0
+	\end{align*}
+	where $F: \mathbb{R}^n \rightarrow \mathbb{R}^n$. We define $\Delta x$ as a solution to the following "Newton system":
+	\begin{align*}
+		F(x) + F'(x)\Delta x = 0
+	\end{align*}
+	Note that $F'(x)$ is the Jacobian of the vector-valued function $F$. If this is non-degenerate, we can compute: $\Delta x = -[F'(x)]^{-1}F(x)$ and use the updating scheme:
+	\begin{align*}
+		x_{k+1} = x_k - [F'(x_k)]^{-1}F(x_k)
+	\end{align*}
+	
+	Thus, to solve an unconstrained minimization problem for a function $f(x)$ (by \hyperref[thm121]{Theorem 1.2.1} it is necessary for $f'(x) = 0$), we can find the roots for the system:
+	\begin{align*}
+		f'(x) = 0
+	\end{align*}
+	The Newton system is then:
+	\begin{align*}
+		f'(x) + f''(x)\Delta x = 0
+	\end{align*}
+	and we iteratively solve:
+	\begin{align*}
+		x_{k+1} = x_k - [f''(x)]^{-1}f'(x_k)
+	\end{align*}
+	
+	Differentiating the quadratic approximation of $f$ at $x_k$ and setting it to zero (minimizing the quadratic approximation of f) would give us the same scheme.
+	While convergence of this method is fast, it is hard to make work when the Hessian is not invertible and is pretty easy to diverge. 
+	
+	In practice, to help with convergence, we add a damping parameter:
+	\begin{align*}
+		x_{k+1} = x_k - h_k[f''(x_k)]^{-1}f'(x_k)
+	\end{align*}
+	
+	Usually this is chosen in similar ways to the gradient method when starting out, and we can set $h_k=1$ in the later stages.
+	
+	We can also check the convergence of this method.\\
+	\subsection*{Theorem 1.2.5}\label{thm125}
+	Consider the optimization problem $\min_{x \in \mathbb{R}^n}f(x)$  and
+	let f(x) satisfy the following assumptions:
+	\begin{itemize}
+		\item $f \in C_M^{2,2}(\mathbb{R}^n)$
+		\item There exists a local minimum of f with positive definite Hessian:
+		\begin{align*}
+			f''(x^*) \succeq lI_n, l > 0
+		\end{align*}
+		\item starting point $x_0$ is close to $x^*$
+	\end{itemize}
+	Assuming $\norm{x_0 - x^*} < \bar{r} = \frac{2l}{3M}$. Then $\norm{x_k - x^*} < \bar{r}$ for all $k$ and we have quadratic convergence of Newton's Method:
+	\begin{align*}
+		\norm{x_{k+1} - x^*} \leq \frac{M \norm{x_k - x^*}^2}{2(l-M\norm{x_k -x^*})}
+	\end{align*}
+	
+	\textbf{proof:} Consider the process: $x_{k+1} = x_k - [f''(x_k)]^{-1}f'(x_k)$. Then:
+	\begin{align*}
+		x_{k+1} - x^* &= x_k - x^* - [f''(x_k)]^{-1}f'(x_k) \\
+		&= x_k - x^* - [f''(x_k)]^{-1}\int_{0}^{1}f''(x^* + \tau(x_k - x^*))(x_k - x^*)d\tau \\
+		&= [f''(x_k)]^{-1}G_k(x_k - x^*),
+	\end{align*}
+	where $G_k = \int_{0}^{1}[f''(x_k) - f''(x^* + \tau (x_k - x^*))]d\tau$.
+	 (recall this is the same method used to analyze the convergence of the gradient method. Construct a straight line between $x_k$ and $x^*$ and apply FTC). The last equality holds since if you multiply with the first term of $G_k$ you recover $x_k - x^*$ (hessian and its inverse cancel) and multiplying with the second term of $G_k$ will recover the large integral term.
+	 
+	 Now let $r_k = \norm{x_k - x^*}$. Then:
+	 \begin{align*}
+	 	\norm{G_k} &= \norm{\int_{0}^{1}[f''(x_k) - f''(x^* + \tau(x_k - x^*))]d\tau} \\
+	 	&\leq \int_{0}^{1}\norm{f''(x_k) - f''(x^* + \tau(x_k - x^*))}d\tau \\
+	 	&\leq \int_{0}^{1}M(1-\tau)r_kd\tau = \frac{r_k}{2}M
+	 \end{align*}
+	 Where the last inequality holds from our assumption that $f \in C_M^{2,2}(\mathbb{R}^n)$.
+	 Now, by our assumption on the Hessian at $x^*$ and \hyperref[cor122]{Corollary 1.2.2} we have,
+	 \begin{align*}
+	 	f''(x_k) \succeq f''(x^*) - Mr_kI_n \succeq (l-Mr_k)I_n
+	 \end{align*}
+	 (book uses "$\geq$" instead of "$\succeq$" frequently).\\
+	 Now, if $r_k < \frac{l}{M}$, then $f''(x_k)$ is positive definite and:
+	 \begin{align*}
+	 	\norm{[f''(x_k)]^{-1}} \leq (l - Mr_k)^{-1}
+	 \end{align*}
+	 That is, the norm is greater than the eigenvalues, and thus the inverse norm is bounded above by the inverse eigenvalues. \\
+	 Hence, for $r_k < \frac{2l}{3M}$, we have:
+	 \begin{align*}
+	 	r_{k+1} \leq \frac{Mr_k^2}{2(l - Mr_k)}
+	 \end{align*}
+	 That is, our error decreases proportionally to the square of the previous error. The last inequality comes from plugging in the norm bounds to the above inequality for $\norm{x_{k+1} - x^*} = r_{k+1}$. This proves quadratic convergence. \qed
+	 
+	 Now, the region of convergence for Newton's method is similar to that for the Gradient method. This explains why it is common to start with the gradient method, and switch to Newton's method once closer. 
+	 
+	 \subsection*{Gradient vs Newton method}
+	 Here we try to understand why the Gradient method is linear, and Newton method is quadratic.
+	 Fix $\bar{x} \in \mathbb{R}^n$ and consider the approximation of $f$:
+	 \begin{align*}
+	 	\phi_1(x) = f(\bar{x}) + \langle f'(\bar{x}), x - \bar{x} \rangle + \frac{1}{2h}\norm{x - \bar{x}}^2
+	 \end{align*}
+	where $h$ is positive. (Note that this is a quadratic approximation where the Hessian is replaced by a constant). Now, at the unconstrained minimum $x_1^*$, we have:
+	\begin{align*}
+		\phi'(x_1^*) = f'(\bar{x}) + \frac{1}{h}(x_1^* - \bar{x}) = 0
+	\end{align*}
+	or $x_1^* = \bar{x} - hf'(\bar{x})$ which is the Gradient method. If $h \in (0, \frac{1}{L}]$, then $\phi_1(x)$ satisfies:
+	\begin{align*}
+		f(x) \leq \phi_1(x), \hspace{10pt} \forall x \in \mathbb{R}^n
+	\end{align*}
+	(In the book, it says $L$ is the Lipschitz constant for the 2nd derivative, but it should be the first derivative here; see \hyperref[lem123]{Lemma 1.2.3}). This is why the Gradient method converges. If we choose step-size less than $\frac{1}{L}$, then the minimum for this approximation is still larger than $f(x)$. This means, when we select the minimum value of $\phi_1$, we can be sure we do not jump past the desired minimum of $f$, while we are also making $f$ smaller.\\
+	Now, consider the quadratic approximation of $f$:
+	\begin{align*}
+		\phi_2(x) = f(\bar{x}) + \langle f'(\bar{x}), x - \bar{x} \rangle + \frac{1}{2}\langle f''(\bar{x}(x-\bar{x})), x - \bar{x} \rangle 
+	\end{align*}
+	Minimizing this function:
+	\begin{align*}
+		x_2^* = \bar{x} - [f''(\bar{x})]^{-1}f'(\bar{x})
+	\end{align*}
+	gives Newton's Method. \\
+	Now, we try to find an approximation for $f(x)$ which is better than the Gradient method, but less expensive than Newton's method. \\
+	Let $G$ be a positive definite $n$ x $n$ matrix and define:
+	\begin{align*}
+		\phi_G(x) = f(\bar{x}) + \langle f'(\bar{x}), x - \bar{x} \rangle + \frac{1}{2}\langle G(x - \bar{x}), x - \bar{x} \rangle 
+	\end{align*}
+	Computing the minimum:
+	\begin{align*}
+		\phi_G'(x_G^*) = f'(\bar{x}) + G(x_G^* - \bar{x}) = 0
+	\end{align*}
+	we obtain:
+	\begin{align*}
+		x_G^* = \bar{x} - G^{-1}f'(\bar{x})
+	\end{align*}
+	"Variable metric" or "quasi-Newton" methods will compute either a sequence of matrices converging to the Hessian or inverse Hessian at the solution, i.e.:
+	\begin{align*}
+		\{G_k\}: G_k \rightarrow f''(x^*) \\ \text{or} \\
+		H_k = G_k^{-1} \rightarrow [f''(x^*)]^{-1}
+	\end{align*}
+	
+	Now, define an inner product wrt to a symmetric positive definite $n$ x $n$ matrix A and $x,y \in \mathbb{R}^n$:
+	\begin{align*}
+		\langle x, y \rangle_A = \langle Ax, y \rangle, \hspace{10pt} \norm{x}_A = \langle Ax, x \rangle^{1/2}
+	\end{align*} 
+	which is equivalent to the old one bounded by the eigenvalues. 
+	
+	Now, recall that the gradient and Hessian of a nonlinear function $f(x)$ is defined with respect to the Euclidean inner product. That is, $f'(x) = (\frac{\partial f(x)}{\partial x^{(1)}}, \ldots , \frac{\partial f(x)}{\partial x^{(n)}})$ where the gradient is defined implicitly as:
+	\begin{align*}
+		f(x+h) = f(x) + \langle f'(x), h \rangle + o(\norm{h})
+	\end{align*}
+	And the Hessian is similarly defined in terms of the euclidean inner product. Thus, if we change the inner product to the one above, our gradient and Hessian will also change. That is:
+	\begin{align*}
+		f(x+h) &= f(x) + \langle f'(x), h \rangle + \frac{1}{2} \langle f''(x)h, h \rangle + o(\norm{h}) \\
+		&= f(x) + \langle A^{-1}f'(x), h \rangle_A + \frac{1}{2}\langle A^{-1}f''(x)h,h \rangle_A + o(\norm{h}_A)
+	\end{align*}
+	so the gradient becomes $f_A'(x) = A^{-1}f'(x)$ and the Hessian becomes $f_A''(x) = A^{-1}f''(x)$.\\
+	For quadratic functions, Newton's method converges in one step. And for a quadratic function we have:
+	\begin{align*}
+		&f(x) = \alpha + \langle a, x \rangle + \frac{1}{2} \langle A x, x \rangle \\
+		&= \alpha + \langle A^{-1}a, x \rangle_A + \frac{1}{2}\norm{x}_A^2 \\
+		&f'_A(x) =  A^{-1}f'(x) = d_N(x) \\
+		&f''_A(x) = A^{-1}f''(x) = I_n
+	\end{align*}
+	where $d_N(x)$ is the Newton method direction at x, $[f''(x)]^{-1}f'(x) = x + A^{-1}a$. \\
+	Now the general variable metric method is defined as follows:\\
+	Choose $x_0 \in \mathbf{R}^n$. Set $H_0 = I_n$ and compute $f(x_0)$ and $f'(x_0)$. Then iteratively:
+	\begin{itemize}
+		\item Set $p_k = H_kf'(x_k)$.
+		\item Find $x_{k+1} = x_k - h_kp_k$ where the step-size is method is decided beforehand.
+		\item Compute $f(x_{k+1})$ and $f'(x_{k+1})$.
+		\item Update: $H_k \rightarrow H_{k+1}$.
+	\end{itemize}
+	
+	Now, notice that for the quadratic function $f(x)$ above, we have $f'(x) - f'(y) = A(x-y)$. This gives rise to the Quasi-Newton method for updating $H_k$: \\
+	Choose $H_k$ such that,
+	\begin{itemize}
+		\item $H_{k+1}(f'(x_{k+1}) - f'(x_k)) = x_{k+1} - x_k$
+	\end{itemize}
+	That is, the change in the gradient (curvature) between two values is determined by the matrix $A$. Thus, in quasi-Newton, we choose matrices that satisfy this property at each step to approximate the Hessian matrix. \\
+	To find these $H_k$, we can consider the following methods:\\
+	Let $\Delta H_k = H_{k+1} - H_k, \hspace{10pt} \lambda_k = f'(x_{k+1}) - f'(x_k), \hspace{10pt} \delta_k = x_{k+1} - x_k$. Then the following will choose matrices that satisfy the quasi-Newton relation:
+	\begin{itemize}
+		\item  (Rank-one correction scheme)
+		\begin{align*}
+			\Delta H_k = \frac{(\delta_k - H_k\gamma_k)(\delta_k - H_k\gamma_k)^T}{\langle \delta_k - H_k\gamma_k, \gamma_k \rangle }
+		\end{align*}
+		\item (Davidon-Fletcher-Powell scheme or DFP) 
+		\begin{align*}
+			\Delta H_k = \frac{\delta_k \delta_k^T}{\langle \gamma_k, \delta_k \rangle} - \frac{H_k\gamma_k \gamma_k^T H_k}{\langle H_k\gamma_k, \gamma_k \rangle }
+		\end{align*}
+		\item (Broyden-Fletcher-Goldfarb-Shanno scheme or BFGS)
+		\begin{align*}
+			\Delta H_k = \frac{H_k\gamma_k\delta_k^T + \delta_k\gamma_k^TH_k}{\langle H_k\gamma_k, \gamma_k \rangle} - \beta_k \frac{H_k\gamma_k\gamma_k^TH_k}{\langle H_k\gamma_k, \gamma_k \rangle } \\
+			\text{where: } \beta_k = 1+ \langle \gamma_k, \delta_k \rangle / \langle H_k\gamma_k, \gamma_k \rangle
+		\end{align*}
+	\end{itemize}
+	One can check that each of these updates satisfies the relation. Proofs for convergence are quite long. In a neighborhood of an isolate minimum, they converge at a superlinear rate for quadratic functions. 
+	\begin{align*}
+		\norm{x_{k+1} - x^*} \leq C \norm{x_k - x^*}\cdot \norm{x_{k-n} - x^*}
+	\end{align*}
+	For any starting point $x_0 \in \mathbb{R}^n$ and some number $N$ with $k \geq N$. Note that for global convergence, these are not better than the simple gradient method. One large downside of these methods is the necessity to maintain and update an $(n$ x $n)$ matrix which led to the so-called "conjugate gradient methods".
+	
+	\subsection*{Conjugate Gradient}\label{subsec:CG}
+	Consider a quadratic function $f(x) = \alpha + \langle a, x \rangle + \frac{1}{2} \langle Ax, x \rangle$ with $A$ symmetric positive definite, and the problem:
+	\begin{align*}
+		\min_{x \in \mathbb{R}^n} f(x)
+	\end{align*}
+	The solution is $x^* = -A^{-1}a$ and we can rewrite:
+	\begin{align*}
+		f(x) &= \alpha - \langle Ax^*, x \rangle + \frac{1}{2} \langle Ax, x \rangle  \\
+		&= \alpha - \frac{1}{2} \langle Ax^*, x^* \rangle + \frac{1}{2} \langle A(x - x^*), x-x^* \rangle 
+	\end{align*}
+	where the first equality comes from replacing $a$ with its definition in terms of $x^*$, and the second equality comes from subtracting and adding $\frac{1}{2}\langle A x^*, x^* \rangle$ and combining the added inner product with the two inner products in the first equation. Then:\\
+	$f^* = \alpha - \frac{1}{2} \langle Ax^*, x^* \rangle$ and $f'(x) = A(x - x^*)$.\\
+	Now suppose we have a starting point $x_0$, and consider the Krylov subspaces:
+	\begin{align*}
+		\mathcal{L}_k = Lin \{A(x - x_0), \ldots A^k (x - x_0) \}
+	\end{align*}
+	(i.e. the span of the vectors formed by matrix $A$ with respect to vectors $x - x_0$). Then the conjugate gradient method forms a sequence:
+	\begin{align*}
+		x_k = argmin \{f(x) | x \in x_0 + \mathcal{L}_k\}, k \geq 1
+	\end{align*}
+	
+	\subsection*{Lemma 1.3.1}\label{lem131}
+	For any $k \geq 1$ we have $\mathcal{L}_k = Lin \{f'(x_0), \ldots f'(x_{k-1})\}$. (That is, for our quadratic function). \\
+	\textbf{proof}: for $k=1$, we have already shown $f'(x_0) = A(x_0 - x^*)$. Now suppose it is true for some $k$. Then:
+	\begin{align*}
+		x_k = x_0 + \sum_{i=1}^{k}\lambda^{(i)}A^i(x_0 - x^*)
+	\end{align*}
+	for some $\lambda \in \mathbb{R}^k$. That is, suppose $\mathcal{L}_k = Lin \{f'(x_0), \ldots f'(x_{k-1})\} = Lin \{A(x - x_0), \ldots A^k (x - x_0) \}$, and define $x_k$ as the argmin on the set $x_0 + \mathcal{L}_k$. Then:
+	\begin{align*}
+		f'(x_k) = A(x_0 - x^*) + \sum_{i=1}^{k}\lambda^{(i)}A^{i+1}(x_0 - x^*) = y + \lambda^{(k)}A^{k+1}(x_0 - x^*)
+	\end{align*}
+	for certain $y \in \mathcal{L}_k$. The first equality is because $f'(x) = A(x - x^*)$ and thus taking the derivative adds another $A$. The second equality is because the first term is an element of $\mathcal{L}_k$ which collects the first term, and all but the last term in the summation. Thus, 
+	\begin{align*}
+		\mathcal{L}_{k+1} &:= Lin \{\mathcal{L}_k, A^{k+1}(x_0 - x^*)\} = Lin \{\mathcal{L}_k, f'(x_k)\} \\
+		&= Lin \{f'(x_0), \ldots , f'(x_k)\}
+	\end{align*}
+	Since the subspace generated by $f'(x_k)$ and $A^{k+1}(x_0 - x^*)$ will be the same by the calculation above. 
+	\qed
+	\subsection*{Lemma 1.3.2}\label{lem132}
+	For any $k, i \geq 0, k \neq i$, we have $\langle f'(x_k), f'(x_i) \rangle = 0$ \\
+	\textbf{proof:} Let $k > i$ and consider the function
+	\begin{align*}
+		\phi(y) = f(x_0 + \sum_{j=1}^{k} \lambda^{(j)}f'(x_{j-1})), \hspace{10pt} \lambda \in \mathbb{R}^k
+	\end{align*}
+	By \hyperref[lem131]{Lemma 1.3.1}, for some $\lambda_*$ we have $x_k = x_0 + \sum_{j=1}^{k}\lambda_*^{(j)}f'(x_{j-1})$. However, by definition, $x_k$ minimizes $f(x)$ on $\mathcal{L}_k$. Then $\phi'(\lambda_*) = 0$ and:
+	\begin{align*}
+		0 = \frac{\partial \phi'(\lambda_*) }{\partial \lambda^{(i)}}= \langle f'(x_k), f'(x_i) \rangle
+	\end{align*}
+	where the last equality comes from computing the derivative of $\phi$ wrt $\lambda^{(i)}$ via chain rule.
+	
+	\subsection*{Corollary 1.3.1}\label{corr131}
+	The sequence generated by the conjugate gradients method is finite.\\
+	\textbf{proof:} the number of orthogonal directions in $\mathbb{R}^n$ cannot exceed $n$. (we showed that the elements of $\mathcal{L}_k$ are just $f'(x_k)$ and in the previous lemma we showed these elements are orthogonal. Thus this is a subspace of orthogonal, i.e. linearly independent, elements ) \qed
+	
+	\subsection*{Corollary 1.3.2}\label{cor132}
+	For any $p \in \mathcal{L}_k$ we have $\langle f'(x_k), p \rangle = 0$. \qed\\ (we just showed this)\\
+	This will explain the name of the "conjugate gradient" method.\\
+	Now, let $\delta_i = x_{i+1} - x_i$. Then $\mathcal{L}_k = Lin \{\delta_0, \ldots , \delta_{k-1}\}$. It is clear that $x_{i+1} - x_i$ is in $\mathcal{L}_k$ since subtracting an element of $\mathcal{L}_{i+1}$ and an element of $\mathcal{L}_{i}$ is still in $\mathcal{L}_k$. And if we take an element $ x \in \mathcal{L}_k$, it can be written as an element of $\mathcal{L}_{i+1} - \mathcal{L}_i$ for some $i\leq k$. Namely, take $0$ from $\mathcal{L}_i$. \qed
+	
+	\subsection*{Lemma 1.3.3}\label{lem133}
+	For any $k \neq i$ we have $\langle A\delta_k, \delta_i \rangle = 0$. (These directions $\delta_i, \delta_k$ are called conjugate wrt $A$).\\
+	\textbf{proof:} Assume wlog $k > i$. Then
+	\begin{align*}
+		\langle A\delta_k, \delta_i \rangle = \langle A(x_{k+1} - x_k), \delta_i \rangle = \langle f'(x_{k+1} - f'(x_k)), \delta_i \rangle = 0
+	\end{align*}
+	since $\delta_i = x_{i+1} - x_i \in \mathcal{L}_{i+1} \subseteq \mathcal{L}_k$. The second equality comes from $f'(x) = A(x - x^*)$ and equals $0$ from \hyperref[cor132]{Corollary 1.3.2}. \qed
+	
+	Now we can start forming the algorithm for this method to minimize the given function. Namely, we can write:
+	\begin{align*}
+		x_{k+1} = x_k - h_kf'(x_k) + \sum_{j=0}^{k-1}\lambda^{(j)}\delta_j
+	\end{align*}
+	or 
+	\begin{align*}
+		\delta_k = -h_kf'(x_k) + \sum_{j=0}^{k-1}\lambda^{(j)}\delta_j
+	\end{align*}
+	by using that $\mathcal{L}_k = Lin \{\delta_0, \ldots , \delta_{k-1}\}$. Here $x_{k+1} \in \mathcal{L}_{k+1}$ and the $-h_kf'(x_k)$ comes from \hyperref[lem131]{Lemma 1.3.1} and using the lemma above. That is, elements of $\mathcal{L}_k$ may be replaced by the corresponding derivative term, and we call the unknown coefficient $-h_k$. Now, we wish to compute these coefficients explicitly. Multipling the $\delta_k$ above by $A$ and $\delta_i$, and using \hyperref[lem133]{Lemma 1.3.3} ($0 \leq i \leq k-1$):
+	\begin{align*}
+		0 &= \langle A \delta_k, \delta_i \rangle = -h_k \langle A f'(x_k), \delta_i \rangle + \sum_{j=0}^{k-1}\lambda^{(j)}\langle A\delta_j, \delta_i \rangle \\
+		&= -h_k \langle Af'(x_k), \delta_i \rangle + \lambda^{(i)}\langle A \delta_i, \delta_i \rangle \\
+		&= -h_k \langle f'(x_k), f'(x_{i+1}) - f'(x_i) \rangle + \lambda^{(i)}\langle A\delta_i, \delta_i \rangle 
+	\end{align*}
+	The third equality simplified by using orthogonality of all but one term. And the last equality, as before, follows from the definition of $f'(x) = A(x - x^*)$.\\
+	By \hyperref[lem132]{Lemma 1.3.2}, $\lambda_i = 0, i < k-1$ since the first term will be gone for $i \neq k-1$ and the second term is only $0$ when $\lambda=0$. Then for $i=k-1$ we have,
+	\begin{align*}
+		\lambda^{(k-1)} = \frac{h_k \norm{f'(x_k)}^2}{\langle A\delta_{k-1}, \delta_{k-1} \rangle} = \frac{h_k\norm{f'(x_k)}^2}{\langle f'(x_k) - f'(x_{k-}), \delta_{k-1} \rangle} 
+	\end{align*}
+	Thus, $x_{k+1} = x_k - h_kp_k$ where
+	\begin{align*}
+		p_k = f'(x_k) - \frac{\norm{f'(x_k)}^2 \delta_{k-1}}{\langle f'(x_k) - f'(x_{k-1}),\delta_{k-1} \rangle } = f'(x_k) - \frac{\norm{f'(x_k)}^2p_{k-1}}{\langle f'(x_k) - f'(x_{k-1}),p_{k-1}}
+	\end{align*}
+	since $\delta_{k-1} = -h_{k-1}p_{k-1}$. \\
+	The method is then generally applied to nonlinear functions, but in a close neighborhood of an isolated minimum, a quadratic approximation is okay. \\
+	Conjugate gradient method:\\
+	Let $x_0 \in \mathbb{R}^n$ and compute $f(x_0), f'(x_0)$, setting $p_0 = f'(x_0)$. Then for the $kth$ iteration:
+	\begin{itemize}
+		\item Find $x_{k+1} = x_k + h_kp_k$ by exact line search (That is, find the "argmin" of the right-hand side).
+		\item Compute $f(x_{k+1})$ and $f'(x_{k+1})$
+		\item Compute coefficient $\beta_k$
+		\item Set $p_{k+1} = f'(x_{k+1}) - \beta_kp_k$
+	\end{itemize}
+	Some popular choices for computing $\beta_k$:
+	\begin{itemize}
+		\item $\beta_k = \frac{\norm{f'(x_{k+1})}^2}{\langle f'(x_{k+1}) - f'(x_k), p_k \rangle}$
+		\item (Fletcher-Rieves) $\beta_k = -\frac{\norm{f'(x_{k+1})}^2}{\norm{f'(x_k)}^2}$
+		\item (Polak-Ribbiere) $\beta_k = \frac{\langle f'(x_{k+1}), f'(x_{k+1}) - f'(x_k)}{\norm{f'(x_k)}^2}$
+	\end{itemize}
+	These give the same results of for quadratic functions which converge in $n$ or fewer iterations, but have varying results for general non-linear functions. Any steps after $n$ iterations will lose meaning and thus we need a "restarting strategy" which sets $\beta_k=0$. This ensures global convergence. In a nbhd of the isolated minimum, we have local $n$-step quadratic convergence:
+	\begin{align*}
+		\norm{x_{n+1} - x^*} \leq C \cdot \norm{x_0 - x^*}^2
+	\end{align*}
+	Local convergence is slower than variable metrics (but much cheaper) and has the same global convergence as the gradient method.\\
+	The idea behind conjugate gradients is this: If we generated our $x_k$ using this method, then we will be finding minimizers of the quadratic function $f(x)$ over the equence of Krylov subspaces. But since the elements in the subspace are all orthogonal, after $n$ iterations, they will span $\mathbb{R}^n$ and thus we will have found a minimizer of $f(x)$ over $\mathbb{R}^n$. 
+	
+	\subsection*{Constrained Minimization}
+	Consider:
+	\begin{align*}
+		&\min f_0(x), \\
+		&f_i(x) \leq 0, \hspace{5pt} i=1, \ldots, m
+	\end{align*}
+	where $f_i$ are smooth functions. There are two main methods for solving such problems: penalty function methods and barrier methods. 
+	\subsection*{Penalty Function Method}
+	It follows for penalty functions (\hyperref[sec:Def]{penalty function}) that if $\Phi_1(x)$ is a penalty for $Q_1$ and $\Phi_2(x)$ is a penalty for $Q_2$, then $\Phi_1 + \Phi_2$ is a penalty for $Q_1 \cap Q_2$. \\
+	Denote $(a)_+ = \max\{a,0\}$ and let
+	\begin{align*}
+		Q = \{x \in \mathbb{R}^n | f_i(x) \leq 0, \hspace{5pt} i=1, \ldots , m\}
+	\end{align*}
+	Then the following are penalties for $Q$:
+	\begin{itemize}
+		\item (Quadratic penalty) $\Phi(x) = \sum_{i=1}^{m}(f_i(x))^2_+$ (that is, we penalize the square of the constraints when they are not $\leq 0$)
+		\item (Nonsmooth penalty) $\Phi(x) = \sum_{i=1}^{m}(f_i(x))_+$
+	\end{itemize}
+	And the scheme for this method is as follows:
+	\begin{itemize}
+		\item Choose $x_0 \in \mathbb{R}^n$. Choose a sequence of penalty coefficients: $0 < t_k < t_{k+1}$ where $t_k \rightarrow \infty$
+		\item In the $kth$ iteration, Find $x_{k+1} = \argmin_{x \in \mathbb{R}^n}\{f_0(x) + t_k \Phi(x)\}$ using $x_k$ as a starting point.
+	\end{itemize}
+	If $x_{k+1}$ is the global minimum, it is easy to prove convergence. \\
+	Denote:
+	\begin{align*}
+		\Psi_k(x) = f_0(x) + t_k\Phi(x), \hspace{10pt} \Psi_k^* = \min_{x \in \mathbb{R}^n}\Psi_k(x)
+	\end{align*}
+	and denote by $x^*$ the global solution to the constrained minimization problem defined above. 
+	\subsection*{Theorem 1.3.1}\label{thm131}
+	Let there exist a value $\bar{t}>0$ such that the set,
+	\begin{align*}
+		S = \{x \in \mathbb{R}^n | f_0(x) + \bar{t}\Phi(x) \leq f_0(x^*)\}
+	\end{align*}
+	is bounded. Then
+	\begin{align*}
+		\lim_{k \rightarrow \infty}f(x_k) = f_0(x^*), \hspace{10pt} \lim_{k \rightarrow \infty}\Phi(x_k) = 0
+	\end{align*}
+	That is, the penalty method converges and the penalty function goes to $0$.\\
+	\textbf{proof:} Note that $\Psi_k^* \leq \Psi_k(x^*) = f_0(x^*)$. (This is because the penalty function must be $0$ since all of the constraints by definition are satisfied at $x^*$). At the same time, for any $x \in \mathbb{R}^n$ we have $\Psi_{k+1}(x)\geq \Psi_k(x)$. (This is because, when $x$ is fixed, $t_k$ increases as $k$ increases). Therefore, $\Psi_{k+1}^* \geq  \Psi_k^*$. (namely, it is true at the global minimum). Thus, there exists a limit, $\lim_{k \rightarrow \infty}\Psi_k^* := \Psi^* \leq f^* := f_0(x^*)$. (This is because $\Psi_k^*$ is increasing in $k$ and bounded above by $f_0(x^*)$. If $t_k > \bar{t}$ then
+	\begin{align*}
+		f_0(x_k) + \bar{t}\Phi(x_k) \leq f_0(x_k) + t_k\Phi(x_k) = \Psi_k^* \leq f_0(x^*)
+	\end{align*}
+	Therefore, the sequence $\{x_k\}$ has limit points. Since $t_k \rightarrow \infty$, for any such point $x_*$ we have $\Phi(x_*) = 0$ and $f_0(x_*) \leq f_0(x^*)$. Thus $x_* \in Q$ and:
+	\begin{align*}
+		\Psi^* = f_0(x_*) + \Phi(x_*) = f_0(x_*) \geq f_0(x^*)
+	\end{align*}
+	\subsection*{Barrier Functions}
+	For \hyperref[sec:Def]{Barrier Functions}, if $F_1(x)$ is a barrier for $Q_1$ and $F_2(x)$ is a barrier for $Q_2$ then $F_1 + F_2$ is a barrier for $Q_1 \cap Q_2$.\\
+	In order to apply this method to solve the constrained minimization problem, we need the "Slater condition" to be satisfied:
+	\begin{align*}
+		\exists \bar{x}: \hspace{10pt} f_i(\bar{x}) < 0, \hspace{10pt} i=1, \ldots , m
+	\end{align*}
+	Let $Q = \{x \in \mathbb{R}^n | f_i(x) \leq 0, \hspace{5pt} i = 1, \ldots , m\}$. Then the following are barrier functions for $Q$:
+	\begin{itemize}
+		\item (Power-function) $F(x) = \sum_{i=1}^{m}\frac{1}{(-f_i(x))^p}, p\geq 1$
+		\item (Logarithmic) $F(x) = - \sum_{i=1}^{m}\ln(-f_i(x))$
+		\item (Exponential) $F(x) = \sum_{i=1}^{m}\exp(\frac{1}{-f_i(x)})$
+	\end{itemize}
+	The scheme of the barrier method is as follows:
+	\begin{itemize}
+		\item Choose $x_0 \in int Q$. Choose a sequence of penalty coefficients $0 < t_k < t_{k+1}$ where $t_k \rightarrow \infty$.
+		\item At the $kth$ iteration, find a point $x_{k+1} = \argmin_{x \in Q}\{f_0(x) + \frac{1}{t_k}F(x)\}$ using $x_k$ as a starting point.
+	\end{itemize}
+	Again, if we assume $x_{k+1}$ is a global minimum, then we can prove convergence.\\
+	Denote 
+	\begin{align*}
+		\Psi_k(x) = f_0(x) + \frac{1}{t_k}F(x), \hspace{10pt} \Psi_k^* = \min_{x \in Q}\Psi_k(x)
+	\end{align*}
+	and let $f^*$ be the optimal value for the constrained minimization problem.
+	\subsection*{Theorem 1.3.2}\label{thm132}
+	Let barrier $F(x)$ be bounded below on $Q$. Then
+	\begin{align*}
+		\lim_{k \rightarrow \infty}\Psi_k^* = f^*
+	\end{align*}
+	\textbf{proof:} Let $F(x) \geq F^*$ for all $x \in Q$. (Here $F^*$ is the lower bound on $Q$). Then for arbitrary $\bar{x} \in int Q$ we have,
+	\begin{align*}
+		\sup \lim_{k \rightarrow \infty} \Psi_k^* \leq \lim_{k \rightarrow \infty} [f_0(\bar{x}) + \frac{1}{t_k}F(\bar{x})] = f_0(\bar{x})
+	\end{align*}
+	Therefore $\sup \lim_{k \rightarrow \infty}\Psi_k^* \leq f^*$. On the other hand,
+	\begin{align*}
+		\Psi_k^* = \min_{x \in Q}\{f_0(x) + \frac{1}{t_k}F(x)\} \geq \min_{x \in Q}\{f_0(x) + \frac{1}{t_k}F^*\} = f^* + \frac{1}{t_k}F^*.
+	\end{align*}
+	Thus, $\lim_{k \rightarrow \infty}\Psi_k^* = f^*$ \qed
+	
+	For these methods, we cannot answer many questions about efficiency or accuracy or which functions to use due to our given problem. However, we will be able to answer these in the framework of "convex optimization". 
+	
+	\section*{Chapter 2: Smooth Convex Optimization}\label{sec:Ch2}
+	Here we consider the unconstrained minimization problem:
+	\begin{align*}
+		\min_{x \in \mathbb{R}^n}f(x)
+	\end{align*}
+	where $f(x)$ is smooth enough. Before, we were not able to guarantee convergence to even a local minimum and could not get acceptable bounds on global convergence either.
+	\subsection*{Assumptions}\label{ch2assumptions}
+	Recall $\mathcal{F}$ is our class of functions to consider.
+	\subsubsection*{Assumption 2.1.1}
+	For any $f \in \mathcal{F}$ the first-order optimality condition is sufficient for a point to be a global solution.
+	(we must be able to verify if a function is in the class, and further we must define basic elements with invariant operations that keep us inside the class.)
+	\subsubsection*{Assumption 2.1.2}
+	If $f_1, f_2 \in \mathcal{F}$ and $\alpha, \beta \geq 0$, then $\alpha f_1 + \beta f_2 \in \mathcal{F}$.
+	\subsubsection*{Assumption 2.1.3}
+	Any linear function $f(x) = \alpha + \langle a, x \rangle$ belongs to $\mathcal{F}$.
+	
+	\subsection*{Theorem A3}\label{thmA3}
+	$\mathcal{F}$ includes differentiable convex functions.\\
+	\textbf{proof:} Let $f \in \mathcal{F}$ and fix $x_0 \in \mathbb{R}^n$. Consider the function:
+	\begin{align*}
+		\phi(y) = f(y) + \langle f'(x_0), y \rangle 
+	\end{align*}
+	Then $\phi(y) \in \mathcal{F}$ by the assumption that linear functions are in our function class, and any linear combination of functions remain in the function class. Note that:
+	\begin{align*}
+		\phi'(x_0) = 0
+	\end{align*}
+	Then $x_0$ must be the global minimum of $\phi$ and thus for any $y \in \mathbb{R}^n$ we have
+	\begin{align*}
+		\phi(y) \geq \phi(x_0) = f(x_0) - \langle f'(x_0), x_0 \rangle 
+	\end{align*}
+	Hence $f(y) \geq f(x_0) + \langle f'(x_0), y - x_0 \rangle$. \qed \\
+	(here the book has $\langle f'(x_0), x - x_0 \rangle$ by mistake).\\
+	That is, the function lies above the tangent line at any given point. This is the definition of \hyperref[sec:Def]{Convex}. \\
+	Now, if our class of functions is the set of differentiable, convex functions, we can see that the previous assumptions become properties of the class.
+	\subsection*{Theorem 2.1.1}\label{thm211}
+	If $f \in \mathcal{F}^1(\mathbb{R}^n)$ and $f'(x^*) = 0$ then $x^*$ is the global minimum of $f(x)$ on $\mathbb{R}^n$. \\
+	\textbf{proof:} By convexity for continuously differentiable functions we have
+	\begin{align*}
+		f(x) \geq f(x^*) + \langle f'(x^*), x - x^* \rangle = f(x^*)
+	\end{align*}
+	\qed \\
+	We can also show \hyperref[thmA3]{Assumption 2.1.2} becomes a property as well.
+	\subsection*{Lemma 2.1.1}\label{lem211}
+	If $f_1$ and $f_2$ belong to $\mathcal{F}^1(\mathbb{R}^n)$ and $\alpha, \beta \geq 0$, then $\alpha f_1 + \beta f_2$ does as well. \\
+	\textbf{proof:}
+	\begin{align*}
+		f_1(y) \geq f_1(x) + \langle f_1'(x), y-x \rangle, \\
+		f_2(y) \geq f_2(x) + \langle f_2'(x), y - x \rangle 
+	\end{align*}
+	Then we have:
+	\begin{align*}
+		\alpha f_1(y) + \beta f_2(y) \geq \alpha f_1(x) + \beta f_2(x) + \langle \alpha f_1'(x) + \beta f_2'(x), y - x \rangle  
+	\end{align*}
+	\qed \\
+	Thus the class constructed from assumptions coincides with the class of differentiable, convex functions. \\
+	A useful well-known property of convex functions is the following:
+	\subsection*{Lemma 2.1.2}\label{lem212}
+	If $f \in \mathcal{F}^1(\mathbb{R}^m), b \in \mathbb{R}^m$, and $A: \mathbb{R}^n \rightarrow \mathbb{R}^m$, then
+	\begin{align*}
+		\phi(x) = f(Ax + b) \in \mathcal{F}^1(\mathbb{R}^n)
+	\end{align*} 
+	That is, composition with a linear function is an invariant operation. \\
+	\textbf{proof:} Let $x, y \in \mathbb{R}^n$. Denote $\bar{x} = Ax + b, \bar{y} = Ay + b$. Since $\phi'(x) = A^Tf'(Ax + b)$, we have
+	\begin{align*}
+		\phi(y) = f(\bar{y}) &\geq f(\bar{x}) + \langle f'(\bar{x}), \bar{y} - \bar{x} \rangle \\
+		&= \phi(x) + \langle f'(\bar{x}), A(y - x) \rangle \\
+		&= \phi(x) + \langle A^Tf'(\bar{x}), y - x \rangle \\
+		&= \phi(x) + \langle \phi'(x), y - x \rangle 
+	\end{align*}
+	\qed \\
+	Now that we have some properties of the class, we can consider some equivalent definitions. 
+	\subsection*{Theorem 2.1.2}\label{thm212}
+	Continuously differentiable function f belongs to $\mathcal{F}^1(\mathbb{R}^n)$ iff for any $x, y \in \mathbb{R}^n$ and $\alpha \in [0,1]$ we have:
+	\begin{align*}
+		f(\alpha x + (1 - \alpha)y) \leq \alpha f(x) + (1 - \alpha)f(y)
+	\end{align*}
+	(Of course, this generally defines convex functions but they wouldn't be in our class). Note that this means any secant line through the graph lies above the part of the graph between the intersection points.\\
+	\textbf{proof:} Let $x_{\alpha} = \alpha x + (1 - \alpha)y$. Let $f \in \mathcal{F}^1(\mathbb{R}^n)$. Then,
+	\begin{align*}
+		&f(x_\alpha) \leq f(y) + \langle f'(x_\alpha), y - x_\alpha \rangle = f(y) + \alpha \langle f'(x_\alpha), y - x \rangle , \\
+		&f(x_\alpha) \leq f(x) + \langle f'(x_\alpha), x - x_\alpha \rangle = f(x) - (1 - \alpha)\langle f'(x_\alpha), y - x \rangle
+	\end{align*}
+	multiplying these by $(1-\alpha)$ and $\alpha$ respectively and adding gives the result. (note the inequality is flipped here since we swapped $f(x_\alpha)$ with $f(y)$). \\
+	Now suppose the above inequality is true, and let $\alpha \in [0,1)$. Then:
+	\begin{align*}
+		f(y) &\geq \frac{1}{1 - \alpha}[f(x_\alpha) - \alpha f(x)] = f(x) + \frac{1}{1 - \alpha}[f(x_\alpha) - f(x)] \\
+		&= f(x) + \frac{1}{1 - \alpha}[f(x + (1- \alpha)(y - x)) - f(x)]
+	\end{align*}
+	And letting $\alpha \rightarrow 1$ gives that $f$ is convex. Namely, apply L
+	hopital's rule once to evaluate the limit. \qed \\
+	\subsection*{Theorem 2.1.3}\label{thm213}
+	Continuously differentiable function f belongs to $\mathcal{F}^1(\mathbb{R}^n)$ iff for any $x,y \in \mathbb{R}^n$ we have
+	\begin{align*}
+		\langle f'(x) - f'(y), x - y \rangle \geq 0
+	\end{align*}
+	That is, the gradient behaves monotonically with respect to the inputs. In one dimension, this would mean  if $x > y$, $f'(x) \geq f'(y)$. Here it means that the change in gradient is aligned with the change in the inputs or that the gradient does not, roughly speaking, decrease regardless of the direction. \\
+	\textbf{proof:} 
+	\begin{align*}
+		f(x) \geq f(y) + \langle f'(y), x - y \rangle , \hspace{10pt}, f(y) \geq f(x) + \langle f'(x), y - x \rangle
+	\end{align*}
+	adding these gives the result. \\
+	Now suppose we start with the inequality $\langle f'(x) - f'(y), x - y \rangle \geq 0$. Denote $x_\tau = x + \tau(y - x)$. Then
+	\begin{align*}
+		f(y) &= f(x) + \int_{0}^{1}\langle f'(x + \tau (y - x)), y - x \rangle d\tau \\
+		&= f(x) + \langle f'(x), y - x \rangle + \int_{0}^{1} \langle f'(x_\tau) - f'(x), y-x \rangle d\tau \\
+		&= f(x) + \langle f'(x), y - x \rangle + \int_{0}^{1} \frac{1}{\tau}\langle f'(x_\tau) - f'(x), x_\tau - x \rangle d\tau \\
+		&\geq f(x) + \langle f'(x), y-x \rangle
+	\end{align*}
+	The first equality is FTC along the straight line connecting $x$ and $y$. In the second inequality, we add and subtract $\langle f'(x), y - x \rangle $. In the third equality, we multiply and divide by $\tau$. And for the last inequality, we use that the quantity in the integral is positive by the assumption. \qed \\
+	\subsection*{Theorem 2.1.4}\label{thm214}
+	Two times continuously differentiable function f belongs to $\mathcal{F}^2(\mathbb{R}^n)$ iff for any $x \in \mathbb{R}^n$ we have
+	\begin{align*}
+		f''(x) \succeq 0
+	\end{align*}
+	\textbf{proof:} Let $f \in C^2(\mathbb{R}^n)$ be convex. Denote $x_\tau = x + \tau s, \hspace{5pt} \tau > 0$. Then by \hyperref[thm213]{Theorem 2.1.3} we have:
+	\begin{align*}
+		 0 &\leq \frac{1}{\tau^2} \langle f'(x_\tau) - f'(x), x_\tau - x \rangle = \frac{1}{\tau}\langle f'(x_\tau) - f'(x), s \rangle \\
+		 &= \frac{1}{\tau} \int_{0}^{\tau} \langle f''(x + \lambda s)s, s \rangle d \lambda
+	\end{align*}
+	(book did not have $\tau^2$ so the equality was incorrect). $ \frac{1}{\tau} \int_{0}^{\tau} \langle f''(x + \lambda s)s, s \rangle d \lambda = \langle f''(x + \hat{\lambda}s), s \rangle$ for some $\hat{\lambda} \in [0, \tau]$ by the mean value theorem for integrals. Letting $\tau \rightarrow 0$ gives us $\langle f''(x)s, s \rangle \geq 0$. Namely, shrinking $\lambda$ for the average of a continuous function over an interval shrinking to $0$ results in just the value at $0$. \\
+	Now, suppose we have $f''(x) \succeq 0$. Then
+	\begin{align*}
+		f(y) &= f(x) + \langle f'(x), y - x \rangle \\
+		&+ \int_{0}^{1} \int_{0}^{\tau} \langle f''(x + \lambda(y - x))(y - x), y - x \rangle d \lambda d \tau \\
+		\geq f(x) + \langle f'(x), y - x \rangle		
+	\end{align*}
+	where the first equality is just FTC twice, and we have $\geq$ by the assumption. \qed \\
+	Some examples of convex functions include:
+	\begin{align*}
+		f(x) = \alpha + \langle a, x \rangle + \frac{1}{2}\langle Ax, x \rangle
+	\end{align*}
+	for $A$ psd. Additionally, since $e^x, |x|^p \hspace{5pt} p > 1, \frac{x^2}{1 - |x|}, |x| - \ln (1 + |x|)$ are all convex, we have:
+	\begin{align*}
+		f(x) = \sum_{i=1}^{m}e^{\alpha_i + \langle a_i, x \rangle}
+	\end{align*}
+	(geometric optimization)\\
+	and 
+	\begin{align*}
+		f(x) = \sum_{i=1}^{m} |\langle a_i, x \rangle - b_i |^p
+	\end{align*}
+	($l_p$-norm approximation)\\
+	are also convex. \\
+	Now, we need to consider topological properties of convex functions, as we had to do with more general differentiable functions in the past to talk about convergence rates. 
+	\subsection*{Theorem 2.1.5}\label{thm215}
+	All of the following conditions are equivalent to $f \in \mathcal{F}_L^{1,1}(\mathbb{R}^n)$ where $\alpha \in [0,1]$:
+	\begin{equation}\label{thm215_1}
+		0 \leq f(y) - f(x) - \langle f'(x), y - x \rangle \leq \frac{L}{2} \norm{x - y}^2
+	\end{equation}
+	\begin{equation}\label{thm215_2}
+		f(x) + \langle f'(x), y - x \rangle + \frac{1}{2L} \norm{f'(x) - f'(y)}^2 \leq f(y)
+	\end{equation}
+	\begin{equation}\label{thm215_3}
+		\frac{1}{L}\norm{f'(x) - f'(y)}^2 \leq \langle f'(x) - f'(y), x - y \rangle 
+	\end{equation}
+	\begin{equation}\label{thm215_4}
+		\langle f'(x) - f'(y), x - y \rangle \leq L \norm{x - y}^2
+	\end{equation}
+	\begin{equation}\label{thm215_5}
+		\alpha f(x) + (1 - \alpha)f(y) \geq f(\alpha x + (1 - \alpha)y) + \frac{\alpha(1 - \alpha)}{2L}\norm{f'(x) - f'(y)}^2
+	\end{equation}
+	\begin{equation}\label{thm215_6}
+		\alpha f(x) + (1- \alpha)f(y) \leq f(\alpha x + (1 - \alpha y)) + \alpha (1 - \alpha)\frac{L}{2}\norm{x - y}^2
+	\end{equation}
+	
+	\textbf{proof: ((0) $\iff$(1)} \\This follows from the definition of convexity and \hyperref[lem123]{Lemma 1.2.3} (bound on the linear approximation with $\frac{L}{2}\norm{x - y}^2$)\\
+	\textbf{proof: (1) $\implies $(2)}\\ Let $\phi(y) = f(y) - \langle f'(x_0), y \rangle$ for fixed $x_0 \in \mathbb{R}^n$. Then $\phi \in \mathcal{F}_L^{1,1}(\mathbb{R}^n)$ with minimizer $y^* = x_0$. By \ref{thm215_1} :
+	\begin{align*}
+		\phi(y^*) \leq \phi(y - \frac{1}{L}\phi '(y)) \leq \phi(y) - \frac{1}{2L}\norm{\phi'(y)}^2
+	\end{align*}
+	(that is, apply \ref{thm215_1} when $x = y$ and $y = y - \frac{1}{L}\phi ' (y)$). Then we have:
+	\begin{align*}
+		\phi(y^*) = \phi(x_0) \leq \phi(y) - \frac{1}{2L}\norm{f'(y) - f'(x_0)}^2
+	\end{align*}
+	or
+	\begin{align*}
+		f(x_0) - \langle f'(x_0),x_0 \rangle  \leq f(y) - \langle f'(x_0), y \rangle - \frac{1}{2L}\norm{f'(y) - f'(x_0)}^2 \\
+		\implies f(x_0) + \langle f'(x_0), y - x_0 \rangle + \frac{1}{2L}\norm{f'(y) - f'(x_0)}^2 \leq f(y)
+	\end{align*}
+	\qed \\
+	\textbf{proof: (2) $\implies$ (3)}\\ Simply add two copies of \ref{thm215_2} with $x$ and $y$ interchanged to get \ref{thm215_3} from \ref{thm215_2}. \\
+	\textbf{proof: (3) $\implies $(0)}\\
+	Now, apply Cauchy-Schwartz to \ref{thm215_3}. That is:
+	\begin{align*}
+		| \langle f'(x) - f'(y), x - y \rangle |^2 \leq \norm{f'(x) - f'(y)}^2 \cdot \norm{x - y}^2  
+	\end{align*} 
+	And thus
+	\begin{align*}
+		\frac{1}{L}\norm{f'(x) - f'(y)}^2 \leq \norm{f'(x) - f'(y)} \cdot \norm{x - y} \\
+		\implies \norm{f'(x) - f'(y)}\leq L\norm{x - y}
+	\end{align*}
+	That is, the first derivative of $f$ is Lipschitz continuous with $L$ so $f \in \mathcal{F}_L^{1,1}$ ($f$ is convex since $\langle f'(x) - f'(y), x - y \rangle \geq 0$.\\
+	\textbf{proof: (1) $\implies$(4) }\\
+	We can do this in the same way as the previous. Namely, apply Cauchy-Schwarz to \hyperref[thm215_1]{1}. \\
+	\textbf{proof: (4) $\implies $(1)}\\
+	\begin{align*}
+		f(y) - f(x) - \langle f'(x), y - x \rangle &= \int_{0}^{1}\langle f'(x + \tau(y - x)) - f'(x), y - x \rangle d\tau \\
+		&\leq \int_{0}^{1} L \norm{\tau(y-x)}d\tau \\
+		&= \frac{1}{2}L \norm{y - x}^2
+	\end{align*}
+	Namely, we applied \hyperref[thm215_4]{4} with $x = x + \tau(y-x)$ and $y = x$.\\
+	Lastly, we prove the final two inequalities. \\
+	\textbf{proof: (2) $\implies$ (5)}\\
+	Let $x_\alpha = \alpha x + (1 - \alpha)y$. Then by \hyperref[thm215_2]{2} applied to the pairs $x_\alpha ,x$ and $x_\alpha ,y$ separately we get:
+	\begin{align*}
+		f(x) &\geq f(x_\alpha) + \langle f'(x_\alpha), (1-\alpha)(x - y) \rangle + \frac{1}{2L} \norm{f'(x) - f'(x_\alpha)}^2, \\
+		f(y) &\geq f(x_\alpha) + \langle f'(x_\alpha), \alpha(y - x) \rangle + \frac{1}{2L}\norm{f'(y) - f'(x_\alpha)}^2
+	\end{align*}
+	Multiply these by $\alpha$ and $(1-\alpha)$ respectively and use the inequality:
+	\begin{align*}
+		\alpha \norm{g_1 - u}^2 + (1 - \alpha)\norm{g_2 - u}^2 \geq \alpha (1 - \alpha)\norm{g_1 - g_2}^2
+	\end{align*}
+	we obtain \hyperref[thm215_5]{5}. For the other direction, just let $\alpha \rightarrow 1$. The final inequality is obtained by the same process using \hyperref[thm215_1]{1}. The inequality used can be understood by the following: note that $u_0 = \alpha g_1 + (1 - \alpha)g_2$ is known as the convex combination of $g_1$ and $g_2$. Then $u_0$ minimizes the right hand side of the inequality above. We can show by algebra that:
+	\begin{align*}
+		\alpha \|g_1 - u\|^2 + (1-\alpha) \|g_2 - u\|^2 = \alpha(1-\alpha)\|g_1 - g_2\|^2 + \|u - u_0\|^2.
+	\end{align*}
+	and thus we obtain the inequality by removing $\norm{u - u_0}^2$ from the right. \qed \\
+	We also have a characterization for the class $\mathcal{F}_L^{2,1}(\mathbb{R}^n)$. 
+	\subsection*{Theorem 2.1.6}\label{thm216}
+	Two times continuously differentiable function $f$ belongs to $\mathcal{F}_L^{2,1}(\mathbb{R}^n) $ iff for any $x \in \mathbb{R}^n$:
+	\begin{align*}
+		0 \preceq f''(x) \preceq L I_n
+	\end{align*} 
+	\textbf{proof:} This follows from \hyperref[thm214]{Theorem 2.1.4} and \hyperref[thm215_4]{Theorem 2.1.5 (4)}. Recall that if we move the norm to the left and take the limit $x \rightarrow y$, we get:
+	\begin{align*}
+		\frac{x - y}{\norm{x - y}}^T f''(x) \frac{x - y}{\norm{x - y}} \leq L
+	\end{align*}
+	That is, the maximum eigenvalue is bounded by $L$. Here is how to compute the limit:\\
+	Consider:
+	\begin{align*}
+		\lim_{x \rightarrow y} \frac{\langle f'(x) - f'(y), y - x \rangle}{\norm{x - y}^2}
+	\end{align*}
+	Let $y = x + td$ for positive $t$ and unit vector $d$. Then $\norm{x - y}^2 = t^2$. The quotient simplifies to:
+	\begin{align*}
+		- \frac{\langle f'(x) - f'(x + td), d \rangle}{t}
+	\end{align*}
+	By Taylor's Theorem viewing $f$ as a function of $t$:
+	\begin{align*}
+		f'(x + td) = f'(x) + f''(x)td + o(t)
+	\end{align*}
+	Substitute this back in, divide by $t$, take limit $t \rightarrow 0$ gives:
+	\begin{align*}
+		\langle f''(x)d, d \rangle
+	\end{align*}
+	which is bounded by $L$ by the theorem. \qed 
+	
+	\subsection*{2.1.2 Lower Complexity Bounds for $\mathcal{F}_L^{\infty, 1}(\mathbb{R}^n)$}\label{sec212}
+	\subsection*{Assumption 2.1.4}\label{A214}
+	An iterative method $\mathcal{M}$ generates a sequence of test points $\{x_k\}$ such that
+	\begin{align*}
+		x_k \in x_0 + Lin \{f'(x_0), \ldots , f'(x_{k-1})\}, \hspace{10pt} k \geq 1
+	\end{align*}
+	(recall the section on \hyperref[subsec:CG]{conjugate gradients}).\\
+	Previously for lower complexity we considered a resisting oracle. Instead, just consider the worst function from our class (recall that we wish to see the minimum number of calls that any algorithm would at least require to solve the problem ($min f \in \mathcal{F}_L^{1,1}$, first order black box, approximate solution $\epsilon$). Thus we should construct a bad function that is hard for any algorithm). So, fix $L > 0$ and consider the family of quadratic functions:
+	\begin{align*}
+		f_k(x) = \frac{L}{4}\{\frac{1}{2}[(x^{(1)})^2 + \sum_{i=1}^{k-1}(x^{(i)} - x^{(i+1)})^2 + (x^{(k)})^2] - x^{(1)}\}
+	\end{align*}
+	where  $x^{(i)}$ denotes the $ith$ component of $x$ and thus $f_k(x)$ is a function of only the first $k$ components. Note that for $s \in \mathbb{R}^n$ we have,
+	\begin{align*}
+		\langle f''_k(x)s, s \rangle = \frac{L}{4}[(s^{(1)})^2 + \sum_{i=1}^{k-1}(s^{(i)} - s^{(i+1)})^2 + (s^{(k)})^2] \geq 0
+	\end{align*}
+	Let's show this. First, we can ignore the linear part $x^{(1)}$. Then note that the family of functions can be written in a matrix quadratic form:
+	\begin{align*}
+		\frac{1}{2}[(x^{(1)})^2 + \sum_{i=1}^{k-1}(x^{(i)} - x^{(i+1)})^2 + (x^{(k)})^2] =  \frac{1}{2}\norm{Qx}^2
+	\end{align*}
+	where $Qx = [x^{(1)}, x^{(1)} - x^{(2)}, \ldots x^{(k)}]$. Then the first derivative is $Q^TQx$ and thus the second derivative is $Q^TQ$. (Recall the derivative of $x^TAx$ is $(A + A^T)x$). Thus:
+	\begin{align*}
+		\langle Q^TQs, s \rangle = \norm{Qs}^2 \geq 0
+	\end{align*}
+	Note also that:
+	\begin{align*}
+	\langle f''_k(x)s, s \rangle &\leq \frac{L}{4}[(s^{(1)})^2 + \sum_{i=1}^{k-1}2(((s^{(i)}))^2 + (s^{(i+1)})^2) + (s^{(k)})^2] \\
+	&\leq L \sum_{i=1}^{n}(s^{(i)})^2 
+	\end{align*}
+	where the first inequality uses $(x - y)^2 \leq 2(x^2 + y^2)$ (or $(x + y)^2 \geq 0$), and the final inequality just removes positive terms. That is, we've shown:
+	\begin{align*}
+		0 \preceq f_k''(x) \preceq L I_n
+	\end{align*}
+	so $f_k(x) \in \mathcal{F}_L^{\infty, 1}(\mathbb{R}^n)$ for $1 \leq k \leq n$. Let's compute the minimum of this function. \\
+	Note that $f''_k(x) = \frac{L}{4}A_k$ where $A_k$ is tridiagonal in the upper left $kxk$ quadrant:\\
+	$
+	\begin{pmatrix}
+	2 & -1  \ldots 0 \\
+	-1 & 2 & -1  \ldots 0 \\
+	0 & -1 & 2 & -1  \ldots 0 \\
+	\vdots 
+	\end{pmatrix}
+	$\\
+	This can be seen by considering $Qx$ above to see the form $Q$ takes, and then considering $Q^TQ$.\\
+	Hence the equation:
+	\begin{align*}
+		f'_k(x) = A_kx - e_1 = 0
+	\end{align*}
+	(we computed the derivative above as $Q^TQx = A_kx$ but we ignored the $x^{(1)}$ term).\\
+	has the unique solution:
+	\begin{align*}
+		\bar{x}_k^{(i)} = 
+		\begin{cases}
+			1 - \frac{i}{k+1}, \hspace{10pt} i = 1, \ldots k, \\
+			0, \hspace{42pt} k+1 \leq i \leq n 
+		\end{cases}
+	\end{align*} 
+	(This is easy to check). Hence the optimal value of $f_k$ is,
+	\begin{align*}
+		f_k^* &= \frac{L}{4}[\frac{1}{2}\langle A_k\bar{x}_k, \bar{x}+k \rangle - \langle e_1, \bar{x}_k \rangle] = -\frac{L}{8} \langle e_1, \bar{x}_k \rangle \\
+		&=\frac{L}{8}(-1 + \frac{1}{k+1})
+	\end{align*}
+	Recall that $\sum_{i=1}^{n}i^2 = \frac{k(k+1)(2k+1)}{6} \leq \frac{(k+1)^3}{3}$. Therefore
+	\begin{align*}
+		\norm{\bar{x}_k}^2 &= \sum_{i=1}^{k}(1 - \frac{i}{k+1})^2 \\
+		&= k - \frac{2}{k+1}\sum_{i=1}^{k}i + \frac{1}{(k+1)^2}\sum_{i=1}^{k}i^2 \\
+		&\leq k - \frac{2}{k+1}\cdot \frac{k(k+1)}{2} + \frac{1}{(k+1)^2} \cdot \frac{(k+1)^3}{3} = \frac{1}{3}(k+1)
+	\end{align*}
+	where the first equality is just from expanding the square and the inequality is from the using the identity above.\\
+	Let $\mathbb{R}^{k,n} := \{x \in \mathbb{R}^n | x^{(i)} = 0, k+1 \leq i \leq n\}$ denote the given subspace of $\mathbb{R}^n$. Then clearly we have:
+	\begin{align*}
+		f_p(x) = f_k(x), \hspace{10pt} p = k \ldots n
+	\end{align*} 
+	for all $x \in \mathbb{R}^{k,n}$ (Namely, when $p \geq k$ for $x \in \mathbb{R}^{k,n}$, we have covered all of the components of $x$ and are just adding zero terms). Now fix $p$, $1 \leq p \leq n$.
+	\subsection*{Lemma 2.1.3}\label{lem213}
+	Let $x_0 = 0$. Then for any sequence $\{x_k\}_{k=0}^{p}$ satisfying the condition 
+	\begin{align*}
+		x_k \in \mathcal{L}_k = Lin \{f'_p(x_0), \ldots , f'_p(x_{k-1}))\},
+	\end{align*}
+	we have $\mathcal{L}_k \subseteq \mathbb{R}^{k,n}$. \\
+	\textbf{proof:} Since $x_0 = 0$, we have $f'_p(x_0) = - \frac{L}{4}e_1 \in \mathbb{R}^{1,n}$. Thus $\mathcal{L}_1 \equiv \mathbb{R}^{1,n}$. \\
+	Let $\mathcal{L}_k \subseteq \mathbb{R}^{k,n}$ for some $k < p$ (recall that in $\mathbb{R}^{k,n}$ we have $f_p = f_k, p \geq k$). Since $A_p$ is tridiagonal, for any $x \in \mathbb{R}^{k,n}$ we have $f'_p(x) \in \mathbb{R}^{k+1,n}$ (since $x_k$ has only the first $k$ components non-zero, once we are in the $(k+1)th$ row of $A_p$, this is the final multiplication resulting in a non-zero entry). Therefore $\mathcal{L}_{k+1} \subseteq \mathbb{R}^{k+1,n}$ and we can complete the proof by induction. \qed \\
+	\subsection*{Corollary 2.1.1}\label{cor211}
+	For any sequence $\{x_k\}_{k=0}^p$ such that $x_0 = 0$ and $x_k \in \mathcal{L}_k$ we have
+	\begin{align*}
+		f_p(x_k) \geq f_k^*
+	\end{align*}	
+	\textbf{proof:} $x_k \in \mathcal{L}_k \subseteq \mathbb{R}^{k,n}$ and therefore $f_p(x_k) = f_k(x_k) \geq f_k^*$ \\
+	($p > k$ so we have $f_p = f_k$ for any $x \in \mathbb{R}^{k,n}$, and we have just shown that $x_k \in \mathbb{R}^{k,n}$). \qed \\
+	\subsection*{Theorem 2.1.7}\label{thm217}
+	For any $k, 1 \leq k \leq \frac{1}{2}(n-1)$, and any $x_0 \in \mathbb{R}^n$ there exists a function $f \in \mathcal{F}_L^{\infty., 1}(\mathbb{R}^n)$ such that for any first-order method $\mathcal{M}$ satisfying \hyperref[A214]{Assumption 2.1.4} we have
+	\begin{align*}
+		f(x_k) - f^* \geq \frac{3L\norm{x_0 - x^*}^2}{32(k+1)^2}, \\
+		\norm{x_k - x^*}^2 \geq \frac{1}{8}\norm{x_0 - x^*}^2,
+	\end{align*}
+	where $x^*$ is the minimizer of $f(x)$ and $f^* = f(x^*)$\\
+	(that is, we develop the lower bound for this method after $k$ steps and will be able to check, for a given $\epsilon$, how many steps (calls to the oracle) we will need at minimum; And this is a lower complexity bound. If we believe that our assumptions are reasonable for the generated sequence, then this is a reasonable estimate for our algorithm on convex, L-smooth functions).\\
+	\textbf{proof:} Note that problems of this type are invariant with respect to a shift in all of the variables. Namely, a method for $f(x)$ starting at $x_0$ would work the same for a function $f(x + x_0)$ starting at the origin. Thus we assume $x_0 = 0$. \\
+	Now for the first inequality, let's fix $k$ and apply method $\mathcal{M}$ to minimize $f(x) = f_{2k+1}(x)$. Denote $x^* = \bar{x}_{2k+1}$ and $f^* = f^*_{2k+1}$. By \hyperref[cor211]{Corollary 2.1.1} we have:
+	\begin{align*}
+		f(x_k) \equiv f_{2k+1}(x) = f_k(x_k)\geq f_k^*
+	\end{align*}
+	since $2k+1 \geq k$. Now, since $x_0 = 0$, using the inequalities developed under \hyperref[A214]{Assumption 2.1.4}, we have
+	\begin{align*}
+		\frac{f(x_k) - f^*}{\norm{x_0 - x^*}^2} \geq \frac{\frac{L}{8}(-1 + \frac{1}{k+1} + 1 - \frac{1}{2k+2})}{\frac{1}{3}(2k+2)} = \frac{3}{8}L \cdot \frac{1}{4(k+1)^2}
+	\end{align*}
+	That is, $f(x_k) - f^* = f_{2k+1}(x_k) - f^*_{2k+1}  = f_{2k+1}(x_k) - \frac{L}{8}(-1 + \frac{1}{2k+2})$. and since $f_{2k+1}(x_k) = f_k(x_k) \geq f^*_k = \frac{L}{8}(-1 + \frac{1}{k+1})$, we get:\\
+	 $f(x_k) - f^* \geq \frac{L}{8}(-1 + \frac{1}{k+1} + 1 - \frac{1}{2k+2})$.\\
+	 And $x_0 = 0$ so $\norm{x_0 - x^*}^2 = \norm{x^*}^2 = \norm{\bar{x}_{2k+1}}^2 \leq \frac{1}{3}(2k+2)$. \\
+	 Therefore:
+	 \begin{align*}
+	 	\frac{f(x_k) - f^*}{\norm{x_0 - x^*}^2} \geq \frac{3}{8}L \cdot \frac{1}{4(k+1)^2}
+	 \end{align*}
+	 Re-arranging proves the first inequality. (recall that our goal is simply to find the function $f$ and we showed it should be $f_{2k+1}$).\\
+	 Now to prove the second inequality. Since $x_k \in \mathbb{R}^{k,n}$ and $x_0 = 0$, we have:
+	 \begin{align*}
+	 	\norm{x_k - x^*}^2 &\geq \sum_{i=k+1}^{2k+1}(\bar{x}_{2k+1}^{(i)})^2 = \sum_{i=k+1}^{2k+1}(1 - \frac{i}{2k+2})^2 \\
+	 	&= k+1 - \frac{1}{k+1}\sum_{i=k+1}^{2k+1}i + \frac{1}{4(k+1)^2}\sum_{i=k+1}^{2k+1}i^2
+	 \end{align*} 
+	 where the above inequality is from the fact that all components of $x_k^{(i)}$ for $i > k$ are $0$. That is, we ignore all of the positive components in the difference where $i \leq k$, and then all of the components $i>k$ only involve the $x^* = \bar{x}_{2k+1}$ term. Then we substitute in the form of $\bar{x}_{2k+1}$.\\
+	 Now,
+	 \begin{align*}
+	 	\sum_{i=k+1}^{2k+1}i^2 &= \frac{1}{6}[(2k+1)(2k+2)(4k+3) - k(k+1(2k+1))]\\
+	 	&= \frac{1}{6}(k+1)(2k+1)(7k+6)
+	 \end{align*}
+	 (by summing the terms up to $2k+1$ and subtracting the summation of terms up to $k+1$).\\
+	 Therefore,
+	 \begin{align*}
+	 	\norm{x_k - x^*}^2 &\geq k+1 - \frac{1}{k+1}\cdot \frac{(3k+2)(k+1)}{2} + \frac{(2k+1)(7k+6)}{24(k+1)}\\
+	 	&= \frac{(2k+1)(7k+6)}{16(k+1^2)}\norm{x_0 - \bar{x}_{2k+1}}^2 \geq \frac{1}{8}\norm{x_0 - x^*}
+	 \end{align*}
+	 \qed \\
+	 Here we need the assumption that the number of steps is small so that $k < \frac{n-1}{2}$ for the dimension $n$. Then we call this complexity bound "uniform" in the dimension of variables. We should note two things from this lower complexity bound: firstly, after $k$ iterations, we might reduce the residual by $k^2$. This seems good, but for the sequence of values $x_k$, the convergence can be arbitrarily slow due the worst case lower bound we calculated. This is understandable, convex functions can be arbitrarily flat even if always non-decreasing. This will be fixed for strongly convex functions which increase at least quadratically. 
+	 \subsection*{Strongly Convex Functions}\label{subsec:SCF}
+	 Recall that we showed the \hyperref[thm124]{gradient method} converges linearly near an isolated local minimum (local convergence). We now wish to make this a global property. \\
+	 Assume we have some constant $\mu > 0$ such that for any $\bar{x}$ with $f'(\bar{x})=0$ and any $x \in \mathbb{R}^n$ we have:
+	 \begin{align*}
+	 	f(x) \geq f(\bar{x}) + \frac{1}{2}\mu \norm{x - \bar{x}}^2
+	 \end{align*}
+	 Thus we can define the class of \hyperref[sec:Def]{Strongly Convex Functions}.
+	 \subsection*{Theorem 2.1.8}\label{thm218}
+	 If $f \in \mathcal{S}_\mu^1(\mathbb{R}^n)$ and $f'(x^*) = 0$, then
+	 \begin{align*}
+	 	f(x) \geq f(x^*) + \frac{1}{2}\mu \norm{x - x^*}^2
+	 \end{align*}
+	 for all $x \in \mathbb{R}^n$ \\
+	 \textbf{proof:} since $f'(x^*) = 0$, we have,
+	 \begin{align*}
+	 	f(x) &\geq f(x^*) + \langle f'(x^*), x - x^*\rangle + \frac{1}{2}\mu \norm{x - x^*}^2 \\
+	 	&= f(x^*) + \frac{1}{2}\mu \norm{x - x^*}^2
+	 \end{align*}
+	 \qed \\
+	 \subsection*{Lemma 2.1.4}\label{lem214}
+	 If $f_1 \in \mathcal{S}_{\mu_1}^1(\mathbb{R}^n)$,$f_2 \in \mathcal{S}_{\mu_2}^{1}(\mathbb{R}^n)$ and $\alpha, \beta \geq 0$, then
+	 \begin{align*}
+	 	\alpha f_1 + \beta f_2 \in \mathcal{S}_{\alpha\mu_1 + \beta \mu_2}^{1}(\mathbb{R}^n)
+	 \end{align*}
+	 \textbf{proof:} (follows by adding the respective inequality for each function, multiplied by $\alpha, \beta$ respectively). \\
+	 Now, note that the class of convex functions $\mathcal{F}^1(\mathbb{R}^n)$ coincides with $\mathcal{S}_{0}^{1}(\mathbb{R}^n)$. Thus adding a convex function to a strongly convex function gives a strongly convex function with the same convexity parameter by the above lemma. 
+	 \subsection*{Theorem 2.1.9}\label{thm219}
+	 Let $f$ be continuously differentiable. Then the following two conditions are equivalent to $f \in \mathcal{S}_{\mu}^{1}(\mathbb{R}^n)$ where $\alpha \in [0,1]$ and $x,y \in \mathbb{R}^n$:
+	 \begin{align}
+	 	\langle f'(x) - f'(y), x - y \rangle \geq \mu \norm{x - y}^2 ,\\
+	 	\alpha f(x) + (1 - \alpha)f(y) \geq f(\alpha x + (1 - \alpha)y) + \alpha (1 - \alpha)\frac{\mu}{2}\norm{x - y}^2
+	 \end{align}
+	 \textbf{proof:} We will prove this similarly to \hyperref[thm215]{Theorem 2.1.5}.  (come back to this later). 
+	 \subsection*{Theorem 2.1.10}\label{thm2110}
+	 If $f \in \mathcal{S}_{\mu}^{1}(\mathbb{R}^n)$, then for any $x,y \in \mathbb{R}^n$ we have
+	 \begin{align}
+	 	f(y) \leq f(x) + \langle f'(x), y - x \rangle + \frac{1}{2\mu}\norm{f'(x) - f'(y)}^2, \\
+	 	\langle f'(x) - f'(y), x - y \rangle \leq \frac{1}{\mu}\norm{f'(x) - f'(y)}^2
+	 \end{align}
+	 \textbf{proof:} Fix $x \in \mathbb{R}^n$ and consider
+	 \begin{align*}
+	 	\phi(y) = f(y) - \langle f'(x), y \rangle \in \mathcal{S}_{\mu}^{1}(\mathbb{R}^n)
+	 \end{align*}
+	 (Since a linear function has convexity parameter 0, we remain in the same class).\\
+	 Now, $\phi'(x) = 0$ so:
+	 \begin{align*}
+	 	\phi(x) &= \min_{v}\phi(v) \geq \min_{v}[\phi(y) + \langle \phi'(y), v - y \rangle + \frac{1}{2}\mu\norm{v-y}^2] \\
+	 	&= \phi(y) - \frac{1}{2\mu}\norm{\phi'(y)}^2
+	 \end{align*} 
+	 It is easy to compute the minimum: differentiating with respect to $v$ and setting to $0$ gives $\phi'(y) + \mu (v-y) = 0$ thus $v = y - \frac{1}{\mu}\phi'(y)$. Substituting back in gives the result. Thus we have proven the first inequality for the theorem.\\
+	 To prove the second inequality, add two copies of the previous with $x$ and $y$ interchanged. \qed \\
+	 Thus we have some characterization of this strongly convex function class as well as some necessary conditions. We conclude with a second-order characterization.
+	 \subsection*{Theorem 2.1.11}\label{thm2111}
+	 Two times continuously differentiable function $f$ belongs to $\mathcal{S}_{\mu}^{2}(\mathbb{R}^n)$ if and only if for $x \in \mathbb{R}^n$,
+	 \begin{align*}
+	 	f''(x) \succeq \mu I_n
+	 \end{align*} 
+	 \textbf{proof:} By \hyperref[thm219]{Theorem 2.1.9} we have:
+	 \begin{align*}
+	 	\frac{\langle f'(x) - f'(y), x - y \rangle}{\norm{x - y}^2} \geq \mu
+	 \end{align*}
+	 computing the limit $x \rightarrow y$ gives us $\langle f''(x)d, d \rangle$ where $d$ is a unit vector (see \hyperref[thm216]{Theorem 2.1.6 proof}). Thus $\langle f''(x)d, d \rangle \geq \mu$ for any unit vector, that is, the largest eigenvalue is greater than or equal to $\mu$. \qed \\
+	 This makes twice differentiable functions easy to identify as strongly convex or not. However, we are most interested in the the functions: $f \in \mathcal{S}_{\mu, L}^{1,1}(\mathbb{R}^n)$ and recall the characterizations:
+	 \begin{align}
+	 	\langle f'(x) - f'(y), x - y \rangle \geq \mu \norm{x - y}^2 ,\\
+	 	\norm{f'(x) - f'(y)}^2 \leq L\norm{x - y}
+	 \end{align}
+	 recall that by C.S., the first inequality tells us $\langle f'(x) - f'(y), x - y \rangle \leq \norm{f'(x) - f'(y)}\norm{x - y} \leq L \norm{x - y}^2$. That is we have an upper bound on the first inequality. Now define $Q_f = \frac{L}{\mu}\geq 1$ which is known as the "condition number" of $f$. We can use this to improve the strongly convex inequality.
+	 \subsection*{Theorem 2.1.12}\label{thm2112}
+	 If $f \in \mathcal{S}_{\mu, L}^{1,1}(\mathbb{R}^n)$, then for any $x, y \in \mathbf{R}^n$ we have
+	 \begin{align*}
+	 	\langle f'(x) - f'(y), x - y \rangle \geq \frac{\mu L}{\mu + L}\norm{x - y}^2  + \frac{1}{\mu + L}\norm{f'(x) - f'(y)}^2
+	 \end{align*}
+	 \textbf{proof:} Let $\phi(x) = f(x) - \frac{1}{2}\mu \norm{x}^2$. Then $\phi'(x) = f(x) - \mu x$. By \hyperref[thm219]{Theorem 2.1.9} we have $\phi \in \mathcal{F}_{L - \mu}^{1,1}(\mathbb{R}^n)$. ($\phi$ is convex with first derivative Lipschitz continuous with respect to $L - \mu$. This can be seen by consdering $\langle \phi'(x) - \phi'(y), x - y \rangle$, using the fact that $\langle f'(x) - f'(y), x - y \rangle \leq L \norm{x - y}^2$ and then moving over the extra $\mu \norm{x - y}^2$ term from the expansion. \\
+	 Now, if $\mu = L$, then we have $\phi'$ is Lipschitz continuous for parameter $L=0$, thus $\norm{f'(x) - f'(y) + \mu y - \mu x} = 0 \implies \norm{f'(x) - f'(y)} + \norm{x - y} = 0 \implies \norm{f'(x) - f'(y)} = 0$ and $\norm{x - y} = 0$. That is, 
+	 \begin{align*}
+	 	\langle f'(x) - f'(y), x - y \rangle \geq 0
+	 \end{align*}
+	is the claim of the theorem, but we know by $f \in \mathcal{S}_{\mu, L}^{1,1}$ that $\langle f'(x) - f'(y), x - y \rangle \geq \mu \norm{x - y}^2 \geq 0$ hence we are done.\\
+	Suppose now that $\mu < L$. Then
+	\begin{align*}
+		\langle \phi'(x) - \phi'(y), y - x \rangle \geq \frac{1}{L - \mu}\norm{\phi'(x) - \phi'(y)}^2
+	\end{align*}
+	by \hyperref[thm215]{Theorem 2.1.5, (3)}. Simplifying shows this is equal to the theorem claim above. \qed 
+	 
+	 \subsection*{2.1.4 Lower Complexity Bounds For $\mathcal{S}_{\mu,L}^{\infty, 1}(\mathbb{R}^n)$}
+	 Consider unconstrained minimization on the class of function $\mathcal{S}_{\mu,L}^{\infty, 1}(\mathbb{R}^n) \subset \mathcal{S}_{\mu,L}^{1, 1}(\mathbb{R}^n)$ with a first-order local black box oracle and approximate solution $\bar{x}: f(\bar{x}) - f^* \leq \epsilon , \norm{\bar{x} - x^*}^2 \leq \epsilon$.\\
+	 Again, we consider methods that satisfy \hyperref[A214]{Assumption 2.1.4}. Recall the condition number for these functions $Q_f = \frac{L}{\mu}$. We do not restrict the dimension of our problem, thus we may consider infinite dimensional space. Consider $\mathbb{R}^{\infty} \equiv l_2$, the space of all sequences $x = \{x^{(i)}\}_{i=1}^{\infty}$ with finite norm, $\norm{x}^2 < \infty$. Let $\mu >0, Q_f > 1$ and define the following:
+	 \begin{align*}
+	 	f_{\mu,Q_f(x)} = \frac{\mu(Q_f - 1)}{8}\{(x^{(1)})^2 + \sum_{i=1}^{\infty}(x^{(i)} - x^{(i+1)})^2 - 2x^{(1)}\} + \frac{\mu}{2}\norm{x}^2 
+	 \end{align*}
+	 Denote
+	 \begin{align*}
+	 	A = 
+	 	\begin{Bmatrix}
+	 		2 & -1 & 0 & 0 \\
+	 		-1 & 2 & -1 & 0 \\
+	 		0 & -1 & 2 & \ddots \\
+	 		0 & 0 & \ddots & \ddots 
+	 	\end{Bmatrix}
+	 \end{align*}
+	 (Recall the similar analysis for the previous lower complexity bound derivation for \hyperref[sec212]{$\mathcal{F}_L^{\infty,1}(\mathbb{R}^n)$}). \\
+	 We have $f''(x) = \frac{\mu(Q_f - 1)}{4}A + \mu I$ where $I$ is the unit operator in $\mathbb{R}^{\infty}$. Previously we had a similar Hessian with a different coefficient of $A$ and without $\mu I$. We have already seen that $0 \preceq A \preceq 4I$ (we showed $0 \preceq f''_k(x) \preceq L I_n$ where $f''_k(x)= \frac{L}{4}A_k$), thus
+	 \begin{align*}
+	 	\mu I \preceq f''(x) \preceq (\mu(Q_f - 1) + \mu)I = \mu Q_f I
+	 \end{align*}
+	 meaning $f_{\mu,Q_f} \in \mathcal{S}_{\mu,\mu Q_f}^{\infty,1}(\mathbb{R}^{\infty})$ (\hyperref[thm2111]{1}, \hyperref[thm216]{2}) where the condition number of $f_{\mu,Q_f}$ is 
+	 \begin{align*}
+	 	Q_{f_\mu,Q_f} = \frac{\mu Q_f}{\mu} = Q_f
+	 \end{align*}
+	 By the first-order optimality condition, we can find the minimum of $f_{\mu,\mu Q_f}$:
+	 \begin{align*}
+	 	f_{\mu, \mu Q_f}'(x) \equiv (\frac{\mu(Q_f - 1)}{4}A + \mu I)x - \frac{\mu(Q_f - 1)}{4}e_1 = 0
+	 \end{align*}
+	 (recall the previous derivative was $f'_k(x) = A_kx - e_1$).\\
+	 or
+	 \begin{align*}
+	 	(A + \frac{4}{Q_f - 1})x = e_1
+	 \end{align*}
+	 Considering each coordinate we have
+	 \begin{align*}
+	 	2 \frac{Q_f + 1}{Q_f - 1}x^{(1)} - x^{(2)} = 1, \\
+	 	x^{(k+1)} - 2 \frac{Q_f + 1}{Q_f - 1}x^{(k)} + x^{(k-1)} = 0, \hspace{5pt} k=2, 3, \ldots
+	 \end{align*}
+	 (this is easy to see by simply writing out the corresponding matrix and noting $A$ is tridiagonal).\\
+	 Let $q$ be the smallest root of the equation:
+	 \begin{align*}
+	 	q^2 - 2 \frac{Q_f + 1}{Q_f - 1}q + 1 = 0
+	 \end{align*}
+	 then $q = \frac{\sqrt{Q_f} - 1}{\sqrt{Q_f} + 1}$. Then the sequence $(x^*)^{(k)} = q^k, k = 1, 2, \ldots$ satisfies the system of equations above. (This is easy to check by just plugging in, recall our inputs are in $\mathbb{R}^{\infty}$.). We can then prove the following:
+	 \subsection*{Theorem 2.1.13}\label{thm2113}
+	 For any $x_0 \in \mathbb{R}^{\infty}$ and any constants $\mu > 0, Q_f > 1$, there exists a function $f \in \mathcal{S}_{\mu, \mu Q_f}^{\infty, 1}(\mathbb{R}^{\infty})$ such that for any first-order method satisfying \hyperref[A214]{Assumption 2.1.4} we have
+	 \begin{align*}
+	 	\norm{x_k - x^*}^2 \geq (\frac{\sqrt{Q_f} - 1}{\sqrt{Q_f}+1})^{2k}\norm{x_0 - x^*}^2, \\
+	 	f(x_k) - f^* \geq \frac{\mu}{2}(\frac{\sqrt{Q_f} - 1}{\sqrt{Q_f}+1})^{2k}\norm{x_0 - x^*}^2
+	 \end{align*}
+	 where $x^*$ is the minimum of $f$ and $f^* = f(x^*)$. Note also that this is quadratic in $k$.\\
+	 \textbf{proof:} By the same logic as before, we may assume $x_0 = 0$ due to the invariance in shifting our problem. Let $f(x) = f_{\mu, \mu Q_f}(x)$. Then
+	 \begin{align*}
+	 	\norm{x_0 - x^*}^2 = \sum_{i=1}^{\infty}[(x^*)^{(i)}]^2 = \sum_{i=1}^{\infty}q^{2i} = \frac{q^2}{1 - q^2}
+	 \end{align*}
+	 That is, we have a geometric series with $r = q^2$. Now, $f''$ is a tridiagonal operator and $f'(0) = e_1$. Thus we conclude that $x_k \in \mathbb{R}^{k, \infty}$. That is, the components of $x_k$ in the sequence from \hyperref[A214]{Assumption 2.1.4} will have the first $k$ components zero. Therefore
+	 \begin{align*}
+	 	\norm{x_k - x^*}^2 \geq \sum_{i=k+1}^{\infty}[(x^*)^{(i)}]^2 = \sum_{i=k+1}^{\infty}q^{2i} = \frac{q^{2k+1}}{1 - q^2} = q^{2k}\norm{x_0 - x^*}^2
+	 \end{align*}
+	 This proves the first inequality, and the second inequality follows from the first by applying \hyperref[thm218]{Theorem 2.1.8}. (check this next time).
+	 
+	 \subsection*{2.1.5 Gradient Method}
+	 Let's consider the gradient method first on the set of convex, L-smooth functions. 
+	 \begin{align*}
+	 	\min_{x \in \mathbb{R}^n} f(x)
+	 \end{align*}
+	 where $f \in \mathcal{F}_L^{1,1}(\mathbb{R}^n)$. Recall the notation of the gradient method:
+	 \begin{itemize}
+	 	\item choose $x_0 \in \mathbb{R}^n$
+	 	\item Find $x_{k+1} = x_k - h_kf'(x_k)$ for some step-size rule.
+	 \end{itemize}
+	 Previous analysis on the gradient method was for general L-smooth functions. Here we add convexity.
+	 Suppose $h_k = h > 0$. The convergence will be similar for other choices of $h_k$. Let $x^*$ be the optimal point and $f^* = f(x^*)$. 
+	 \subsection*{Theorem 2.1.14}\label{thm2114}
+	 Let $f \in \mathcal{F}_L^{1,1}(\mathbb{R}^n)$ and $0 < h < \frac{2}{L}$. Then the gradient method generates a sequence $\{x_k\}$ which converges as follows:
+	 \begin{align*}
+	 	f(x_k) - f^* \leq \frac{2(f(x_0) - f^*)\norm{x_0 - x^*}^2}{2\norm{x_0 - x^*}^2 + k \cdot h(2 - Lh)\cdot (f(x_0) - f^*)}
+	 \end{align*}
+	 \textbf{proof:} Denote $r_k = \norm{x_k - x^*}$. Then
+	 \begin{align*}
+	 	r_{k+1}^2 &= \norm{x_k - x^* - hf'(x_k)}^2 \\
+	 	&= r_k^2 - 2h \langle f'(x_k), x_k - x^* \rangle + h^2 \norm{f'(x_k)}^2 \\
+	 	&\leq r_k^2 - h(\frac{2}{L} - h)\norm{f'(x_k)}^2
+	 \end{align*}
+	 where the second equality is from expanding the inner product and the inequality is from \hyperref[thm215]{Theorem 2.1.5, (3)}. using the fact that $f'(x^*) = 0$. Namely, this theorem gives us $\langle f'(x_k), x_k - x^* \rangle \geq \frac{1}{L}\norm{f'(x_k)}^2$.\\
+	 Therefore $r_k \leq r_0$ (recall $0 < h < \frac{2}{L}$). Now, in view of \hyperref[thm215]{Theorem 2.1.5, (1)} we have,
+	 \begin{align*}
+	 	f(x_{k+1}) &\leq f(x_k) + \langle f'(x_k), x_{k+1} - x_k \rangle + \frac{L}{2} \\
+	 	&= f(x_k) - \omega \norm{f'(x_k)}^2
+	 \end{align*} 
+	 where $\omega = h(1 - \frac{L}{2}h)$, and the equality comes from using the fact that $x_{k+1} - x_k = -hf'(x_k)$. Denote $\Delta_k = f(x_k) - f^*$. Then
+	 \begin{align*}
+	 	\Delta_k \leq \langle f'(x_k), x_k - x^* \rangle \leq r_0 \norm{f'(x_k)}
+	 \end{align*}
+	 (This is by the original definition of convexity and then applying Cauchy Schwarz along with the fact that $r_k \leq r_0$). Thus we have $\Delta_{k+1} \leq \Delta_k - \frac{\omega}{r_0^2}\Delta_k^2$ (from the inequality above, we have $f(x_{k+1}) - f^* \leq f(x_k) - \omega\norm{f'(x_k)}^2 - f^* = \Delta_k - \omega\norm{f'(x_k)}^2 \implies \Delta_{k+1} \leq \Delta_k - \omega\norm{f'(x_k)}^2$. But we have $\norm{f'(x_k)} \geq \frac{\Delta_k}{r_0}$. Plugging this in gives the above inequality). Then
+	 \begin{align*}
+	 	\frac{1}{\Delta_{k+1}} \geq \frac{1}{\Delta_k} + \frac{\omega}{r_0^2}\cdot \frac{\Delta_k}{\Delta_{k+1}} \geq \frac{1}{\Delta_k} + \frac{\omega}{r_0^2}
+	 \end{align*}
+	 Considering this inequality for all $k$ and then summing up gives:
+	 \begin{align*}
+	 	\frac{1}{\Delta_{k+1}} \geq \frac{1}{\Delta_0} + \frac{\omega}{r_0^2}(k+1)
+	 \end{align*}
+	 To choose an optimal step-size here, we should maximize $\phi(h) = h(2 - Lh)$ since we want $\omega$ here to be as large as possible to ensure our current value $x_k$ is close to $x^*$. That is, if $\omega$ is large, $\Delta_k$ will be smaller. So, $h^* = \frac{1}{L}$. In this case we have:
+	 \begin{align*}
+	 	\Delta_k = f(x_k) - f^* \leq \frac{2L(f(x_0) - f^*)\norm{x_0 - x^*}^2}{2L\norm{x_0 - x^*}^2+ k  \cdot (f(x_0) - f^*)} 
+	 \end{align*}
+	 following from the inequality above. \qed\\
+	 Further, in view of \hyperref[thm215]{Theorem 2.1.5, (1)} we have
+	 \begin{align*}
+	 	f(x_0) &\leq f^* + \langle f'(x^*), x_0 - x^* \rangle + \frac{L}{2}\norm{x_0 - x^*}^2 \\
+	 	&= f^* + \frac{L}{2}\norm{x_0 - x^*}^2
+	 \end{align*}
+	 Since the right-hand side of \hyperref[thm2114]{Theorem 2.1.14} increases as $f(x_0) - f^*$ increases, we have:
+	 \subsection*{Corollary 2.1.2}\label{cor212}
+	 If $h = \frac{1}{L}$ and $f \in \mathcal{F}_L^{1,1}(\mathbb{R}^n)$, then
+	 \begin{align*}
+	 	f(x_k) - f^* \leq \frac{2L\norm{x_0 - x^*}^2}{k+4}
+	 \end{align*}
+	 That is, we can replace $f(x_0) - f^*$ by the upperbound we just calculated and the right-hand side will only become larger.\\
+	 Now we are able to estimate the convergence for strongly convex functions.
+	 \subsection*{Theorem 2.1.15}\label{thm2115}
+	 If $f \in \mathcal{S}_{\mu, L}^{1,1}(\mathbb{R}^n)$ and $0 < h \leq \frac{2}{\mu + L}$, then the gradient method generates a sequence $\{x_k\}$ such that
+	 \begin{align*}
+	 	\norm{x_k - x^*}^2 \leq (1 - \frac{2h\mu L}{\mu + L})^k\norm{x_0 - x^*}^2
+	 \end{align*}
+	 and if $h = \frac{2}{\mu + L}$, then
+	 \begin{align*}
+	 	\norm{x_k - x^*}^2 \leq (\frac{Q_f - 1}{Q_f + 1})^k\norm{x_0 - x^*}^2, \\
+	 	f(x_k) - f^* \leq \frac{L}{2}(\frac{Q_f - 1}{Q_f + 1})^{2k}\norm{x_0 - x^*}^2
+	 \end{align*}
+	 where $Q_f = \frac{L}{\mu}$.\\
+	 \textbf{proof:} Let $r_k = \norm{x_k - x^*}^2$. Then
+	 \begin{align*}
+	 	r_{k+1}^2 &= \norm{x_k - x^* - hf'(x_k)}^2 \\
+	 	&=r_k^2 - 2h\langle f'(x_k), x_k - x^* \rangle + h^2\norm{f'(x_k)}^2 \\
+	 	&\leq (1 - \frac{2h\mu L}{\mu + L})r_k^2 + h(h - \frac{2}{\mu + L})\norm{f'(x_k)}^2
+	 \end{align*}
+	 using \hyperref[thm2112]{Theorem 2.1.12} with $f'(x^*) = 0$. This proves the first inequality since we can repeatedly apply this process until reaching $r_0$. Setting the value of $h$ gives the second-to-last inequality, and the final inequality follows from the previous and \hyperref[thm215]{Theorem 2.1.5, (1)}. \qed \\
+	 Now, recall previously that for the step-size rule $h = \frac{2}{\mu + L}$ we obtained linear convergence locally for the gradient method (\hyperref[thm124]{Theorem 1.2.4}), and here we have extended this to a global result using (strong) convexity.\\
+	 Comparing to the lower complexity bounds (\hyperref[thm217]{Theorem 2.1.7} and \hyperref[thm2113]{Theorem 2.1.13}) we can see the gradient method is not optimal for the corresponding class of functions. Therefore, we wish to consider optimal methods next.
+	 \subsection*{2.2 Optimal Methods}\label{sec22}
+	 Consider the optimization problem
+	 \begin{align*}
+	 	\min_{x \in \mathbb{R}^n}f(x)
+	 \end{align*}
+	 where $f \in \mathcal{S}_{\mu, L}^{1,1}(\mathbb{R}^n), \mu \geq 0$. (recall this also contains L-smooth, convex functions $\mu=0$). We summarize the efficiency estimates:
+	 \begin{align*}
+	 	\mathcal{F}_L^{1,1}(\mathbb{R}^n): \hspace{20pt} &f(x_k) - f^* \leq \frac{2L\norm{x_0 - x^*}^2}{k+4}, \\
+	 	\mathcal{S}_{\mu, L}^{1,1}(\mathbb{R}^n): \hspace{20pt} &f(x_k) - f^* \leq \frac{L}{2}(\frac{L-\mu}{L+\mu})^{2k}\norm{x_0 - x^*}^2
+	 \end{align*}
+	 Which improve upon the lower complexity bounds by an order of magnitude, namely they converge linearly instead of being bounded by a constant. Now, it may be the case that the lower bound we found was too optimistic, in the sense that the true lower bound could be much larger. We will see however that the lower bound calculated is in fact correct up to a constant factor. \\
+	 Now, note that we have relied on the property of gradient method forming a relaxation sequence for the function $f$. However, optimal methods often don't use this "restriction" and instead focus on global topological properties of convex functions. That is, it seems relaxation is too narrow a view. Instead, the efficiency of optimal methods are based on \hyperref[sec:Def]{estimate sequences} of the function $f$. Let's see why such sequences are useful.
+	 \subsection*{Lemma 2.2.1}\label{lem221}
+	 If for some sequence $\{x_k\}$ we have
+	 \begin{align*}
+	 	f(x_k) \leq \phi_k^* \equiv \min_{x \in \mathbb{R}^n}\phi_k(x)
+	 \end{align*}
+	 then $f(x_k) - f^* \leq \lambda_k[\phi_0(x^*) - f^*] \rightarrow 0$. \\
+	 \textbf{proof:} Indeed,
+	 \begin{align*}
+	 	f(x_k) \leq \phi_k^* = \min_{x \in \mathbb{R}^n}\phi_k(x) &\leq \min_{x \in \mathbb{R}^n}[(1 - \lambda_k)f(x) + \lambda_k\phi_0(x)]\\
+	 	&\leq (1 - \lambda_k)f(x^*) + \lambda_k\phi_0(x^*)
+	 \end{align*}
+	 Rearranging terms gives us the result. \qed \\
+	 We can see that the rate of convergence for a function and sequence satisfying the lemma will be given exactly by the sequence of $\lambda_k$. Now, we look to answer two questions: how to form the estimate sequence? and how to ensure it satisfies the lemma above?.\\
+	 \subsection*{Lemma 2.2.2}\label{lem222}
+	 Assume:
+	 \begin{itemize}
+	 	\item 1. $f \in \mathcal{S}_{\mu, L}^{1,1}(\mathbb{R}^n)$
+	 	\item 2. $\phi_0(x)$ is an arbitrary function on $\mathbb{R}^n$
+	 	\item $\{y_k\}_{k=0}^{\infty}$ is an arbitrary sequence in $\mathbb{R}^n$
+	 	\item $\{\alpha_k\}, \alpha_k \in (0,1)$, $\sum_{k=0}^{\infty}\alpha_k = \infty$
+	 	\item $\lambda_0=1$
+	 \end{itemize}
+	 Then the pair of sequences $\{\phi_k(x)\}_{k=0}^{\infty}$ and $\{\lambda_k\}_{k=0}^{\infty}$ given by:
+	 \begin{align*}
+	 	\lambda_{k+1} &= (1 - \alpha_k)\lambda_k , \\
+	 	\phi_{k+1}(x) &= (1 - \alpha_k)\phi_k(x)  \\
+	 	&+ \alpha_k[f(y_k) + \langle f'(y_k), x - y_k \rangle + \frac{\mu}{2}\norm{x - y_k}^2]
+	 \end{align*} 
+	 is an estimate sequence.\\
+	 \textbf{proof:} Indeed, $\phi_0(x)\leq (1 - \lambda_0)f(x) + \lambda_0\phi_0(x) \equiv \phi_0(x)$. since it may be arbitrary, we define it to be the upper limit on the definition requirement. By induction, suppose the inequality for the definition of \hyperref[sec:Def]{estimate sequence} hold for some $k > 0$. Then
+	 \begin{align*}
+	 	\phi_{k+1}(x) &\leq (1 - \alpha_k)\phi_k(x) + \alpha_kf(x) \\
+	 	&= (1 - (1 - \alpha_k)\lambda_k)f(x) + (1 - \alpha_k)(\phi_k(x) - ( 1 - \lambda_k)f(x)) \\
+	 	&\leq (1 - (1-\alpha_k)\lambda_k)f(x) + ( 1 - \alpha_k)\lambda_k\phi_0(x) \\
+	 	&= ( 1 - \lambda_{k+1})f(x) + \lambda_{k+1}\phi_0(x)
+	 \end{align*}
+	 Here the first inequality follows from the defintion of strong convexity, and the second inequality follows from the induction assumption. 
+	 Noting that the 4th condition ensures $\lambda_k \rightarrow 0$ since $\lambda_{k+1} = (1 - \alpha_k)\lambda_k$ and $\alpha_k \in (0,1)$. \qed \\
+	 Now we wish to how to guarantee \hyperref[lem221]{Lemma 2.2.1}. Let us fix $\phi_0$ to be a quadratic function.
+	 \subsection*{Lemma 2.2.3}\label{lem223}
+	 Let $\phi_0(x) = \phi_0^* + \frac{\gamma_0}{2}\norm{x - v_0}^2$. Then the process we defined above preserves the form, that is:
+	 \begin{align*}
+	 \phi_k(x) \equiv \phi_k^* + \frac{\gamma_k}{2}\norm{x - v_k}^2
+	 \end{align*}
+	 where:
+	 \begin{align*}
+	 	\gamma_{k+1} = (1 - \alpha_k)\gamma_k + \alpha_k \mu, \\
+	 	v_{k+1} = \frac{1}{\gamma_{k+1}}[(1-\alpha_k)\gamma_kv_k + \alpha_k\mu y_k - \alpha_kf'(y_k)], \\
+	 	\phi_{k+1}^* = (1 - \alpha_k)\phi_k + \alpha_kf(y_k) - \frac{\alpha_k^2}{2\gamma_{k+1}}\norm{f'(y_k)}^2 \\
+	 	+ \frac{\alpha_k(1 - \alpha_k)\gamma_k}{\gamma_{k+1}}(\frac{\mu}{2}\norm{y_k - v_k}^2 + \langle f'(y_k), v_k - y_k \rangle)
+	 \end{align*}
+	 \textbf{proof:} Note that $\phi_0''(x) = \gamma_0I_n$. Let us show that $\phi_k''(x) = \gamma_kI_n$ for all $k \geq 0$. By induction, suppose it is true for some $k$. Then we have
+	 \begin{align*}
+	 	\phi_{k+1}''(x) = (1 - \alpha_k)\phi_k''(x) + \alpha_k\mu I_n = ((1 - \alpha_k)\gamma_k + \alpha_k \mu)I_n \equiv \gamma_{k+1}I_n
+	 \end{align*}
+	 where the first equality is calculating the second derivative of $\phi$ using the definition of $\phi_{k+1}(x)$ from above. And the second equality is applying the inductive assumption. The last equality is due to the value of $\gamma_{k+1}$ for this particular problem. This justifies the canonical form $\phi_k(x) = \phi_k^* + \frac{\gamma_k}{2}\norm{x - v_k}^2$ since integrating twice will give us a general quadratic form, and any quadratic function can be written in such a form. Now
+	 \begin{align*}
+	 	\phi_{k+1}(x) = &(1 - \alpha_k)(\phi_k^* + \frac{\gamma_k}{2}\norm{x - v_k}^2) \\
+	 	&+ \alpha_k[f(y_k) + \langle f'(y_k), x - y_k \rangle + \frac{\mu}{2}\norm{x - y_k}^2]
+	 \end{align*}
+	 by plugging in the canonical form of $\phi_k(x)$ to the sequence from \hyperref[lem222]{Lemma 2.2.2}. Therefore $\phi'_{k+1}(x) = 0$ gives us
+	 \begin{align*}
+	 	(1 - \alpha_k)\gamma_k(x - v_k) + \alpha_kf'(y_k) + \alpha_k\mu(x - y_k) = 0
+	 \end{align*}
+	 giving us the equation for $v_{k+1}$ (which minimizes the function).\\
+	 Finally we have
+	 \begin{align*}
+	 	&\phi_{k+1}^* + \frac{\gamma_{k+1}}{2}\norm{y_k - v_{k+1}}^2 = \phi_{k+1}(y_k) \\
+	 	&= (1 - \alpha_k)(\phi_k^* + \frac{\gamma_k}{2}\norm{y_k - v_k}^2) + \alpha_kf(y_k)
+	 \end{align*}
+	 which follows from the recursion rule for $\{\phi_k(x)\}$. And from the definition of $v_{k+1}$ we have
+	 \begin{align*}
+	 	v_{k+1} - y_k = \frac{1}{\gamma_{k+1}}[(1 - \alpha_k)\gamma_k(v_k - y_k)-\alpha_kf'(y_k)]
+	 \end{align*}
+	 Therefore
+	 \begin{align*}
+	 	\frac{\gamma_{k+1}}{2}\norm{v_{k+1} - y_k}^2 &= \frac{1}{2\gamma_{k+1}}[(1 - \alpha_k)^2\gamma_k^2 \norm{v_k - y_k}^2\\
+	 	&-2\alpha_k(1 - \alpha_k)\gamma_k\langle f'(y_k), v_k - y_k \rangle \\
+	 	&+\alpha_k^2\norm{f'(y_k)}^2]
+	 \end{align*}
+	 
+ 	Substituting this result into the above equation and noting that 
+ 	\begin{align*}
+ 		(1 - \alpha_k)\frac{\gamma_k}{2}^2 - \frac{1}{2\gamma_{k+1}}(1 - \alpha_k)^2\gamma_k^2 &= (1 - \alpha_k)\frac{\gamma_k}{2}(1 - \frac{(1 - \alpha_k)\gamma_k}{\gamma_{k+1}})\\
+ 		&= (1 - \alpha_k)\frac{\gamma_k}{2}\cdot \frac{\alpha_k\mu}{\gamma_{k+1}}
+ 	\end{align*}
+	 \qed \\
+	 With a better understanding of how these sequences evolve, let's consider 
+	 \begin{align*}
+	 	\phi_k^* \geq f(x_k)
+	 \end{align*}
+	 (from \hyperref[lem221]{Lemma 2.2.1}). \\
+	 Then by \hyperref[lem223]{Lemma 2.2.3}
+	 \begin{align*}
+	 	\phi_{k+1}^* \geq &(1 - \alpha_k)f(x_k) + \alpha_kf(y_k) - \frac{\alpha_k^2}{2\gamma_{k+1}}\norm{f'(y_k)}^2 \\
+	 	&+ \frac{\alpha_k(1 - \alpha_k)\gamma_k}{\gamma_{k+1}}\langle f'(y_k), v_k - y_k \rangle 
+	 \end{align*}
+	 Since we remove a positive number, $\frac{\mu}{2}\norm{y_k - v_k}^2$ (multiplied with a positive number)  from the result in the lemma. \\
+	 Since $f(x_k) \geq f(y_k) + \langle f'(y_k), x_k - y_k \rangle$ (convex) we get the following estimate:
+	 \begin{align*}
+	 	\phi_{k+1}^* \geq &f(y_k) - \frac{\alpha_k^2}{2 \gamma_{k+1}}\norm{f'(y_k)}^2 \\
+	 	&+ (1 - \alpha_k)\langle f'(y_k), \frac{\alpha_k\gamma_k}{\gamma_{k+1}}(v_k - y_k) + x_k - y_k \rangle 
+	 \end{align*}
+	 That is, replace $f(x_k)$ in the inequality for the estimate of the $\phi_{k+1}$ minimum. \\
+	 Now, we wish this inequality holds for all $k$ in the sequence $\{x_k\}$ so let's check if $\phi_{k+1}^* \geq f(x_{k+1})$. \\
+	 Now, we can ensure the following
+	 \begin{align*}
+	 	f(y_k) - \frac{1}{2L} \norm{f'(y_k)}^2 \geq f(x_{k+1})
+	 \end{align*}
+	 in many ways. Namely, we can use the gradient method:
+	 \begin{align*}
+	 	x_{k+1} = y_k - h_kf'(x_k)
+	 \end{align*}
+	 with $h_k = \frac{1}{L}$. That is, we can apply \hyperref[thm215]{Theorem 2.1.5, (1)} with $x = y_k$ and $y = x_{k+1}$. Now, define $\alpha_k$ as follows:
+	 \begin{align*}
+	 	L \alpha_k^2 = (1 - \alpha_k)\gamma_k + \alpha_k \mu \equiv \gamma_{k+1}
+	 \end{align*}
+	 Then $\frac{\alpha_k^2}{2 \gamma_{k+1}} = \frac{1}{2L}$ and we can replace the previous inequality by:
+	 \begin{align*}
+	 	\phi_{k+1}^* \geq f(x_{k+1}) + (1 - \alpha_k) \langle f'(y_k), \frac{\alpha_k\gamma_k}{\gamma_{k+1}}(v_k - y_k) + x_k - y_k \rangle
+	 \end{align*}
+	 Since we are free in the choice of $y_k$, let's find it from the equation:
+	 \begin{align*}
+	 	\frac{\alpha_k\gamma_k}{\gamma_{k+1}}(v_k - y_k) + x_k - y_k = 0 \\
+	 	 \implies y_k = \frac{\alpha_k\gamma_kv_k + \gamma_{k+1}x_k}{\gamma_k + \alpha_k \mu}
+	 \end{align*}
+	 Now we are ready to define the scheme for this optimal method:
+	 
+	 
+	 \subsection*{Optimal Method for 2.2}\label{sec22opt}
+	 Choose $x_0 \in \mathbb{R}^n$ and $\gamma_0 > 0$. Set $v_0 = x_0$. Then iterate $k \geq 0$
+	 \begin{itemize}
+	 	\item Compute $\alpha_k \in (0,1)$ from 
+	 	\begin{align*}
+	 		L \alpha_k^2 = (1 - \alpha_k)\gamma_k + \alpha_k\mu
+	 	\end{align*}
+	 	and set $\gamma_{k+1} = (1 - \alpha_k)\gamma_k + \alpha_k \mu$
+	 	\item Choose
+	 	\begin{align*}
+	 		y_k = \frac{\alpha_k\gamma_kv_k + \gamma_{k+1}x_k}{\gamma_k + \alpha_k\mu}
+	 	\end{align*}
+	 	and compute $f(y_k), f'(y_k)$.
+	 	\item Find $x_{k+1}$ such that
+	 	\begin{align*}
+	 		f(x_{k+1}) \leq f(y_k) - \frac{1}{2L} \norm{f'(y_k)}^2
+	 	\end{align*}
+	 	(\hyperref[sec123]{step-size rules}) where recall we can just perform a gradient step.
+	 	\item Set $v_{k+1} = \frac{(1 - \alpha_k)\gamma_kv_k + \alpha_k\mu y_k - \alpha_kf'(y_k)}{\gamma_{k+1}}$.
+	 \end{itemize}
+	 Where if we pick a different scheme for step-sizes, we will replace $L$ with $\frac{1}{\omega}$ as we showed all of our schemes satisfy
+	 \begin{align*}
+	 	f(x_{k+1}) \leq f(y_k) - \frac{\omega}{2}\norm{f'(y_k)}^2
+	 \end{align*}
+	 
+	 \subsection*{Theorem 2.2.1}\label{thm221}
+	 The scheme \hyperref[sec22opt]{above} generates a sequence $\{x_k\}_{k=0}^{\infty}$ such that
+	 \begin{align*}
+	 	f(x_k) - f^* \leq \lambda_k[f(x_0) - f^* + \frac{\gamma_0}{2}\norm{x_0 - x^*}^2],
+	 \end{align*}
+	 where $\lambda_0 = 1$ and $\lambda_k = \prod_{i=0}^{k-1}(1 - \alpha_i)$. \\(recall that to understand convergence for these methods, we will need to see how $\{\lambda_k\} \rightarrow 0$ which will be shown after).\\
+	 \textbf{proof:} Let $\phi_0(x) = f(x_0) + \frac{\gamma_0}{2}\norm{x - v_0}^2$. Then $f(x_0) = \phi_0^*$ and we get $f(x_k) \leq \phi_k^*$ by construction. Lastly, apply \hyperref[lem221]{Lemma 2.2.1}. \qed
+	 \subsection*{Lemma 2.2.4}\label{lem224}
+	 If in the \hyperref[sec22opt]{scheme} $\gamma_0 \geq \mu$, then
+	 \begin{align*}
+	 	\lambda_k \leq \min\{(1 - \sqrt{\frac{\mu}{L}}), \frac{4L}{(2\sqrt{L} + k \sqrt{\gamma_0})^2}\}
+	 \end{align*}
+	 \textbf{proof:} Indeed, if $\lambda_k \geq \mu$, then $\gamma_{k+1} = L \alpha_k^2 = (1 - \alpha_k)\gamma_k + \alpha_k\mu \geq \mu$. Since $\gamma_0 \geq \mu$, this must be valid for all $\gamma_k$. Then $\alpha_k \geq \sqrt{\frac{\mu}{L}}$ and the first inequality is proven. (using $\alpha_k \geq \sqrt{\frac{\mu}{L}}$ with $\lambda_k = \prod_{i=0}^{k-1}(1 - \alpha_i)$ gives us $\lambda_k \leq (1 - \sqrt{\frac{\mu}{L}})^k$.\\
+	 Now, let's show that $\gamma_k \geq \gamma_0\lambda_k$. Since $\gamma_0 = \gamma_0\lambda_0$ ( because $\lambda_0 = 1$) we can use induction:
+	 \begin{align*}
+	 	\gamma_{k+1} \geq (1 - \alpha_k)\gamma_k \geq (1 - \alpha_k)\gamma_0\lambda_k = \gamma_0\lambda_{k+1}
+	 \end{align*}
+	 Therefore $L\alpha_k^2 = \gamma_{k+1} \geq \gamma_0\lambda_{k+1}$. \\
+	 Now, denote $a_k = \frac{1}{\sqrt{\lambda_k}}$. Since $\{\lambda_k\}$ is a decreasing sequence, we have
+	 \begin{align*}
+	 	a_{k+1} - a_k = \frac{\sqrt{\lambda_k} - \sqrt{\lambda_{k+1}}}{\sqrt{\lambda_k\lambda_{k+1}}} &= \frac{\lambda_k - \lambda_{k+1}}{\sqrt{\lambda_k\lambda_{k+1}}(\sqrt{\lambda_k} + \sqrt{\lambda_{k+1}})} \\
+	 	&\geq \frac{\lambda_k - \lambda_{k+1}}{2\lambda_k\sqrt{\lambda_{k+1}}} = \frac{\lambda_k - (1 - \alpha_k)\lambda_k}{2\lambda_k\sqrt{\lambda_{k+1}}} = \frac{\alpha_k}{2\sqrt{\lambda_{k+1}}} \geq \frac{1}{2}\sqrt{\frac{\gamma_0}{L}}
+	 \end{align*}
+	 where in the first inequality we replaced $\lambda_{k+1}$ with $\lambda_k$ in the denominator to make it smaller. Next we apply the definition of $\lambda_{k+1}$ in the numerator. Then for the final inequality we use $\lambda_{k+1} \leq L\alpha_k^2 / \gamma_0$. \\
+	 Thus $a_k \geq 1 + \frac{k}{2}\sqrt{\frac{\gamma_0}{L}}$. Using the definition of $a_k$ we've proven both inequalities in the lemma. \qed \\
+	 \subsection*{Theorem 2.2.2}\label{thm222} Consider in our \hyperref[sec22opt]{scheme} $\gamma_0 = L$. Then this generates a sequence $\{x_k\}_{k=1}^{\infty}$ such that
+	 \begin{align*}
+	 	f(x_k) - f^* \leq L \min \{(1 - \sqrt{\frac{\mu}{L}})^k, \frac{4}{(k+2)^2}\} \norm{x_0 - x^*}^2
+	 \end{align*}
+	 From this, we can see that the scheme above is optimal for unconstrained minimization of functions from $\mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n), \mu \geq 0$. \\
+	 \textbf{proof:} The inequality follows from using $f(x_0) - f^* \leq \frac{L}{2}\norm{x_0 - x^*}^2$ and then applying \hyperref[thm221]{Theorem 2.2.1} and \hyperref[lem224]{Lemma 2.2.4}. That is, we plug this inequality into the theorem and then plug in the inequality from the lemma into the theorem as well. \\
+	 Now to show this method is optimal. Let $\mu > 0$ From the lower complexity bounds (\hyperref[thm2113]{Theorem 2.1.13}) we have
+	 \begin{align*}
+	 	f(x_k) - f^* \geq \frac{\mu}{2}(\frac{\sqrt{Q_f} - 1}{\sqrt{Q_f}+1})^{2k}R^2 \geq \frac{\mu}{2}\exp(- \frac{4k}{\sqrt{Q_f} - 1})R^2
+	 \end{align*}
+	 where $Q_f = \frac{L}{\mu}$ and $R = \norm{x_0 - x^*}^2$. \\
+	 Let's try to explain this second inequality. We can write $(\frac{\sqrt{Q_f} - 1}{\sqrt{Q_f}+1})^{2k}$ as $\exp(\log((\frac{\sqrt{Q_f} - 1}{\sqrt{Q_f}+1})^{2k})) = \\
+	 \exp((2k \log(\frac{\sqrt{Q_f} - 1}{\sqrt{Q_f}+1})))$. Then we need to show $\log(\frac{\sqrt{Q_f} - 1}{\sqrt{Q_f}+1}) \geq (- \frac{2}{\sqrt{Q_f} - 1})$. To show this, note that $Q_f > 1$, put both expressions on one side and consider the sign of the derivative. \\
+	 Therefore, the worst case bound for finding $x_k$ satisfying $f(x_k) - f^* \leq \epsilon$ cannot be better than 
+	 \begin{align*}
+	 	k \geq \frac{\sqrt{Q_f} - 1}{4}[\ln(\frac{1}{\epsilon}) + \ln(\frac{\mu}{2}) + 2 \ln(R)]
+	 \end{align*}
+	 And for our \hyperref[sec22opt]{scheme} we have
+	 \begin{align*}
+	 	f(x_k) - f^* \leq LR^2(1 - \sqrt{\frac{\mu}{L}})^k \leq LR^2\exp(- \frac{k}{\sqrt{Q_f}})
+	 \end{align*}
+	 Therefore we can guarantee that $k \leq \sqrt{Q_f}[\ln(\frac{1}{\epsilon}) + \ln(L) + 2 \ln(R)]$. Thus the relevant term is $\sqrt{Q_f}\ln(\frac{1}{\epsilon})$ which is proportional to the lower bound. The same reasoning works for just convex functions as well. \qed \\
+	 The previous method required an inequality to be satisfied for our sequence of points which we saw can be guaranteed by using the gradient method. Thus let us consider this variant.
+	
+	\subsection*{Optimal Method for 2.2 (Constant Step Scheme I)}\label{sec22optvar1}
+	Choose $x_0 \in \mathbb{R}^n, \gamma_0 > 0$ and set $v_0 = x_0$.
+	Then iterate $k$:
+	\begin{itemize}
+		\item Compute $\alpha_k \in (0,1)$ from
+		\begin{align*}
+			L\alpha_k^2 = (1 - \alpha_k)\gamma_k + \alpha_k\mu
+		\end{align*}
+		and set $\gamma_{k+1} = (1 - \alpha_k)\gamma_k + \alpha_k\mu$
+		\item Choose $y_k = \frac{\alpha_k\gamma_kv_k + \gamma_{k+1}x_k}{\gamma_k + \alpha_k\mu}$. \\
+		Then compute $f(y_k)$ and $f'(y_k)$.
+		\item Set $x_{k+1} = y_k - \frac{1}{L}f'(y_k)$ and 
+		\begin{align*}
+			v_{k+1} = \frac{1}{\gamma_{k+1}} [(1 - \alpha_k)\gamma_kv_k + \alpha_k\mu y_k - \alpha_kf'(y_k)]
+		\end{align*}
+	\end{itemize}
+	It turns out this method can be simplified. Using the equalities above, we can rewrite:
+	\begin{align*}
+		v_{k+1} &= \frac{1}{\gamma_{k+1}}\{\frac{(1 - \alpha_k)}{\alpha_k}[(\gamma_k + \alpha_k \mu)y_k - \gamma_{k+1}x_k] + \alpha_k\mu y_k - \alpha_kf'(y_k)\} \\
+		&= \frac{1}{\gamma_{k+1}}\{\frac{(1 - \alpha_k)\gamma_k}{\alpha_k}y_k + \mu y_k\} - \frac{1 - \alpha_k}{\alpha_k}x_k - \frac{\alpha_k}{\gamma_{k+1}}f'(y_k) \\
+		&= x_k + \frac{1}{\alpha_k}(y_k - x_k) - \frac{1}{\alpha_k L}f'(y_k) \\
+		&= x_k + \frac{1}{\alpha_k}(x_{k+1} - x_k)
+	\end{align*}
+	Hence,
+	\begin{align*}
+		y_{k+1} &= \frac{1}{\gamma_{k+1} + \alpha_{k+1}\mu}(\alpha_{k+1}\gamma_{k+1}v_{k+1} + \gamma_{k+2}x_{k+1}) \\
+		&= x_{k+1}+ \frac{\alpha_{k+1}\gamma_{k+1}(v_{k+1} - x_{k+1})}{\gamma_{k+1} + \alpha_{k+1}\mu} = x_{k+1} + \beta_k(x_{k+1} - x_k)
+	\end{align*}
+	where 
+	\begin{align*}
+		\beta_k = \frac{\alpha_{k+1}\gamma_{k+1}(1 - \alpha_k)}{\alpha_k(\gamma_{k+1} + \alpha_{k+1}\mu)}
+	\end{align*}
+	That is, we can get rid of using $\{v_k\}$. We can also do the same with $\gamma_k$:
+	\begin{align*}
+		\alpha_k^2L = (1 - \alpha_k)\gamma_k + \mu \alpha_k \equiv \gamma_{k+1}
+	\end{align*}
+	Therefore,
+	\begin{align*}
+		\beta_k &= \frac{\alpha_{k+1}\gamma_{k+1}(1 - \alpha_k)}{\alpha_k(\gamma_{k+1} + \alpha_{k+1}\mu)} = \frac{\alpha_{k+1}\gamma_{k+1}(1 - \alpha_k)}{\alpha_k(\gamma_{k+1} + \alpha_{k+1}^2L - (1 - \alpha_{k+1})\gamma_{k+1})} \\
+		&= \frac{\gamma_{k+1}(1 - \alpha_k)}{\alpha_k(\gamma_{k+1} + \alpha_{k+1}L)} = \frac{\alpha_k(1 - \alpha_k)}{\alpha_k^2 + \alpha_{k+1}}
+	\end{align*}
+	Note that $\alpha_{k+1}^2 = (1 - \alpha_{k+1})\alpha_k^2 + q \alpha_{k+1}$ with $q = \mu / L$ and
+	\begin{align*}
+		\alpha_0^2L = (1 - \alpha_0)\gamma_0 + \mu \alpha_0
+	\end{align*}
+	That is, we can view $\gamma_0$ as a function of $\alpha_0$ letting us eliminate $\{\gamma_k\}$. \\
+	(note that ever calculation in this section is just simple algebra which can be checked easily). This leads us to the simpler scheme below.
+	
+	\subsection*{Optimal Method for 2.2 (Constant Step Scheme II)}\label{sec22optvar2}
+	Choose $x_0 \in \mathbb{R}^n$ and $\alpha_0 \in (0,1)$. Set $y_0 = x_0$ and $q = \frac{\mu}{L}$. \\
+	Then iterate in $k$:
+	\begin{itemize}
+		\item Compute $f(y_k), f'(y_k)$ and set
+		\begin{align*}
+			x_{k+1} = y_k - \frac{1}{L}f'(y_k)
+		\end{align*}
+		\item Compute $\alpha_{k+1} \in (0,1)$ from 
+		\begin{align*}
+			\alpha_{k+1}^2 = (1 - \alpha_{k+1}\alpha_k^2) + q \alpha_{k+1}
+		\end{align*}
+		and set $\beta_k = \frac{\alpha_k(1 - \alpha_k)}{\alpha_k^2 + \alpha_{k+1}}$. Then compute
+		\begin{align*}
+			y_{k+1} = x_{k+1} + \beta_k(x_{k+1} - x_k)
+		\end{align*}
+	\end{itemize}
+	We can find the rate of convergence for this method using \hyperref[thm221]{Theorem 2.2.1} and \hyperref[lem224]{Lemma 2.2.4}.
+	\subsection*{Theorem 2.2.3}\label{thm223}
+	If in scheme \hyperref[sec22optvar2]{Optimal Method II} we have
+	\begin{align*}
+		\alpha_0 \geq \sqrt{\frac{\mu}{L}}
+	\end{align*}
+	then
+	\begin{align*}
+		f(x_k) - f^* \leq \min \{(1 - \sqrt{\frac{\mu}{L}})^k, \frac{4L}{(2\sqrt{L} + k \sqrt{\gamma_0} )^2}\}
+	\end{align*}
+	where $\gamma_0 = \frac{\alpha_0(\alpha_0L - \mu)}{1 - \alpha_0}$.\\
+	
+	This is just a change in notation where our changed condition is equivalent to $\gamma_0 \geq \mu$. Note that this scheme becomes even simpler if we choose $\alpha_0 = \sqrt{\frac{\mu}{L}} (\gamma_0 = \mu)$. Then
+	\begin{align*}
+		\alpha_k = \sqrt{\frac{\mu}{L}}, \hspace{10pt} \beta_k = \frac{\sqrt{L} - \sqrt{\mu}}{\sqrt{L} + \sqrt{\mu}}
+	\end{align*}
+	Thus we can condense the scheme even further.
+	\subsection*{Optimal Method for 2.2 (Constant Step Scheme III)}
+	Choose $y_0 = x_0 \in \mathbb{R}^n$. Then iterate in $k$:
+	\begin{align*}
+		x_{k+1} = y_k - \frac{1}{L}f'(y_k), \\
+		y_{k+1} = x_{k+1} + \frac{\sqrt{L} - \sqrt{\mu}}{\sqrt{L} + \sqrt{\mu}}(x_{k+1} - x_k)
+	\end{align*}
+	Note that this does not work for $\mu = 0$ and setting $\gamma_0 = L$ is safer.
+	
+	\subsection*{Convex Sets}
+	We are now interested in solving constrained minimization problems, where up to this point, we have mostly considered unconstrained. It will be natural to consider sets $Q$ in the optimization problem to be \hyperref[sec:Def]{Convex}. That is, this is a natural assumption given that we wish to be able to check whether our function is convex on $Q$. That is, check $f(\alpha x + (1 - \alpha)y) \leq \alpha f(x) + (1 - \alpha)f(y)$ for $\alpha \in [0,1]$. Note that the equation for a line segment between two points is called a "convex combination" of the two endpoints.
+	
+	\subsection*{Lemma 2.2.5}\label{lem225}
+	
+	If $f(x)$ is convex, then for any $\beta \in \mathbb{R}^1$, the corresponding level set
+	\begin{align*}
+		\mathcal{L}_f(\beta) = \{x \in \mathbb{R}^n | f(x) \leq B\}
+	\end{align*}
+	is either convex or empty. \\
+	\textbf{proof:} Indeed, let $x, y \in \mathcal{L}_f(\beta)$. Then $f(x), f(y) \leq \beta$, so
+	\begin{align*}
+		f(\alpha x + (1 - \alpha)y) \leq \alpha f(x) + (1 - \alpha)f(y) \leq \beta
+	\end{align*}
+	\qed 
+	\subsection*{Lemma 2.2.6}\label{lem226}
+	Let $f(x)$ be convex. Then its epigraph
+	\begin{align*}
+		\mathcal{E}_f = \{ (x, \tau) \in \mathbb{R}^{n+1} | f(x) \leq \tau\}
+	\end{align*}
+	is convex.  \\
+	\textbf{proof:} Indeed, let $z_1 = (x_1, \tau_1), x_2 = (x_2, \tau_2)$. Then for any $\alpha \in [0,1]$ we have
+	\begin{align*}
+		z_\alpha \equiv \alpha z_1 + (1 - \alpha)z_2 = (\alpha x_1 + (1 - \alpha)x_2, \alpha \tau_1 + (1 - \alpha)\tau_2), \\
+		f(\alpha x_1 + (1 - \alpha)x_2) \leq \alpha f(x_1) + (1 - \alpha)f(x_2) \leq \alpha \tau_1 + (1 - \alpha)\tau_2
+	\end{align*}
+	Thus $z_\alpha \in \mathcal{E}_f$. \qed \\
+	Now we can look at some properties of convex sets.
+	\subsection*{Theorem 2.2.4}\label{thm224}
+	Let $Q_1 \subseteq \mathbb{R}^n, Q_2 \subseteq \mathbb{R}^m$ be convex sets and define:
+	\begin{align*}
+		\mathcal{A}(x) := Ax + b: \hspace{5pt} \mathbb{R}^n \rightarrow \mathbb{R}^m
+	\end{align*}
+	Then the following sets below are convex:
+	\begin{itemize}
+		\item $Q_1 \cap Q_2$  ($m=n$)
+		\item $Q_1 + Q_2$ ($m=n$)
+		\item $Q_1 \cross Q_2$ (direct sum)
+		\item Conic hull: $\mathcal{K}(Q_1) = \{ z \in \mathbb{R}^n | z = \beta x, x \in Q_1, \beta \geq 0\}$.
+		\item Convex hull:
+		\begin{align*}
+			Conv(Q_1, Q_2) = \{z \in \mathbb{R}^n | &z = \alpha x + (1 - \alpha)y, \\ 
+			&  x \in Q_1, y \in Q_2, \alpha \in [0,1]\}
+		\end{align*}
+		\item Affine image: $\mathcal{A}(Q_1) = \{y \in \mathbb{R}^m | y = \mathcal{A}(x), x \in Q_1\}$
+		\item Inverse affine image: $\mathcal{A}^{-1}(Q_2) = \{x \in \mathbb{R}^n | \mathcal{A}(x) \in Q_2\}$
+	\end{itemize}
+	\textbf{proof (1):} Let $x_1 \in Q_1 \cup Q_2$ and $x_2 \in Q_1 \cup Q_2$. Then $[x_1,x_2] \subset Q_1$ (line segment connecting $x_1$ and $x_2$) and $[x_1, x_2] \subset Q_2$. \qed \\
+	\textbf{proof (2):} Let $z_1 = x_1 + x_2$ and $z_2 = y_1 + y_2$ where $x_1, y_1 \in Q_1$ and $x_2, y_2 \in Q_2$. Then 
+	\begin{align*}
+		\alpha z_1 + (1 - \alpha)z_2 = (\alpha x_1 + (1 - \alpha)y_1) + (\alpha x_2 + (1 - \alpha)y_2) \in Q_1 + Q_2
+	\end{align*} 
+	\qed \\
+	\textbf{proof (3):} Let $z_1 = (x_1, x_2)$ and $z_2 = (y_1, y_2)$, then
+	\begin{align*}
+		\alpha z_1 + (1 - \alpha)z_2 = ((\alpha x_1 + (1 - \alpha)y_1), (\alpha x_2 + (1 - \alpha)y_2)) \in Q_1 \cross Q_2
+	\end{align*}
+	\qed \\
+	\textbf{proof (4):} Let $z_1 = \beta_1x_1$ and $z_2 = \beta_2x_2$, then for any $\alpha \in [0,1]$ we have
+	\begin{align*}
+		\alpha z_1 + (1 - \alpha)z_2 = \alpha \beta_1x_1 + (1 - \alpha)\beta_2x_2 = \gamma(\bar{\alpha}x_1 + (1 - \bar{\alpha})x_2)
+	\end{align*}
+	where $\gamma = \alpha \beta_1 + (1 - \alpha)\beta_2$ and $\bar{\alpha} = \alpha \beta_1 / \gamma \in [0,1]$. (since $x_1, x_2 \in Q_1$ we have the convex combination is as well). \qed \\
+	\textbf{proof (5):} Let $z_1 = \beta_1x_1 + (1 - \beta_1)x_2$ with $x_1 \in Q_1$, $x_2 \in Q_2$, $\beta \in [0,1]$. Similarly, $z_2 = \beta_2y_1 + (1 - \beta_2)y_2$. Then for any $\alpha \in [0,1]$ we have
+	\begin{align*}
+		\alpha z_1 + (1 - \alpha)z_2 = &\alpha(\beta_1x_1 + (1 - \beta_1)y_2) \\
+		&+ (1 - \alpha)(\beta_2y_1 + (1 - \beta_2)y_2) \\
+		&= \bar{\alpha}(\bar{\beta_1}x_1 + (1 - \bar{\beta_2})y_2)
+	\end{align*}
+	where $\bar{\alpha} = \alpha \beta_1 + ( 1 - \alpha)\beta_2$ and $\bar{\beta_1} = \alpha\beta_1/\bar{\alpha}, \bar{\beta_2} = \alpha(1 - \beta_1)/(1 - \bar{\alpha})$. \qed \\
+	\textbf{proof (6):} Let $y_1, y_2 \in \mathcal{A}(Q_1)$. Then $y_1 = Ax_1 + b$ and $y_2 = Ax_2 + b$ with $x_1, x_2 \in Q_1$. Consider $y(\alpha) = \alpha(Ax_1 + b) + (1 - \alpha)(Ax_2 + b) = A(\alpha x_1 + (1 - \alpha)x_2) + b$ \qed \\
+	\textbf{proof (7):} Let $x_1, x_2 \in \mathcal{A}^{-1}(Q_2)$. Then $Ax_1 + b = y_1$ and $Ax_2 + b = y_2$ where $y_1, y_2 \in Q_2$.  Consider $x(\alpha) = \alpha x_1 + (1 - \alpha)x_2, 0 \leq \alpha \leq 1$. We have
+	\begin{align*}
+		\mathcal{A}(x(\alpha)) &= A(\alpha x_1 + ( 1 - \alpha)x_2) + b \\
+		&= \alpha(Ax_1 + b) + (1 - \alpha)(Ax_2 + b) = \alpha y_1 + ( 1 - \alpha)y_2 \in Q_2
+	\end{align*}
+	\qed \\
+	Some examples of convex sets include: 
+	\begin{itemize}
+		\item Half-space: $\{x \in \mathbb{R}^n | \langle a, x \rangle \leq \beta\}$
+		\item Polytope: $\{x \in \mathbb{R}^n | \langle a_i, x \rangle \leq b_i\}$
+		\item Ellipsoid: For $A = A^T \preceq 0, \{x \in \mathbb{R}^n | \langle Ax, x \rangle \leq r^2\}$
+	\end{itemize}
+	\subsection*{Optimization in a Convex Set}\label{optconv}
+	Now we wish to consider optimality conditions for our constrained optimization to a convex set. 
+	\begin{align*}
+		\min_{x \in Q}f(x), \hspace{10pt} f \in \mathcal{F}^1(\mathbb{R}^n)
+	\end{align*}
+	where $Q$ is a closed convex set. We cannot continue to use the first-order optimality condition of $f'(x) = 0$ as the point may not be in our set, and at the optimal value, our derivative need not be $0$.
+	
+	\subsection*{Theorem 2.2.5}\label{thm225}
+	Let $f \in \mathcal{F}^1(\mathbb{R}^n)$ and $Q$ be a closed convex set. Then $x^*$ is a solution to the  \hyperref[optconv]{optimization} problem if and only if
+	\begin{align*}
+		\langle f'(x^*), x - x^* \rangle \geq 0. 
+	\end{align*}
+	for all $x \in Q$. \\
+	\textbf{proof:} Indeed, if the inequality is true ($\impliedby$), then
+	\begin{align*}
+		f(x) \geq f(x^*) + \langle f'(x^*), x - x^* \rangle \geq f(x^*)
+	\end{align*}
+	Where the left nequality is just \hyperref[thm215]{Theorem 2.1.5, (2)}, and the right inequality follows from assumption. \\
+	Now ($\implies$) suppose $x^*$ is a solution and assume by way of contradiction there exists $x \in Q$ such that 
+	\begin{align*}
+		\langle f'(x^*), x - x^* \rangle < 0 
+	\end{align*}
+	Consider $\phi(\alpha) = f(x^* + \alpha(x - x^*)), \alpha \in [0,1]$. Note that
+	\begin{align}
+		\phi(0) = f(x^*), \hspace{10pt} \phi'(0) = \langle f'(x^*), x - x^* \rangle < 0
+	\end{align}
+	Therefore, if $\alpha$ is taken to be small enough we have
+	\begin{align*}
+		f(x^* + \alpha(x - x^*)) = \phi(\alpha)< \phi(0) = f(x^*)
+	\end{align*} 
+	That is, the function is decreasing at $0$ so we would be able to get smaller than our optimal pont.
+	\qed
+	\subsection*{Theorem 2.2.6}\label{thm226}
+	Let $f \in \mathcal{S}_\mu^1(\mathbb{R}^n)$ and $Q$ be a closed convex set. Then there exists a unique solution $x^*$ of \hyperref[optconv]{optconv}.\\
+	\textbf{proof:} Let $x_0 \in Q$. Consider $\bar{Q} = \{x \in Q | f(x) \leq f(x_0)\}$. Then note that our optimization problem is equivalent to
+	\begin{align*}
+		\min\{f(x) | x \in \bar{Q}\}
+	\end{align*}
+	Since the optimal point will be such that $f(x) \leq f(x_0)$. \\
+	Now $\bar{Q}$ is bounded, thus for all $x \in \bar{Q}$ we have
+	\begin{align*}
+		f(x_0) \geq f(x) \geq f(x_0) + \langle f'(x_0), x - x_0 \rangle + \frac{\mu}{2}\norm{x - x_0}^2
+	\end{align*}
+	by strong convexity. \\
+	Hence, $\norm{x - x_0} \leq \frac{2}{\mu}\norm{f'(x_0)}$. This follows from the Cauchy-Schwarz inequality. That is, we have:
+	\begin{align*}
+		0 \geq \langle f'(x_0), x - x_0 \rangle + \frac{\mu}{2}\norm{x-x_0}^2 \implies \\
+		\langle f'(x_0), x - x_0 \rangle \leq -\frac{\mu}{2}\norm{x-x_0}^2
+	\end{align*}
+	But we also have
+	\begin{align*}
+		\langle f'(x_0), x - x_0 \rangle \leq \norm{f'(x_0)}\cdot \norm{x - x_0} \implies (\text{using above}) \\
+		- \norm{f'(x_0)}\cdot \norm{x - x_0} \leq -\frac{\mu}{2}\norm{x - x_0}^2
+	\end{align*}
+	And the result follows from here. \\
+	Thus the solution $x^*$ exists as $\bar{Q}$ is closed and bounded. (bounding $\norm{x - x_0}$ means $\norm{x}$ is also bounded where $x$ was arbitrary in $\bar{Q}$). \\
+	Now, we need to show it is unique. Suppose $x_1^*$ is another solution. Then
+	\begin{align*}
+		f^* &= f(x_1^*) \geq f(x^*) + \langle f'(x^*), x_1^* - x^* \rangle + \frac{\mu}{2}\norm{x_1^* - x^*}^2 \\
+		& \geq f^* + \frac{\mu}{2}\norm{x_1^* - x^*}^2
+	\end{align*}
+	using \hyperref[thm225]{Theorem 2.2.5}. Therefore $x_1^* = x^*$. \qed
+	\subsection*{2.2.3 Gradient Mapping}\label{sec223GradMap}
+	We look here to introduce an object that uses the important qualities of the gradient while realizing that the usual gradient descent method cannot be applied directly to constrained minimization problems. That is, recall the two inequalities:
+	\begin{align}
+		f(x - \frac{1}{L}) \leq f(x) - \frac{1}{2L}\norm{f'(x)}^2, \\
+		\langle f'(x), x - x^* \rangle \geq \frac{1}{L}\norm{f'(x)}^2
+	\end{align}
+	Now we define a \hyperref[sec:Def]{Gradient Mapping} for a function $f$ on $Q$.\\
+	Fix $\gamma > 0$ and denote:
+	\begin{align*}
+		&x_Q(\bar{x};\gamma) = \argmin_{x \in Q}[f(\bar{x}) + \langle f'(\bar{x}), x - \bar{x} \rangle + \frac{\gamma}{2}\norm{x - \bar{x}}^2], \\
+		&g_Q(\bar{x}; \gamma) = \gamma(\bar{x} - x_Q(\bar{x};\gamma))
+	\end{align*}
+	Then $g_Q(\gamma,x)$ is the gradient mapping of $f$ on $Q$.
+	 \\
+	We can check the case where $Q = \mathbb{R}^n$:
+	\begin{align*}
+		x_Q(\bar{x};\gamma) = \bar{x} - \frac{1}{\gamma}f'(\bar{x}), \hspace{10pt} g_Q(\bar{x};\gamma) = f'(\bar{x})
+	\end{align*}
+	That is, $x_Q$ can be thought of as taking a gradient step with step-size $\frac{1}{\gamma}$ and $g_Q$ the direction. Note that the gradient mapping is well-defined for all $\bar{x} \in \mathbb{R}^n$. Let us see the main property.
+	
+	\subsection*{Theorem 2.2.7}\label{thm227}
+	Let $f \in \mathcal{S}_{\mu, L}^{1,1}(\mathbb{R}^n), \gamma \geq L, \bar{x} \in \mathbb{R}^n$. Then for any $x \in Q$ we have
+	\begin{align*}
+		f(x) & \geq f(x_Q(\bar{x};\gamma)) + \langle g_Q(\bar{x};\gamma), x - \bar{x} \rangle \\
+		&+ \frac{1}{2\gamma}\norm{g_Q(\bar{x};\gamma)}^2 + \frac{\mu}{2}\norm{x - \bar{x}}^2
+	\end{align*}
+	\textbf{proof:} Denote $x_Q = x_Q(\gamma, \bar{x}), g_Q = g_Q(\gamma, \bar{x})$ and let
+	\begin{align*}
+		\phi(x) = f(\bar{x}) + \langle f'(\bar{x}), x - \bar{x} \rangle + \frac{\gamma}{2}\norm{x - \bar{x}}^2
+	\end{align*}
+	Then $\phi'(x) = f'(\bar{x}) + \gamma(x - \bar{x})$ and for any $x \in Q$ we have
+	\begin{align*}
+		\langle f'(x) - g_Q, x - x_Q \rangle = \langle \phi'(x_Q), x - x_Q \rangle \geq 0
+	\end{align*}
+	(This inner product must be bigger than or equal to $0$ by \hyperref[thm225]{Theorem 2.2.5} since $x_Q$ is a minimum of $\phi$ and $\phi \in \mathcal{F}^1(\mathbb{R}^n)$). \\
+	Then:
+	\begin{align*}
+		f(x) - \frac{\mu}{2}\norm{x - \bar{x}}^2 &\geq f(\bar{x}) + \langle f'(\bar{x}), x - \bar{x} \rangle \\
+		&= f(\bar{x}) + \langle f'(\bar{x}), x_Q - \bar{x} \rangle + \langle f'(\bar{x}), x - x_Q \rangle \\
+		& \geq f(\bar{x}) + \langle f'(\bar{x}), x_Q - \bar{x} \rangle + \langle g_Q, x - x_Q \rangle \\
+		&= \phi(x_Q) - \frac{\gamma}{2}\norm{x_Q - \bar{x}}^2 + \langle g_Q, x - x_Q \rangle \\
+		&= \phi(x_Q) - \frac{1}{2\gamma}\norm{g_Q}^2 + \langle g_Q, x - x_Q \rangle \\
+		&= \phi(x_Q) + \frac{1}{2\gamma}\norm{g_Q}^2 + \langle g_Q, x - \bar{x} \rangle
+	\end{align*}
+	(The first line is definition of strong convexity, the second adds and subtracts $x_Q$, the third follows from the definition of $g_Q$ ($> f'(\bar{x})$), the fourth uses the definition of $\phi(x_Q)$, the fifth uses the definition of $g_Q$, and the last line follows from plugging in $x_Q$). \\
+	Thus we are done since $\phi(x_Q) > f(x_Q)$ since $\gamma \geq L$. \qed
+	
+	\subsection*{Corollary 2.2.1}\label{cor221}
+	Let $f \in \mathcal{S}_{\mu, L}^{1,1}(\mathbb{R}^n)$, $\gamma \geq L$, and $\bar{x} \in \mathbb{R}^n$. Then
+	\begin{align}
+		f(x_Q(\bar{x};\gamma)) \leq f(\bar{x}) - \frac{1}{2\gamma}\norm{g_Q(\bar{x};\gamma)}^2, \\
+		\langle g_Q(\bar{x};\gamma), \bar{x} - x^* \rangle \geq \frac{1}{2\gamma}\norm{g_Q(\bar{x};\gamma)}^2 + \frac{\mu}{2}\norm{x - \bar{x}}^2
+	\end{align}
+	\textbf{proof:} Consider \hyperref[thm227]{Theorem 2.2.7} with $x = \bar{x}$ for the first inequality and $x = x^*$ for the second inequality, using $f(x_Q) \geq f(x^*)$. \qed
+	
+	\subsection*{Minimization methods for simple sets}\label{sec:mmss}
+	Consider the problem
+	\begin{align*}
+		\min_{x \in Q}f(x)
+	\end{align*}
+	where $f$ and $Q$ are as before. We will assume that $Q$ is simple enough so that the gradient mapping has explicit computability (this holds for the positive orthant in $\mathbb{R}^n$, n-dimensional box, simplex, Euclidean ball, $\ldots$).
+	
+	\subsection*{Gradient method for simple sets}\label{gradss}
+	Choose $x_0 \in Q$. For iteration $k$:
+	\begin{itemize}
+		\item $x_{k+1} = x_k - hg_Q(x_k;L)$
+	\end{itemize} 
+	analysis of this scheme is similar to unconstrained minimization.
+	\subsection*{Theorem 2.2.8}\label{thm228}
+	Let $f \in \mathcal{S}_{\mu, L}^{1,1}(\mathbb{R}^n)$. If in the \hyperref[gradss]{scheme} above we have $h = \frac{1}{L}$, then
+	\begin{align*}
+		\norm{x_k - x^*}^2 \leq (1 - \frac{\mu}{L})^k\norm{x_0 - x^*}^2
+	\end{align*}
+	\textbf{proof:}
+	Let $r_k = \norm{x_k - x^*}$ and $g_Q = g_Q(x_k;L)$. By the second inequality in \hyperref[cor221]{Corollary 2.2.1} we have 
+	\begin{align*}
+		r_{k+1}^2 &= \norm{x_k - x^* - hg_Q}^2 = r_k^2 - 2h \langle g_Q, x_k - x^* \rangle + h^2\norm{g_Q}^2 \\
+		&\leq (1 - h \mu)r_k^2 + h(h - \frac{1}{L})\norm{g_Q}^2 = (1 - \frac{\mu}{L})r_k^2		
+	\end{align*}
+	That is, $\langle g_Q, x_k - x^* \rangle \geq \frac{1}{2L}\norm{g_Q}^2 + \frac{\mu}{2}\norm{x - x_k}^2$ where $x \in Q$. Namely, we can let $x = x^*$. Then we get
+	\begin{align*}
+		2h \langle g_Q, x_k - x^* \rangle &\geq r_k^2 + h^2 \norm{g_Q}^2 - \frac{h}{L}\norm{g_Q}^2 - h\mu \norm{x^* - x_k}^2  \\
+		&= r_k^2 + h(h - \frac{1}{L}) \norm{g_Q}^2 - h\mu \norm{x^* - x_k}^2 \\
+		&= h(h - \frac{1}{L}) \norm{g_Q}^2 + r_k^2(1 - h \mu)
+	\end{align*}
+	If $h = \frac{1}{L}$ then this is just $(1 - \frac{\mu}{L})r_k^2$ \qed \\
+	Note that we also have $x_{k+1} = x_k - \frac{1}{L}g_Q = x_Q$ meaning for this step-size, the minimum value is achieved by the gradient descent step. \\
+	The optimal schemes for this constrained minimization can be derived very similarly to that of the unconstrained problem except we use our newly derived inequalities for this section. That is, we first define the estimate sequence:
+	\begin{align*}
+		\phi_0(x) = &f(x_0) - \frac{\gamma_0}{2}\norm{x - x_0}^2, \\
+		\phi_{k+1}(x) = &(1 - \alpha_k)\phi_k(x) + \alpha_k[f(x_Q(y_k;L)) + \frac{1}{2L}\norm{g_Q(y_k;L)}^2 \\
+		&+ \langle g_q(y_k;L),x - y_k \rangle + \frac{\mu}{2}\norm{x - y_k}^2]
+	\end{align*}
+	where $x_0 \in Q$ and all of the convergence results from \hyperref[sec22opt]{Section 2.2.1} will still hold. First, we notice that the estimate sequence can be written as:
+	\begin{align*}
+		\phi_k(x) = \phi_k^* + \frac{\gamma_k}{2}\norm{x - v_k}^2
+	\end{align*}
+	Then we consider the following rules:
+	\begin{align*}
+		&\gamma_{k+1} = (1 - \alpha_k)\gamma_k + \alpha_k\mu, \\
+		&v_{k+1} = \frac{1}{\gamma_{k+1}}[(1 - \alpha_k)\gamma_kv_k + \alpha_k\mu y_k - \alpha_k g_Q(y_k;L)] \\
+		\end{align*}
+		
+		and 
+		\begin{align*}
+		\phi_{k+1}^* = &(1 - \alpha_k)\phi_k + \alpha_k f(x_Q(y_k;L)) \\
+		&+ (\frac{\alpha_k}{2L} - \frac{\alpha_k^2}{2\gamma_{k+1}})\norm{g_Q(y_k;L)}^2 \\
+			&+ \frac{\alpha_k(1 - \alpha_k)\gamma_k}{\gamma_{k+1}}(\frac{\mu}{2}\norm{y_k - v_k}^^2 + \langle g_Q(y_k;L),v_k - y_k \rangle)
+	\end{align*}
+	Assuming that $\phi_k^* \geq f(x_k)$  (this followed from construction of the estimate sequence mentioned in \hyperref[thm221]{Theorem 2.2.1}) and using the inequality (\hyperref[thm227]{Theorem 2.2.7})
+	\begin{align*}
+		f(x_k) \geq &f(x_Q(y_k;L)) + \langle g_Q(y_k;L), x_k - y_k \rangle \\
+		& \frac{1}{2L}\norm{g_Q(y_k;L)}^2 + \frac{\mu}{2}\norm{x_k - y_k}^2
+	\end{align*}
+	we come to the lower bound:
+	\begin{align*}
+		\phi_{k+1}^* \geq &(1 - \alpha_k)f(x_k) + \alpha_kf(x_Q(y_k;L)) \\
+		&+ (\frac{\alpha_k}{2L} - \frac{\alpha_k^2}{2\gamma_{k+1}})\norm{g_Q(y_k;L)}^2 \\
+		&+ \frac{\alpha_k(1 - \alpha_k)\gamma_k}{\gamma_{k+1}} \langle g_Q(y_k;L), v_k - y_k \rangle \\
+		\geq  &f(x_Q(y_k;L)) + (\frac{1}{2L} - \frac{\alpha_k^2}{2\gamma_{k+1}}) \norm{g_Q(y_k;L)}^2 \\
+		&+(1 - \alpha_k)\langle g_Q(y_k;L), \frac{\alpha_k\gamma_k}{\gamma_{k+1}}(v_k - y_k) + x_k - y_k \rangle 
+	\end{align*}
+	(should be straightforward to verify these). Then, again we can choose
+	\begin{align*}
+		&x_{k+1} = x_Q(y_k;L), \\
+		&L\alpha_k^2 = (1 - \alpha_k)\gamma_k + \alpha_k\mu \equiv \gamma_{k+1} \\
+		&y_k = \frac{1}{\gamma_k + \alpha_k\mu}(\alpha_k\gamma_kv_k + \gamma_{k+1}x_k)
+	\end{align*}
+	and we have the following scheme:
+	\subsection*{Constant Step Scheme II, Simple Sets}\label{gradoptss}
+	 Choose $x_0 \in \mathbb{R}^n$ and $\alpha_0 \in (0,1)$. Set $y_0 = x_0$ and $q = \frac{\mu}{L}$ Then in iteration $k$:
+	 \begin{itemize}
+	 	\item Compute $f(y_k)$ and $f'(y_k)$ and set
+	 	\begin{align*}
+	 		x_{k+1} = x_Q(y_k;L)
+	 	\end{align*}
+	 	\item Compute $\alpha_{k+1} \in (0,1)$ from
+	 	\begin{align*}
+	 		\alpha_{k+1}^2 = (1 - \alpha_{k+1})\alpha_k^2 + q\alpha_{k+1}
+	 	\end{align*}
+	 	and set $\beta_k = \frac{\alpha_k(1 - \alpha_k)}{\alpha_k^2 + \alpha_{k+1}}$. Then compute
+	 	\begin{align*}
+	 		y_{k+1} = x_{k+1} + \beta_k(x_{k+1} - x_k)
+	 	\end{align*}
+	 	And the convergence is given by \hyperref[thm223]{Theorem 2.2.3}. Note here that only $\{x_k\}$ will be feasible.
+	 \end{itemize}
+	 \subsection*{2.3 Minimization problem with smooth components}\label{sec:23}
+	 \subsection*{2.3.1 Minimax problem (smooth) }\label{minimax23}
+	 We can further consider constrained minimization problems where the objective function is given by maximum of a number of components. That is, our objective is given by:
+	 \begin{align*}
+	 	\min_{x \in Q}[f(x) = \max_{1 \leq i \leq m}f_i(x)]
+	 \end{align*}
+	 where $f_i \in \mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ and $Q$ is closed, convex. $f$ is called a \textbf{max-type} function.  We can view this as a minimal reliability of the parts. That is, we can be guaranteed a level of functionality given by the solution. We mean by $f \in \mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ that all components are in the class. \\
+	 If we suppose that all components are differentiable, we can consider an object which acts as a linear approximation of the full function (which may not be differentiable).\\
+	 Define the following as the \textbf{linearization} of a max-type function $f(x)$ at $\bar{x}$:
+	 \begin{align*}
+	 	f(\bar{x};x) = \max_{1 \leq i \leq m}[f_i(\bar{x}) + \langle f_i'(\bar{x}), x - \bar{x} \rangle ], \\
+	 	f(x) = \max_{1 \leq i \leq m}f_i(x)
+	 \end{align*}
+	 We can compare inequalities from previous functions in $\mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ with max-type functions in the same class.
+	 \subsection*{Lemma 2.3.1}\label{lem231}
+	 For any $x \in \mathbb{R}^n$ we have
+	 \begin{align}
+	 	&f(x) \geq f(\bar{x};x) + \frac{\mu}{2}\norm{x - \bar{x}}^2, \\
+	 	&f(x) \leq f(\bar{x};x) + \frac{L}{2}\norm{x - \bar{x}}^2
+	 \end{align}
+	 We can compare these inequalities with the definition of \hyperref[sec:Def]{Strongly Convex} and \hyperref[thm215_1]{Theorem 2.1.5 (1)} for L-smooth convex functions:\\
+	 \textbf{proof:} By \hyperref[sec:Def]{Strongly Convex}:
+	 \begin{align*}
+	 	f_i(x) \geq f_i(\bar{x}) + \langle f_i'(\bar{x}), x - \bar{x} \rangle + \frac{\mu}{2}\norm{x - \bar{x}}^2
+	 \end{align*}
+	 Taking the maximum of both sides gives the first inequality. For the second inequality, do the same applied to \hyperref[thm215_1]{Theorem 2.1.5 (1)}:
+	 \begin{align*}
+	 	f_i(x) \leq f_i(\bar{x}) + \langle f_i'(\bar{x}), x - \bar{x} \rangle + \frac{L}{2}\norm{x - \bar{x}}^2
+	 \end{align*} \qed \\
+	 Additionally, our new optimiality condition becomes the following,
+	 \subsection*{Theorem 2.3.1}\label{thm231}
+	 A point $x^* \in Q$ is a solution to \hyperref[minimax23]{(2.3.1)} if and only if for any $x \in Q$ we have
+	 \begin{align*}
+	 	f(x^*;x) \geq f(x^*;x^*) = f(x^*)
+	 \end{align*}
+	 This is analagous to our previous optimality condition. \\
+	 \textbf{proof:} ($\impliedby$) If the inequality is true, then we have
+	 \begin{align*}
+	 	f(x) \geq f(x^*;x) \geq f(x^*;x^*) = f(x^*)
+	 \end{align*}
+	 for all $x \in Q$. \\
+	 $(\implies)$ Suppose $x^*$ is a solution to \hyperref[minimax23]{(2.3.1)}, and assume by way of contradiction there exists $x \in Q$ such that $f(x^*;x) < f(x^*)$. Consider the following function:
+	 \begin{align*}
+	 	\phi_i(\alpha) = f_i(x^* + \alpha(x - x^*)), \hspace{10pt} i=1, \ldots, m
+	 \end{align*}
+	 Now for all $i$ we have
+	 \begin{align*}
+	 	f_i(x^*) + \langle f_i'(x^*), x - x^* \rangle < f(x^*) = \max_{1 \leq i \leq m} f_i(x^*)
+	 \end{align*}
+	 by our assumption. Therefore, it must be true that either $\phi_i(0) \equiv f_i(x^*) < f(x^*)$ or 
+	 \begin{align*}
+	 	\phi_i(0) = f(x^*), \hspace{10pt} \phi_i'(0) = \langle f_i'(x^*), x - x^* \rangle < 0
+	 \end{align*}
+	 (since we know $f_i(x^*) \leq \max f_i(x^*)$). Thus for $\alpha$ small enough we have
+	 \begin{align*}
+	 	f_i(x^* + \alpha(x - x^*)) = \phi_i(\alpha) < f(x^*)
+	 \end{align*}
+	 for all $i$. (That is, if the first case holds that $\phi_i(0) < f(x^*)$, we can make $\alpha$ small positive and retain the inequality. And if the second case holds, we make $\phi_i$ smaller by increasing $\alpha$ and achieve the inequality). This means we have found an argument of $f$, say $\bar{x}$, such that $f(\bar{x}) < f(x^*)$ which is a contradiction. \\
+	 We conclude that $f(x^*) \leq f(x^*;x)$ for all $x \in Q$. \qed \\
+	 \subsection*{Corollary 2.3.1}\label{cor231}
+	 Let $x^*$ be a minimum of a max-type function $f(x)$ over $Q$. if $f  \in \mathcal{S}_{\mu}^{1}(\mathbb{R}^n)$ then
+	 \begin{align*}
+	 	f(x) \geq f(x^*) + \frac{\mu}{2}\norm{x - x^*}^2
+	 \end{align*}
+	 for all $x \in Q$. \\
+	 \textbf{proof:} In view of \hyperref[lem231]{Lemma 2.3.1 (1)} and \hyperref[thm231]{Theorem 2.3.1}, we have for any $x \in Q$
+	 \begin{align*}
+	 	f(x) &\geq f(x^*;x) + \frac{\mu}{2}\norm{x - x^*}^2 \\
+	 	&\geq f(x^*;x^*) + \frac{\mu}{2}\norm{x - x^*}^2 = f(x^*) + \frac{\mu}{2}\norm{x - x^*}^2
+	 \end{align*}
+	 \qed \\
+	 Lastly, we have the existence theorem.
+	 \subsection*{Theorem 2.3.2}\label{thm232}
+	 Let max-type function $f(x) \in \mathcal{S}_{\mu}^{1}(\mathbb{R}^n)$ with $\mu > 0$ and $Q$ closed, convex. Then there exists a unique optimal solution $x^*$ to \hyperref[minimax23]{(2.3.1)}. \\
+	 \textbf{proof:} Let $\bar{x} \in Q$. Consider $\bar{Q} = \{ x \in Q | f(x) \leq f(\bar{x})\}$. Then the optimization problem can be written as
+	 \begin{align*}
+	 	\min \{f(x) |  x \in \bar{Q}\}
+	 \end{align*}
+	 But $\bar{Q}$ is bounded: That is, for any $x \in \bar{Q}$ we have,
+	 \begin{align*}
+	 	f(\bar{x}) \geq f_i(x) \geq f_i(\bar{x}) + \langle f_i'(\bar{x}), x - \bar{x} \rangle + \frac{\mu}{2}\norm{x - \bar{x}}^2
+	 \end{align*}
+	 Then
+	 \begin{align*}
+	 	\frac{\mu}{2}\norm{x - \bar{x}}^2 \leq \norm{f'(\bar{x})} \cdot \norm{x - \bar{x}} + f(\bar{x}) - f_i(\bar{x})
+	 \end{align*}
+	 noting that $f(\bar{x}) - f_i(\bar{x}) > 0$, applying cauchy schwarz and then the triangle inequality. \\
+	 That is, for any $x \in \bar{Q}$, its difference with $\bar{x}$ is bounded. \\
+	 Thus $\bar{Q}$ is compact meaning $f$ (continuous) has an absolute minimum on this set (Extreme value theorem). \\
+	 Now if we assume $x_1^*$ is another solution, then:
+	 \begin{align*}
+	 	f(x^*) = f(x_1^*) \geq f(x^*;x_1^*) + \frac{\mu}{2}\norm{x_1^* - x^*}^2 \geq f(x^*) + \frac{\mu}{2}\norm{x_1^* - x^*}^2
+	 \end{align*}
+	 so $x_1^* = x^*$ \qed
+	 
+	 \subsection*{2.3.2 Gradient Mapping}\label{sec:gradmap232}
+	 Prevviously in \hyperref[sec223GradMap]{(2.2.3)} gradient mapping was introduced to solve constrained minimization problems over simple sets. Since linearization of max-type functions behaves similarly to linearization of smooth functions, we can likely re-use this technique. \\
+	 Fix $\gamma > 0$ and $\bar{x} \in \mathbb{R}^n$. Consider max-type function $f(x)$ and denote
+	 \begin{align*}
+	 	f_{\gamma}(\bar{x};x) = f(\bar{x};x) + \frac{\gamma}{2}\norm{x - \bar{x}}^2
+	 \end{align*}
+	 Similar to \hyperref[sec223GradMap]{(2.2.3)} define:
+	 \begin{align*}
+	 	f^*(\bar{x};\gamma) = \min_{x \in Q}f_{\gamma}(\bar{x};x), \\
+	 	x_f(\bar{x};\gamma) = \argmin_{x \in Q}f_{\gamma}(\bar{x};x), \\
+	 	g_f(\bar{x};\gamma) = \gamma(\bar{x} - x_f(\bar{x};\gamma))
+	 \end{align*}
+	 where $g_f$ is the gradient mapping of a max-type function $f$ on $Q$. Of course, this definition is consistent in the case our function consists of just one component. Note that $\bar{x}$ does not have to be in $Q$. \\
+	 Now the components of $f_{\gamma}$ are
+	 \begin{align*}
+	 	f_i(\bar{x}) + \langle f_i'(\bar{x}), x - \bar{x} \rangle + \frac{\gamma}{2}\norm{x - \bar{x}}^2 \in \mathcal{S}_{\gamma,\gamma}^{1,1}(\mathbb{R}^n)
+	 \end{align*}
+	 And thus the previous gradient mapping is well-defined \hyperref[thm232]{(Theorem 2.3.2)}. \\
+	 \subsection*{Theorem 2.3.3}\label{thm233}
+	 Let $f \in \mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$. Then for all $x \in Q$ we have
+	 \begin{align*}
+	 	f(\bar{x};x) \geq f^*(\bar{x};\gamma) + \langle g_f(\bar{x};\gamma),x - \bar{x} \rangle + \frac{1}{2\gamma}\norm{g_f(\bar{x};\gamma)}^2
+	 \end{align*}
+	 \textbf{proof:} Denote $x_f := x_f(\bar{x};\gamma), g_f := g_f(\bar{x};\gamma)$. Then $f_{\gamma}(\bar{x};x) \in \mathcal{S}_{\gamma,\gamma}^{1,1}(\mathbb{R}^n)$ and is a max-type function which follow from the definition. \\
+	 By \hyperref[cor231]{Corollary 2.3.1} and \hyperref[thm231]{Theorem 2.3.1} we have
+	 \begin{align*}
+	 	f(\bar{x};x) &= f_{\gamma}(\bar{x};x) - \frac{\gamma}{2}\norm{x - \bar{x}}^2 \\
+	 	&\geq f_{\gamma}(\bar{x};x_f) + \frac{\gamma}{2}(\norm{x - x_f}^2 - \norm{x - \bar{x}}^2) \\
+	 	&\geq f^*(\bar{x};\gamma) + \frac{\gamma}{2} \langle \bar{x} - x_f,2x - x_f - \bar{x} \rangle \\
+	 	&=f^*(\bar{x};\gamma) + \frac{\gamma}{2} \langle \bar{x} - x_f, 2(x - \bar{x}) + \bar{x} - x_f \rangle \\
+	 	&= f^*(\bar{x};\gamma) + \langle g_f,x - \bar{x} \rangle + \frac{1}{2\gamma}\norm{g_f}^2
+	 \end{align*}
+	 where the first equality is the definition of $f_{\gamma}$. The next inequality uses the fact that $f_{\gamma}$ is strongly convex with $\gamma$ at the point $x_f$. The second inequality replaces the minimized $f_{\gamma}$ with $f^*$ and writes the norms as inner products (pretty sure this line is equality). The next equality adds and subtracts $\bar{x}$. And the last equality substitutes in the definition of $g_f$. \qed \\
+	 \subsection*{Corollary 2.3.2}\label{cor232}
+	 Let $f \in \mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ and $\gamma \geq L$. Then
+	 \begin{enumerate}
+	 	\item For any $x \in Q$ and $\bar{x} \in \mathbb{R}^n$ we have
+	 	\begin{align}\label{cor232_1}
+	 		\begin{gathered}
+		 		f(x)  \geq f(x_f(\bar{x};\gamma)) + \langle g_f(\bar{x};\gamma), x - \bar{x} \rangle \\
+		 		 +\frac{1}{2\gamma}\norm{g_f(\bar{x;\gamma})}^2 + \frac{\mu}{2}\norm{x - \bar{x}}^2
+	 		\end{gathered}
+	 	\end{align}
+	 	\item if $\bar{x} \in Q$, then
+	 	\begin{align}\label{cor232_2}
+	 		f(x_f(\bar{x});\gamma) \leq f(\bar{x}) - \frac{1}{2\gamma}\norm{g_f(\bar{x};\gamma)}^2
+	 	\end{align}
+	 	\item For any $\bar{x} \in \mathbb{R}^n$ we have
+	 	\begin{align}\label{cor232_3}
+	 		\langle g_f(\bar{x};\gamma), \bar{x} - x^* \rangle \geq \frac{1}{2\gamma}\norm{g_f(\bar{x};\gamma)}^2 + \frac{\mu}{2}\norm{x^* - \bar{x}}^2
+	 	\end{align}
+	 \end{enumerate}
+	 \textbf{proof (1):} Since $\gamma \geq L$ we have $f^*(\bar{x};\gamma) \geq f(x_f(\bar{x};\gamma))$ \\(recall $f^*$ is $\min_{x \in Q}f_{\gamma}(\bar{x};x)$ and $x_f(\bar{x};x) = \argmin_{x \in Q}f_{\gamma}(\bar{x};x)$). This follows from:
+	 \begin{align*}
+	 	f(x) &\leq f(\bar{x}) + \langle f'(\bar{x}), x - \bar{x} \rangle + \frac{L}{2}\norm{x - \bar{x}}^2 \\
+	 	&\leq f(\bar{x}) + \langle f'(\bar{x}), x - \bar{x} \rangle + \frac{\gamma}{2}\norm{x - \bar{x}}^2 = f_{\gamma}(\bar{x};x) \leq f_{\gamma}(\bar{x},x_f) = f^*(\bar{x};\gamma)
+	 \end{align*}
+	 Therefore \hyperref[cor232_1]{Cor 2.3.2 (1)} follows from \hyperref[thm233]{Theorem 2.3.3} since
+	 \begin{align*}
+	 	f(x) \geq f(\bar{x};x) + \frac{\mu}{2}\norm{x - \bar{x}}^2
+	 \end{align*}
+	 for all $x \in \mathbb{R}^n$ (\hyperref[lem231]{Lemma 2.3.1}). That is,
+	 \begin{align*}
+	 	f(x) &\geq f(\bar{x};x) + \frac{\mu}{2}\norm{x - \bar{x}}^2 \\
+	 	&\geq f^*(\bar{x};\gamma) + \langle g_f(\bar{x};\gamma), x - \bar{x} \rangle + \frac{1}{2\gamma}\norm{g_f(\bar{x};\gamma)}^2 \\
+	 	&\geq f(x_f(\bar{x};\gamma)) + \langle g_f(\bar{x};\gamma), x - \bar{x} \rangle + \frac{1}{2\gamma}\norm{g_f(\bar{x};\gamma)}^2
+	 \end{align*}
+	 \textbf{proof (2), (3):} \hyperref[cor232_2]{Corollary 2.3.2 (2)} follows from \hyperref[cor232_1]{(1)} by letting $x = \bar{x}$, and \hyperref[cor232_3]{Corollary 2.3.2 (3)} follows from  \hyperref[cor232_1]{(1)} by letting $x = x^*$. That is,
+	 \begin{align*}
+	 	f(x^*) \geq &f(x_f(\bar{x};\gamma)) + \langle g_f(\bar{x};\gamma), x^* - \bar{x} \rangle \\
+	 	&\frac{1}{2\gamma}\norm{g_f(\bar{x};\gamma)}^2 + \frac{\mu}{2}\norm{x^* - \bar{x}}^2 \implies
+	\end{align*}
+	\begin{align*}
+	 	 \implies \langle g_f(\bar{x};\gamma), \bar{x} - x^* \rangle \geq f(x_f(\bar{x};\gamma)) - f(x^*) + \\ \frac{1}{2\gamma}\norm{g_f(\bar{x};\gamma)}^2 + \frac{\mu}{2}\norm{x^* - \bar{x}}^2
+	 \end{align*}
+	 but $f(x_f) - f(x^*) \geq 0$ so we can remove it and get the final inequality. \qed \\
+	 Lastly, let's consider how $f^*(\bar{x};\gamma)$ varies as a function of $\gamma$. That is, how does the minimum of $f(\bar{x};x) + \frac{\gamma}{2}\norm{x - \bar{x}}^2$ vary as we change $\gamma$.
+	 \subsection*{Lemma 2.3.2}\label{lem232}
+	 For any $\gamma_1 , \gamma_2 >0$ and $\bar{x} \in \mathbb{R}^n$ we have
+	 \begin{align*}
+	 	f^*(\bar{x};\gamma_2) \geq f^*(\bar{x};\gamma_1) + \frac{\gamma_2 - \gamma_1}{2\gamma_1\gamma_2}\norm{g_f(\bar{x};\gamma_1)}^2
+	 \end{align*}
+	 \textbf{proof:} Denote $x_i := x_f(\bar{x};\gamma_i), g_i := g_f(\bar{x};\gamma_i)$ $i=1,2$. Then in view of \hyperref[thm233]{Theorem 2.3.3}, 
+	 we have
+	 \begin{align*}
+	 	f(\bar{x};x) + \frac{\gamma_2}{2}\norm{x - \bar{x}}^2 \geq &f^*(\bar{x};\gamma_1) + \langle g_1, x - \bar{x} \rangle \\
+	 	&+ \frac{1}{2\gamma_1}\norm{g_1}^2 + \frac{\gamma_2}{2}\norm{x - \bar{x}}^2
+	 \end{align*}
+	 Where we simply added $ \frac{\gamma_2}{2}\norm{x - \bar{x}}^2$ to both sides of the theorem. This is true for all $x \in Q$, in particular, let $x = x_2$:
+	 \begin{align*}
+	 	f^*(\bar{x};\gamma_2) &= f(\bar{x};x_2) + \frac{\gamma_2}{2}\norm{x_2 - \bar{x}}^2 \\
+	 	&\geq f^*(\bar{x};\gamma_1) + \langle g_1, x_2 - \bar{x} \rangle + \frac{1}{2\gamma_1}\norm{g_1}^2 + \frac{\gamma_2}{2}\norm{x_2 - \bar{x}}^2 \\
+	 	&= f^*(\bar{x};\gamma_1) + \frac{1}{2\gamma_1}\norm{g_1}^2 - \frac{1}{\gamma_2}\langle g_1, g_2 \rangle + \frac{1}{2\gamma_2}\norm{g_2}^2 \\
+	 	&\geq f^*(\bar{x};\gamma_1) + \frac{1}{2\gamma_1}\norm{g_1}^2 - \frac{1}{2\gamma_2}\norm{g_1}^2
+	 \end{align*} 
+	 The first equality follows from the definition of $f_{\gamma}$ recalling that the minimum value for $f_{\gamma_2}$ occurs at $x_2$. The following inequality follows from \hyperref[thm233]{Theorem 2.3.3} which we wrote above. The next equality follows from substituting in the definition of $g_2 := g_f(\bar{x};\gamma_2) = \gamma_2(\bar{x} - x_f(\bar{x};\gamma_2)) = \gamma_2(\bar{x} - x_2)$. And the final inequality simply removes the last positive term. The proof concludes after combining the final two terms. \qed 
+	 \subsection*{2.3.3 Minimization methods for minimax problems}\label{sec233}
+	 As usual, we first consider the gradient method with constant step-size:
+	 \begin{enumerate}\label{gradoptminimax}
+	 	\setcounter{enumi}{-1}
+	 	\item Choose $x_0 \in Q$ and $h > 0$. 
+	 	\item $k$th iteration: 
+	 	\begin{align*}
+	 		x_{k+1} = x_k - hg_f(x_k;L)
+	 	\end{align*}
+	 \end{enumerate}
+	 \subsection*{Theorem 2.3.4}\label{thm234}
+	 Let $f \in \mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$. If in the optimization problem \hyperref[gradoptminimax]{above} we choose $h \leq \frac{1}{L}$, then
+	 \begin{align*}
+	 	\norm{x_k - x^*}^2 \leq (1 - \mu h)^k\norm{x_0 - x^*}^2
+	 \end{align*}
+	 \textbf{proof:} Denote $r_k = \norm{x_k - x^*}, g = g_f(x_k;L)$. Then by \hyperref[cor232_3]{Corollary 2.3.2 (3)} we have
+	 \begin{align*}
+	 	r_{k+1}^2 &= \norm{x_k - x^* - hg_Q}^2 = r_k^2 - 2h \langle g,x_k - x^* \rangle + h^2\norm{g}^2 \\
+	 	&\leq (1 - h \mu)r_k^2 + h(h - \frac{1}{L})\norm{g}^2 \leq (1 - \mu h)r_k^2
+	 \end{align*}
+	These steps are straightforward \qed \\
+	If $h = \frac{1}{L}$ we have
+	\begin{align*}
+		x_{k+1} = x_k - \frac{1}{L}g_f(x_k;L) = x_f(x_k;L)
+	\end{align*}
+	And the convergence of the scheme is
+	\begin{align*}
+		\norm{x_k - x^*}^2 \leq (1 - \frac{\mu}{L})^k\norm{x_0 - x^*}^2
+	\end{align*}
+	which is the same convergence rate as in \hyperref[thm228]{Theorem 2.2.8}. \\
+	Again, this is not an optimal method so let's consider those. Recall that we need an estimate sequence with proper recursive updating rules. The only difference here will be in the form of the lower approximation of the objective function. Specifically, our difference here will be using \hyperref[cor232_1]{Corollary 2.3.2 (1)} for our estimate sequence rather than the definition of \hyperref[sec:Def]{Strongly Convex}. \\
+	Let's introduce the estimate sequence for the \hyperref[minimax23]{minimax optimization problem}. Fix $x_0 \in Q, \gamma_0 > 0$ and consider $\{y_k\} \subset \mathbb{R}^n$ and $\{\alpha_k\}\subset (0,1)$. Define
+	\begin{align*}
+		\phi_0(x) &= f(x_0) + \frac{\gamma_0}{2}\norm{x - x_0}^2 \\
+		\phi_{k+1}(x) &= (1 - \alpha_k)\phi_k(x) \\
+		&+ \alpha_k[f(x_f(y_k;L)) + \frac{1}{2L}\norm{g_f(y_k;L)}^2 \\
+		&+ \langle g_f(y_k;L), x - y_k \rangle + \frac{\mu}{2}\norm{x - y_k}^2]
+	\end{align*}
+	(Recall the definition for an \hyperref[sec:Def]{Estimate Sequence} as well as the one defined in \hyperref[lem222]{Lemma 2.2.2} which was proved to define an estimate sequence). \\
+	Note the difference of a constant factor with the previous estimate sequence definition and this one which are the first two terms in the bracket replacing $f(y_k)$. Therefore, results from the previous lemma carry over with this new constant factor if we additionally replace $f'(y_k)$ with $g_f(y_k;L)$.
+	\subsection*{Lemma 2.3.3}\label{lem233}
+	For all $k \geq 0$ we have
+	\begin{align*}
+		\phi_k(x) \equiv \phi_k^* + \frac{\gamma_k}{2}\norm{x - v_k}^2
+	\end{align*}
+	where $\{\gamma_k\},\{v_k\},\{\phi_k^*\}$ are defined as follows:
+	\begin{align*}
+		\gamma_{k+1} &= (1 - \alpha_k)\gamma_k + \alpha_k\mu,	\\
+		v_{k+1} &= \frac{1}{\gamma_{k+1}}[(1 - \alpha_k)\gamma_kv_k + \alpha_k\mu y_k - \alpha_kg_f(y_k;L)], \\
+		\phi_{k+1}^* &= ( 1 - \alpha_k)\phi_k + \alpha_k ( f(x_f(y_k;L)) + \frac{1}{2L}\norm{g_f(y_k;L)}^2) \\
+		&+ \frac{\alpha_k^2}{2\gamma_{k+1}}\norm{g_f(y_k;L)}^2 \\
+		&+ \frac{\alpha_k(1 - \alpha_k)\gamma_k}{\gamma_{k+1}}(\frac{\mu}{2}\norm{y_k - v_k}^2 + \langle g_f(y_k;L), v_k - y_k \rangle)
+	\end{align*}
+	\qed \\
+	We then proceed as in \hyperref[sec22]{Section 2.2}. Assume $\phi_k^* \geq f(x_k)$ (explain why we are assuming this). Then using \hyperref[cor232_1]{Corollary 2.3.2 (1)} with $x = x_k, \bar{x} = y_k$ becomes
+	\begin{align*}
+		f(x_k) \geq &f(x_f(y_k;L)) + \langle g_f(y_k;L),x_k - y_k \rangle \\
+		&+\frac{1}{2L}\norm{g_f(y_k;L)}^2 + \frac{\mu}{2}\norm{x_k - y_k}^2
+	\end{align*}
+	Hence, 
+	\begin{align*}
+		\phi_{k+1}^* &\geq (1 - \alpha_k)f(x_k) + \alpha_kf(x_f(y_k;L)) \\
+		&+(\frac{\alpha_k}{2k} - \frac{\alpha_k^2}{2\gamma_{k+1}})\norm{g_f(y_k;L)}^2 + \frac{\alpha_k(1 - \alpha_k)\gamma_k}{\gamma_{k+1}}\langle g_f(y_k;L), v_k - y_k \rangle \\
+		&\geq f(x_f(y_k;L)) + (\frac{1}{2L} - \frac{\alpha_k^2}{2\gamma_{k+1}})\norm{g_f(y_k;L)}^2 \\
+		&+(1 - \alpha_k)\langle g_f(y_k;L),\frac{\alpha_k\gamma_k}{\gamma_{k+1}}(v_k - y_k) + x_k - y_k \rangle
+	\end{align*}
+	Thus we choose
+	\begin{align*}
+		x_{k+1} = x_f(y_k;L), \\
+		L\alpha_k^2 = (1 - \alpha_k)\gamma_k + \alpha_k \mu \equiv \gamma_{k+1}, \\
+		y_k = \frac{1}{\gamma_k + \alpha_k\mu}(\alpha_k\gamma_kv_k + \gamma_{k+1}x_k)
+	\end{align*}
+	Similar to before, we can eliminate the sequences $\{v_k\}, \{\gamma_k\}$ giving us the following scheme:
+	\subsection*{Constant Step Scheme, II. Minimimax}\label{sec:mmscheme2}
+	\begin{enumerate}
+		\setcounter{enumi}{-1}
+		\item Choose $x_0 \in \mathbb{R}^n$ and $\alpha_0 \in (0,1)$. Set $y_0 = x_0$ and $q = \frac{\mu}{L}$.
+		\item Iteration k:\\
+		Compute $\{f_i(y_k)\}, \{f_i'(y_k)\}$. Set
+		\begin{align*}
+			x_{k+1} = x_f(y_k;L)
+		\end{align*}
+		Then compute $\alpha_{k+1} \in (0,1)$ from
+		\begin{align*}
+			\alpha_{k+1}^2 = (1 - \alpha_{k+1})\alpha_k^2 + q\alpha_{k+1}
+		\end{align*}
+		and set $\beta_k = \frac{\alpha_k(1 - \alpha_k)}{\alpha_k^2 + \alpha_{k+1}}$. 
+		Lastly compute,
+		\begin{align*}
+			y_{k+1} = x_{k+1} + \beta_k(x_{k+1} - x_k)
+		\end{align*}
+	\end{enumerate}
+	 The convergence analysis is identical to that of the scheme in  \hyperref[sec22optvar2]{section 2.2}. The result is as follows
+	 \subsection*{Theorem 2.3.5}\label{thm235}
+	 Let max-type function $f \in \mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$. If in the previous  \hyperref[sec:mmscheme2]{scheme} we take $\alpha_0 \geq \sqrt{\frac{\mu}{L}}$ then
+	 \begin{align*}
+	 	f(x_k) - f^* \leq &\min \{(1 - \sqrt{\frac{\mu}{L}}), \frac{4L}{(2\sqrt{L} + k\sqrt{\gamma_0})^2}\} \\
+	 	&\cross [f(x_0) - f^* + \frac{\gamma_0}{2}\norm{x_0 - x^*}^2]
+	 \end{align*}
+	 where $\gamma_0 = \frac{\alpha_0(\alpha_0L - \mu)}{1 - \alpha_0}$.
+	 
+	 Now, the above scheme works even when $\mu=0$. We can also have a method for solving \hyperref[minimax23]{(2.3.1)} with strictly convex components.
+	 \subsection*{Minimax Scheme $f \in \mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$}\label{sec:mmschemestrict}
+	 \begin{enumerate}
+	 	\setcounter{enumi}{-1}
+	 	\item Choose $x_0 \in Q$. Set $y_0 = x_0, \beta = \frac{\sqrt{L} - \sqrt{\mu}}{\sqrt{L} + \sqrt{\mu}}$.
+	 	\item Iteration $k$:\\
+	 	Compute $\{f_i(y_k)\}, \{f_i'(y_k)\}$ and Set
+	 	\begin{align*}
+	 		x_{k+1} = x_f(y_k;L), \hspace{10pt} y_{k+1} = x_{k+1} + \beta(x_{k+1} - x_k)
+	 	\end{align*}
+	 \end{enumerate}
+	 \subsection*{Theorem 2.3.6}\label{thm236}
+	 For the above \hyperref[sec:mmschemestrict]{scheme} we have
+	 \begin{align*}
+	 	f(x_k) - f^* \leq 2(1 - \sqrt{\frac{\mu}{L}})^k(f(x_0) - f^*)
+	 \end{align*}
+	 \textbf{proof:} This \hyperref[sec:mmschemestrict]{scheme} is just a variant of the previous with $\alpha_0 = \frac{\mu}{L}$. Then $\gamma_0 = \mu$ and the result follows from \hyperref[thm235]{Theorem 2.3.5} since, in view of \hyperref[cor231]{Corollary 2.3.1}, $\frac{\mu}{2}\norm{x_0 - x^*}^2 \leq f(x_0) - f^*$.	 \qed \\
+	 We now make an important note about the \hyperref[minimax23]{minimiax} optimization problem. That is, by introducing additional variables $t \in \mathbb{R}^n$, the problem:
+	 \begin{align*}
+	 	\min_{x \in Q}\{\max_{1 \leq i \leq m}[f_i(x_0) + \langle f_i'(x_0), x - x_0 \rangle] + \frac{\gamma}{2}\norm{x - x_0}^2\}
+	 \end{align*}
+	 can be written as
+	 \begin{align*}
+	 	\min\{\sum_{t=1}^{m}t^{(i)} + \frac{\gamma}{2}\norm{x - x_0}^2\} \\
+	 	\text{where  } \langle f_i(x_0), x - x_0 \rangle \leq t^{(i)}, i = 1, \ldots m, \\
+	 	x \in Q, t \in \mathbb{R}^n
+	 \end{align*}
+	 That is, let $t$ be the "max" part, excluding the piece not dependent on $i$. Then the linear constraints being satisfied are equivalent to making sure you've taken the maximum. \\
+	 This can now be solved by some special finite methods (simplex-type algorithms) and interior point methods.
+	 \subsection*{2.3.4 Optimization with functional constraints}\label{sec:234}
+	 We will show that we can solve minimax problems as before using the new form shown earlier:
+	 \begin{align*}
+	 	\min f(x_0), \\
+	 	\text{s.t.} \hspace{10pt} f_i(x) \leq 0, i = 1, \ldots m, \\
+	 	x \in Q
+	 \end{align*}
+	 We suppose that $f_i$ are smooth, convex and $Q$ is a closed convex set. Here, we additionally assume $f_i \in \mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$. Now, we relate this \hyperref[sec:234]{problem} to the previous minimax optimization problem using some function of a single variable. Consider the "parametric max-type" function:
+	 \begin{align*}
+	 	f(t;x) = \max\{f_0(x) - t;f_i(x),i= 1, \ldots m\}, \hspace{10pt} t \in \mathbb{R}, x \in Q
+	 \end{align*}
+	  The notation indicates that $t$ is the parameter and $x$ is the variable. The maximum is a point-wise maximum with respect to each pair $(t, x)$ where latter $m$ components do not depend on $t$. 
+	 \begin{align*}
+	 	f^*(t) = \min_{x \in Q}f(t;x)
+	 \end{align*}
+	 The way to understand this function: The inside first takes a maximum over all $t,x$, and we can think of this as the worst case scenario in a minimization problem. After that, the outside considers the $x$ which is the best decision in response to having found the worst pair. \\
+	 The components of $f(t;\cdot)$ are strongly convex in $x$. Therefore, we have proven the solution $x^*$ exists and is unique (\hyperref[thm232]{Theorem 2.3.2}). \\
+	 Let's consider an approach to solving the optimization problem above using a process based on approximating $f^*(t)$ which is a variant of "sequential quadratic optimization". While are problem is convex, this method also applies to non-convex problems.
+	 \subsection*{Lemma 2.3.4}\label{lem234}
+	 Let $t^*$ be an optimal value of \hyperref[sec:234]{(2.3.4)}. Then
+	 \begin{align*}
+	 	f^*(t) \leq 0, \hspace{10pt} t \geq t^*  \\
+	 	f^*(t) > 0, \hspace{10pt} t < t^*
+	 \end{align*}
+	 
+	 \textbf{proof:} Suppose $x^*$ is a solution to \hyperref[sec:2.3.4]{(2.3.4)}. If $t \geq t^*$, then
+	 \begin{align*}
+	 	f^*(t) &\leq f(t;x^*) = \max\{f_0(x^*) - t;f_i(x^*)\} \\
+	 	&\leq \max\{t^* - t; f_i(x^*)\} \leq 0
+	 \end{align*}
+	 The first inequality is true since $f^*(t) \leq f(t;x)$ for any $x$, namely for $x^*$. The second part follows since $f_0(x^*) \leq t^*$. Since $x^* \in Q$, both quantities are non-positive. We have equality but writing as an inequality puts emphasis on the upper bound. 
+	 Now for the other inequality, suppose $t < t^*$ but $f^*(t) \leq 0$. Then there exists $y \in Q$ such that
+	 \begin{align*}
+	 	f_0(y) \leq t < t^*, \hspace{10pt} f_i(y) \leq 0, i = 1, \ldots m
+	 \end{align*}
+	 Thus $t^*$ cannot be an optimal value of our problem since we have smaller feasible choices. \qed \\
+	 Note that what we are doing here is showing that $x^*$ is feasible ($x^* \in Q, f_i(x^*) \leq 0$) for the perturbed problem $f_0(x) \leq t$.\\
+	 We can see that the smallest root of $f^*(t)$ corresponds to the opimal value of our optimization problem (due to the requirement of $f^*$ shown in the lemma for an optimal value $t^*$). Now we can use methods in the previous section for computing approximate values of $f^*$ in order to find the root. Let's continue with some more properties of $f^*$.
+	 \subsection*{Lemma 2.3.5}\label{lem235}
+	 For any $\Delta \geq 0$ we have
+	 \begin{align*}
+	 	f^*(t) - \Delta \leq f^*(t + \Delta) \leq f^*(t)
+	 \end{align*}
+	 \textbf{proof:} Indeed, 
+	 \begin{align*}
+	 	f^*(t + \Delta) &= \min_{x \in Q}\max_{1 \leq i \leq m}\{f_0(x) - t - \Delta;f_i(x)\} \\
+	 	&\leq \min_{x \in Q}\max_{1 \leq i \leq m}\{f_0(x) - t;f_i(x)\} = f^*(t)
+	 \end{align*}
+	 \begin{align*}
+	 	f^*(t + \Delta) &= \min_{x \in Q}\max_{1 \leq i \leq m} \{f_0(x) - t;f_i(x) + \Delta\} - \Delta \\
+	 	&\geq \min_{x \in Q}\max_{1 \leq i \leq m}\{f_0(x) - t;f_i(x)\} - \Delta = f^*(t) - \Delta
+	 \end{align*}
+	 That is, $f^*(t)$ decreases in $t$ and it is Lipschitz continuous with constant $L=1$ since we have $f^*(t+\Delta) - f^*(t) \leq \Delta$ by the first inequality.
+	 \subsection*{Lemma 2.3.6}\label{Lem236}
+	 For any $t_1 < t_2$ and $\Delta \geq 0$ we have
+	 \begin{align*}
+	 	f^*(t_1 - \Delta) \geq f^*(t_1) + \Delta \frac{f^*(t_1) - f^*(t_2)}{t_2 - t_1}
+	 \end{align*}
+	 \textbf{proof:} Let $t_0 = t_1 - \Delta, \alpha = \frac{\Delta}{t_2 - t_0} \equiv \frac{\Delta}{t_2 - t_1 + \Delta} \in [0,1]$. Then $t_1 = (1 - \alpha)t_0 + \alpha t_2$ and \hyperref[lem236]{Lemma 2.3.6} can be written as
+	 \begin{align*}
+	 	f^*(t_1) \leq (1 - \alpha)f^*(t_0) + \alpha f^*(t_2)
+	 \end{align*}
+	 Let $x_\alpha = (1 - \alpha)x^*(t_0) + \alpha x^*(t_2)$. Then we have
+	 \begin{align*}
+	 	f^*(t_1) & \leq \max_{1 \leq i \leq m}\{f_0(x_\alpha) - t_1;f_i(x_\alpha)\} \\
+	 	&\leq \max_{1 \leq i \leq m}\{(1 - \alpha)(f_0(x^*(t_0))) + \alpha (f_0(x^*(t_2)) - t_2); \\
+	 	&(1 - \alpha)f_i(x^*(t_0)) + \alpha f_i(x^*(t_2))\} \\
+	 	&\leq (1 - \alpha)\max_{1 \leq i \leq m}\{f_0(x^*(t_0)) - t_0;f_i(x^*(t_0))\} \\
+	 	&+ \alpha \max_{1 \leq i \leq m}\{f_0(x^*(t_2)) - t_2;f_i(x^*(t_2))\} \\
+	 	&=(1 - \alpha)f^*(t_0) + \alpha f^*(t_2)
+	 \end{align*}
+	(check this proof later) \qed \\
+	We note that these two lemma are valid for any parametric max-type functions, and not just those formed by the functional components in our original optimization problem. \\
+	As before, we can consider the gradient mapping for parametric max-type functions. Similarly, we define the linearization of a parametric max-type function $f(t;x)$ as 
+	\begin{align*}
+		f(t;\bar{x};x) = \max_{1 \leq i \leq m}\{f_0(\bar{x}) + \langle f_0'(\bar{x}),x - \bar{x} \rangle - t;f_i(\bar{x}) + \langle f_i'(\bar{x}),x - \bar{x} \rangle\}
+	\end{align*}
+	and let
+	\begin{align*}
+		f_{\gamma}(t;\bar{x};x) = f(t;\bar{x};x) + \frac{\gamma}{2}\norm{x - \bar{x}}^2, \\
+		f^*(t;\bar{x};\gamma) = \min_{x \in Q}f_{\gamma}(t;\bar{x};x) \\
+		x_f(t;\bar{x};\gamma) = \argmin_{x \in Q}f_{\gamma}(t;\bar{x};x) \\
+		g_f(t;\bar{x};\gamma) = \gamma(\bar{x} - x_f(t;\bar{x};\gamma))
+	\end{align*}
+	$g_f$ is called the "constrained gradient mapping" of problem \hyperref[sec:234]{(2.3.4)}. $\bar{x}$ need not be feasible for $Q$. Note that $f_{\gamma}$ is also a max-type function composed of linearized versions of the original components $f_0$ and $f_i$. Additionally, $f_{\gamma}(t;\bar{x};x) \in \mathcal{S}_{\gamma,\gamma}^{1,1}(\mathbb{R}^n)$ for any real $t$. Thus the constrained gradient mapping is well-defined in \hyperref[thm232]{Theorem 2.3.2}. \\
+	Since $f(t;x)\in \mathcal{S}_{\mu,L}^{1,1}(\mathbb{R}^n)$ (since all components are) we have,
+	\begin{align*}
+		f_{\mu}(t;\bar{x};x) \leq f(t;x) \leq f_{L}(t;\bar{x};x)
+	\end{align*}
+	for all $x \in \mathbb{R}^n$ by the definitions of strongly convex and $L$ smooth. Therefore $f^*(t;\bar{x};\mu) \leq f^*(t) \leq f^*(t;\bar{x};L)$ (the minimum values over feasible $x$). Moreover, by \hyperref[lem236]{Lemma 2.3.6} we obtain the following: 
+	\begin{align}
+		\textbf{For any  } \bar{x}\in \mathbb{R}^n, \gamma > 0, \Delta \geq 0, t_1 < t_2 \textbf{ we have} \nonumber \\
+		f^*(t_1 - \Delta;\bar{x};\gamma) \geq f^*(t_1;\bar{x};\gamma) + \frac{\Delta}{t_2 - t_1}(f^*(t_1;\bar{x};\gamma) - f^*(t_2;\bar{x};\gamma))
+	\end{align}
+	Namely, we are interested in $\gamma = L$ and $\gamma=\mu$. Applying \hyperref[lem232]{Lemma 2.3.2} to $f_{\gamma}$ with $\gamma_1 = L$ and $\gamma_2 = \mu$ we get
+	\begin{align*}
+		f^*(t;\bar{x};\mu) \geq f^*(t;\bar{x};L) - \frac{L - \mu}{2\mu L}\norm{g_f(t;\bar{x};L)}^2
+	\end{align*}
+	Remember, we are interested in finding roots of $f^*(t)$ for which we can view roots of $f^*(t;\bar{x};x)$ as approximations of. So, denote
+	\begin{align*}
+		t^*(\bar{x},t) = \Root_{t}(f^*(t;\bar{x};\mu))
+	\end{align*}
+	referring to the root wrt variable $t$.
+	\subsection*{Lemma 2.3.7}\label{lem237}
+	Let $\bar{x}\in \mathbb{R}^n$ and $\bar{x}< t^*$ be such that
+	\begin{align*}
+		f^*(\bar{x};\bar{x};\mu) \geq (1 - \kappa)f^*(\bar{t};\bar{x};L)
+	\end{align*}
+	for some $\kappa \in (0,1)$. Then $\bar{t}<t^*(\bar{x},t) \leq t^*$. Moreover, for any $t < \bar{t}$ and $x \in \mathbb{R}^n$ we have
+	\begin{align*}
+		f^*(t;x;L) \geq 2(1 - \kappa)f^*(\bar{t};\bar{x};L)\sqrt{\frac{\bar{t} - t}{t^*(\bar{x},\bar{t}) - \bar{t}}}
+	\end{align*}
+	\textbf{proof:} Since $\bar{t} < t^*$, we have
+	\begin{align*}
+		0 < f^*(\bar{t}) \leq f^*(\bar{t};\bar{x};L) \leq \frac{1}{1 - \kappa}f^*(\bar{t};\bar{x};\mu)
+	\end{align*}
+	Thus, $f^*(\bar{t};\bar{x};\mu) > 0$ abd since $f^*(t;\bar{x};\mu)$ decreases in $t$, we get 
+	\begin{align*}
+		t^*(\bar{x},t) > \bar{t}
+	\end{align*}
+	Denote $\Delta = \bar{t} - t$. By the inequality defined in bold above, we have
+	\begin{align*}
+		f^*(t;x;L) &\geq f^*(t) \geq f^*(\bar{t};\bar{x};\mu) \geq f^*(\bar{t};\bar{x};\mu) + \frac{\Delta}{t^*(\bar{x},\bar{t}) - \bar{t}}f^*(\bar{t};\bar{x};\mu) \\
+		&\geq (1 - \kappa)(1 + \frac{\Delta}{t^*(\bar{x},\bar{t}) - \bar{t}})f^*(\bar{t};\bar{x};L) \\
+		&\geq 2(1 - \kappa)f^*(\bar{t};\bar{x};L)\sqrt{\frac{\Delta}{t^*(\bar{x},\bar{t}) - \bar{t}}}
+	\end{align*}
+	\qed 
+	\subsection*{2.3.5 Method for Constrained Minimization}\label{sec235}
+	 \begin{enumerate}
+		\setcounter{enumi}{-1}
+		\item Choose $x_0 \in Q,\kappa \in (0, \frac{1}{2}), t_0 < t^*$ and accuracy $\epsilon > 0$.
+		\item kth iteration: \\
+		(a) Generate a sequence $\{x_{k,j}\}$ by \hyperref[sec:mmschemestrict]{()scheme)} applied to $f(t_k;x)$ starting at $x_{k,0} = x_k$. If
+		\begin{align*}
+			f^*(t_k;x_{k,j};\mu) \geq (1 - \kappa)f^*(t_k;x_{k,j};L)
+		\end{align*}
+		then stop internal process and set $j(k) = j$,
+		\begin{align*}
+			j^*(k) = \argmin_{0 \leq j \leq j(k)}f^*(t_k;x_{k,j};L), \\
+			x_{k+1} = x_f(t_k;x_{k,j^*(k)};L)
+		\end{align*}
+		\textbf{Global stop}, if at some iteration $f^*(t_k;x_{k,j};L) \leq \epsilon$. \\
+		(b) set $t_{k+1} = t^*(x_{k,j(k)},t_k)$.
+	\end{enumerate}
+	Now, we have multiply processes in this method. We refer to the upper-level process as the "master process" and we can estimate the rate of convergence. For the interal process (a), we can estimate the total complexity.
+	\subsection*{Lemma 2.3.8}\label{lem238}
+	\begin{align*}
+		f^*(t_k;x_{k+1};L) \leq \frac{t_0 - t^*}{1 - \kappa}[\frac{1}{2(1 - \kappa)}]^k
+	\end{align*}
+	\textbf{proof:} Denote $\beta = \frac{1}{2(1 - \kappa)}( < 1)$ and
+	\begin{align*}
+		\delta_k = \frac{f^*(t_k;x_{k,j}(k);L)}{\sqrt{t_{k+1} - t_k}}
+	\end{align*}
+	Since $t_{k+1} = t^*(x_{k,j(k)},t_k)$, in view of \hyperref[lem237]{Lemma 2.3.7} for $k \geq 1$ we have
+	\begin{align*}
+		2(1 - \kappa)\frac{f^*(t_k;x_{k,j(k)};L)}{\sqrt{t_{k+1} - t_k}} \leq \frac{f^*(t_{k-1};x_{k-1,j(k-1);L})}{\sqrt{t_k} - t_{k-1}}
+	\end{align*}
+	Thus, $\delta_k \leq \beta \delta_{k-1}$ and we obtain
+	\begin{align*}
+		f^*(t_k;x_{k,j(k);L}) &= \delta_k\sqrt{t_{k+1} - t_k} \leq \beta^k\delta_0\sqrt{t_{k+1}-t_k} \\
+		&= \beta^kf^*(t_0;x_{0,j(0);L})\sqrt{\frac{t_{k+1} - t_k}{t_1 - t_0}}
+	\end{align*}
+	In view of \hyperref[lem235]{Lemma 2.3.5}, we have $t_1 - t_0 \geq f^*(t_0;x_{0,j(0)};\mu)$. Hence
+	\begin{align*}
+		f^*(t_k;x_{k,j(k)};L) & \leq \beta^kf^*(t_0;x_{0,j(0)};L)\sqrt{\frac{t_{k+1} - t_k}{f^*(t_0;x_{0,j(0)};\mu)}} \\
+		&\leq \frac{\beta^k}{1 - \kappa}\sqrt{f^*(t_0;x_{0,j(0)};\mu)(t_{k+1} - t_k)} \\
+		&\leq \frac{\beta^k}{1 - \kappa}\sqrt{f^*(t_0)(t_0 - t^*)}
+	\end{align*}
+	Lastly, we note that $f^*(t_0) \leq t_0 - t^*$ by \hyperref[lem235]{Lemma 2.3.5} and
+	\begin{align*}
+		f^*(t_k;x_{k+1};L) \equiv f^*(t_k;x_{k,j(k)};L) \leq f^*(t_k;x_{k,j(k)};L)
+	\end{align*} 
+	\qed \\
+	We now have an estimate for the number of upper-level iterations since if we let $f^*(t_k;x_{k,j(k)};L) \leq \epsilon$, then for $x_* = x_f(t_k;x_{k,j(k)};L)$ we have
+	\begin{align*}
+		f(t_k;x_*) = \max_{1 \leq i \leq m}\{f_0(x_*) - t_k;f_i(x_*)\} \leq f^*(t_k;x_{k,j};L) \leq \epsilon
+	\end{align*}
+	 since $t_k \leq t^*$, we conclude that
+	 \begin{align*}
+	 	f_0(x_*) \leq t^* + \epsilon, \\
+	 	f_i(x_*) \leq \epsilon, \hspace{5pt} i=1, \ldots m
+	 \end{align*}
+	 In view of \hyperref[lem238]{Lemma 2.3.8} we can obtain the above accuracy at most in
+	 \begin{align*}
+	 	N(\epsilon) = \frac{1}{\ln([2(1 - \kappa)])}\ln(\frac{t_0 - t^*}{(1 - \kappa)\epsilon})
+	 \end{align*}
+	 full iterations of the master process. Here, $\kappa$ is an absolute constant. \\
+	 Now, let's analyze the internal process. Again, assume we have $\{x_{k,j}\}$ generated as before with starting point $x_{k,0} = x_k$. From \hyperref[thm236]{Theoreom 2.3.6} we have
+	 \begin{align*}
+	 	f(t_k;x_{k,j}) - f^*(t_k) &\leq 2(1 - \sqrt{\frac{\mu}{L}})^j(f(t_k;x_k) - f^*(t_k)) \\
+	 	&\geq 2\exp(-\sigma \cdot j)(f(t_k;x_k) - f^*(t_k)) \leq 2\exp(-\sigma \cdot j)f(t_k;x_k),
+	 \end{align*}
+	 where $\sigma = \sqrt{\frac{\mu}{L}}$.
+	 
+	 Let $N \leq N(\epsilon)$ denote the number of full iterations. Thus $j(k)$ is defined for all $0 \leq k \leq N$. Note that $t_k = t^*(x_{k-1,j(k-1)},t_{k-1}) > t_{k-1}$. Therefore
+	 \begin{align*}
+	 	f(t_k;x_k) \leq f(t_{k-1};x_k) \leq f^*(t_{k-1};x_{k-1,j^*(k-1)},L)
+	 \end{align*}
+	 Denote
+	 \begin{align*}
+	 	\Delta_k = f^*(t_{k-1};x_{k-1,j^*(k-1)},L), \hspace{10pt} k \geq 1, \hspace{10pt} \Delta_0 = f(t_0;x_0)
+	 \end{align*}
+	 Then for all $k \geq 0$ we have
+	 \begin{align*}
+	 	f(t_k;x_k) - f^*(t_k) \leq \Delta_k
+	 \end{align*}
+	 \subsection*{Lemma 2.3.9}\label{lem239}
+	 For all $k, 0 \leq k \leq N$, the internal process works no longer as the following condition is satisfied:
+	 \begin{align}
+	 	f(t_k;x_{k,j}) - f^*(t_k) \leq \frac{\mu \kappa}{L - \mu}\cdot f^*(t_k;x_{k,j};L)
+	 \end{align}
+	 \textbf{proof:} Assume that the inequality is satisfied. Then, in view of \hyperref[cor232_2]{Corollary 2.3.2 (2)} we have
+	 \begin{align*}
+	 	\frac{1}{2L}\norm{g_f(t_k;x_{k,j};L)}^2 &\leq f(t_k;x_{k,j}) - f(t_k;x_f(t_k;x_{k,j};L)) \\
+	 	&\leq f(t_k;x_{k,j}) - f^*(t_k)
+	 \end{align*}
+	 Therefore, using the inequality derived above \hyperref[lem237]{Lemma 2.3.7}, we obtain
+	 \begin{align*}
+	 	f^*(t_k;x_{k,j};\mu) &\geq f^*(t_k;x_{k,j};L) - \frac{L - \mu}{2\mu L}\norm{g_f(t_k;x_{k,j};L)}^2 \\
+	 	&\geq f^*(t_k;x_{k,j};L) - \frac{L - \mu}{\mu}(f(t_k;x_{k,j}) - f^*(t_k)) \\
+	 	& \geq (1 - \kappa)f^*(t_k;x_{k,j};L)
+	 \end{align*}
+	 which is the termination criterion of step (a) in our scheme. \qed \\
+	 Based on the previous results, we now have the total complexity estimate.
+	 \subsection*{Lemma 2.3.10}\label{lem2310}
+	 For all $k, 0 \leq k \leq N$ we have
+	 \begin{align*}
+	 	j(k) \leq 1 + \sqrt{\frac{L}{\mu}}\cdot \ln(\frac{2(L - \mu)\Delta_k}{\kappa \mu \Delta_{k+1}})
+	 \end{align*}
+	 \textbf{proof:} Assume that
+	 \begin{align*}
+	 	j(k) - 1 > \frac{1}{\sigma}\ln(\frac{2(L - \mu)\Delta_k}{\kappa \mu \Delta_{k+1}})
+	 \end{align*}
+	 where $\sigma = \sqrt{\frac{\mu}{L}}$. Recall that $\Delta_{k+1} = \min_{0 \leq j \leq j(k)}f^*(t_k;x_{k,j};L)$. Note that the stopping criterion of the internal process did not work for $j = j(k) - 1$. Therefore, in view of \hyperref[lem239]{Lemma 2.3.9}, we have
+	 \begin{align*}
+	 	f^*(t_k;x_{k,j};L) \leq \frac{L - \mu}{\mu \kappa}(f(t_k;x_{k,j}) - f^*(t_k)) \leq 2 \frac{L-\mu}{\mu \kappa}\exp(- \sigma \cdot j)\Delta_k < \Delta_{k+1}
+	 \end{align*}
+	 which contradicts the definition of $\Delta_{k+1}$. \qed \\
+	 \subsection*{Corollary 2.3.3}\label{cor233}
+	 \begin{align*}
+	 	\sum_{k=0}^{N}j(k) \leq (N+1)[1 + \sqrt{\frac{L}{\mu}}\cdot \ln(\frac{2(L - \mu)}{\kappa \mu})] + \sqrt{\frac{L}{\mu}}\cdot \ln(\frac{\Delta_0}{\Delta_{N+1}})
+	 \end{align*}
+	 \qed \\
+	 It remains to estimate the number of internal iterations in the last step of the master process. Denote the number by $j^*$.
+	 \subsection*{Lemma 2.3.11}\label{lem2311}
+	 \begin{align*}
+	 	j^* \leq 1 + \sqrt{\frac{\L}{\mu}}\cdot \ln(\frac{2(L - \mu)\Delta_{N+1}}{\kappa \mu \epsilon})
+	 \end{align*}
+	 \textbf{proof:} This is very similar to the previous lemma. \\
+	 Suppose that
+	 \begin{align*}
+	 	j^* - 1 > \sqrt{\frac{L}{\mu}}\cdot \ln(\frac{2(L - \mu)\Delta_{N+1}}{\kappa \mu \epsilon}).
+	 \end{align*}
+	 For $j = j^* - 1$ we have
+	 \begin{align*}
+	 	\epsilon &\leq f^*(t_{N+1};x_{N+1,j};L) \leq \frac{L - \mu}{\mu \kappa}(f(t_{N+1};x_{N+1},j) - f^*(t_{N+1})) \\
+	 	&\leq 2\frac{L - \mu}{\mu \kappa}\exp(-\sigma \cdot j)\Delta_{N+1} < \epsilon
+	 \end{align*}
+	 This is a contradiction. \qed 
+	 \subsection*{Corollary 2.3.4}\label{cor234}
+	 \begin{align*}
+	 	j^* + \sum_{k=0}^{N}j(k) \leq (N+2)[1 + \sqrt{\frac{L}{\mu}}\cdot \ln(\frac{2(L - \mu)}{\kappa \mu})] + \sqrt{\frac{L}{\mu}}\cdot \ln(\frac{\Delta_0}{\epsilon})
+	 \end{align*}
+	 We now put everything together. Substituting $N(\epsilon) = \frac{1}{\ln(2[1 - \kappa])}\ln(\frac{t_0 - t^*}{(1 - \kappa)\epsilon})$ into the estimate of \hyperref[cor234]{Corollary 2.3.4}, we come to the following bound for the total number of internal iterations for \hyperref[sec235]{(scheme 2.3.5)}:
+	 \begin{align}
+	 	&[\frac{1}{\ln(2[1 - \kappa])} \ln(\frac{t_0 - t^*}{(1 - \kappa)\epsilon}) + 2] \cdot [1 + \sqrt{\frac{L}{\mu}}\cdot \ln(\frac{2(L - \mu)}{\kappa \mu})] \\
+	 	&+ \sqrt{\frac{L}{\mu}}\cdot \ln(\frac{1}{\epsilon}\cdot \max_{1 \leq i \leq m} \{f_0(x_0) - t_0;f_i(x_0)\})
+	 \end{align}
+	 Note that the \hyperref[sec:mmschemestrict]{method} which implements the internal process, calls the oracle of problem \hyperref[sec:234]{(2.3.4)} at each iteration only once. Therefore, we conclude this estimate that we just stated is an upper complexity bound for problem \hyperref[sec:234]{(2.3.4)} with $\epsilon$-solution defined previously. \\
+	 Let's check how far this estimate is from the lower bounds. \\
+	 The principal term in the above estimate is of order:
+	 \begin{align*}
+	 	\ln(\frac{t_0 - t^*}{\epsilon}) \cdot \sqrt{\frac{L}{\mu}}\cdot \ln(\frac{L}{\mu})
+	 \end{align*}
+	 which differs from the lower bound for an unconstrained minimization problem by a factor of $\ln(\frac{L}{\mu})$. This means our scheme \hyperref[sec235]{(2.3.5)} is at least suboptimal for constrained optimization problems. A more specific lower complexity bound is not known here. \\
+	 To conclude, note that in scheme \hyperref[sec235]{(2.3.5)} we assume we know some estimate $t_0 < t^*$. Namely, we can simply choose $t_0$ to be the optimal value of
+	 \begin{align*}
+	 	\min_{x \in Q}[f(x_0) + \langle f'(x_0), x - x_0 \rangle + \frac{\mu}{2}\norm{x - x_0}^2]
+	 \end{align*}
+	 which is clearly less than or equal to $t^*$. \\
+	 Next, we also assume we are able to compute $t^*(\bar{x},t)$. Recall that this is the root of
+	 \begin{align*}
+	 	f^*(t;\bar{x};\mu) = \min_{x \in Q}f_{\mu}(t;\bar{x};x)
+	 \end{align*}
+	 In view of \hyperref[lem234]{Lemma 2.3.4}, it is the optimal value of the following minimization problem:
+	 \begin{align*}
+	 	\min[f_0(\bar{x}) + \langle f_0'(\bar{x}), x - \bar{x} \rangle + \frac{\mu}{2}^2], \\
+	 	\textbf{s.t.} \hspace{10pt} f_i(\bar{x}) + \langle f_i(\bar{x}), x - \bar{x} \rangle + \frac{\mu}{2}\norm{x - \bar{x}}^2 \leq 0, \hspace{5pt} i=1, \ldots m, \\
+	 	x \in Q
+	 \end{align*}
+	 This is not a quadratic optimization problem since the constraints are not linear. However, it can be solved in finite time by a simplex-type process since the objective and constraints have the same Hessian. It can also be solved by interior-point methods.
+	 \newpage
+	 \section*{Chapter 3: Non-smooth Convex Optimization}\label{sec:3}
+	 We now consider solving general convex minimization problems of the form:
+	 \begin{align}\label{3.1.1}
+	 	\begin{gathered}
+	 		\min f_0(x), \\
+	 		\text{s.t.} \quad f_i(x) \leq 0, i= 1, \ldots m \tag{3.1.1}, \\
+	 		x \in Q \subseteq \mathbb{R}^n
+	 	\end{gathered}
+	 \end{align}
+	 where $Q$ is a closed convex set, $f_i(x)$ are general convex functions (possibly non-differentiable). These often show up with max-type functions composed of smooth, convex functions. While they can be handle by gradient mapping, this is intractable if the number is large.
+\end{document}
+\bibliographystyle{chicago}
+\bibliography{../SVM_references/references.bib}
+

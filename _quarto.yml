@@ -1,17 +1,26 @@
 project:
   type: website
+  resources:
+    - "**/*.pdf"
 
 website:
-  title: "Math and Coding Projects"
+  title: "Joseph Casey"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
-      - projects.qmd
-      - mathematics.qmd
-      - research.qmd
-
+      - href: projects/index.qmd
+        text: Projects
+      - href: notes/index.qmd
+        text: Notes
+      - href: research/index.qmd
+        text: Research
+      - href: teaching/index.qmd
+        text: Teaching
+      - href: archive/index.qmd
+        text: Archive
+      # - href: about/index.qmd
+      #   text: About
 format:
   html:
     theme:

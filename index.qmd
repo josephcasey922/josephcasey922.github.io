@@ -1,1 +1,24 @@
-https://github.com/josephcasey922 
+---
+title: "Joseph Casey"
+---
+
+
+---
+
+***Statistics*** $\quad$ ***Machine Learning*** $\quad$ ***Optimization***
+
+My name is Joseph Casey, and I recently obtained my PhD in Applied Mathematics from The University of Alabama at Birmingham.
+While pursuing my undergraduate degree in Mathematics from Auburn, I enjoyed pursuing various topics cybersecurity. Recently, my interests pertain to statistics, optimization, and machine learning, however, I still enjoy learning about a wide range of topics within math and computer science.
+
+[[Github](https://github.com/josephcasey922)]{style="font-size: 15px;"} $\quad$ [[Resume](files/joseph-casey-resume.pdf)]{style="font-size: 15px;"}
+---
+
+Recent Additions
+
+**Multilayer Perceptron From Scratch**
+
+- Building a basic neural network from the ground up using NumPy.
+
+[view project $\rightarrow$](projects/mlp-from-scratch)
+
+

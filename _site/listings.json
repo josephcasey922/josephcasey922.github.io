@@ -1,0 +1,25 @@
+[
+  {
+    "listing": "/projects/mlp-from-scratch/index.html",
+    "items": []
+  },
+  {
+    "listing": "/projects/index.html",
+    "items": [
+      "/projects/mlp-from-scratch/index.html"
+    ]
+  },
+  {
+    "listing": "/notes/index.html",
+    "items": [
+      "/notes/mathematics/convex-optimization/index.html",
+      "/notes/mathematics/index.html"
+    ]
+  },
+  {
+    "listing": "/notes/mathematics/index.html",
+    "items": [
+      "/notes/mathematics/convex-optimization/index.html"
+    ]
+  }
+]
