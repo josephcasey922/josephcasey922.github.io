@@ -25,7 +25,7 @@
     "href": "index.html",
     "title": "Joseph Casey",
     "section": "",
-    "text": "Statistics \\(\\quad\\) Machine Learning \\(\\quad\\) Optimization\nMy name is Joseph Casey, and I recently obtained my PhD in Applied Mathematics from The University of Alabama at Birmingham. While pursuing my undergraduate degree in Mathematics from Auburn, I enjoyed pursuing various topics cybersecurity. Recently, my interests pertain to statistics, optimization, and machine learning, however, I still enjoy learning about a wide range of topics within math and computer science."
+    "text": "Statistics \\(\\quad\\) Machine Learning \\(\\quad\\) Optimization\nMy name is Joseph Casey, and I recently obtained my PhD in Applied Mathematics from The University of Alabama at Birmingham. I also obtained my Bachelor’s degree in Mathematics from Auburn in 2020, where I also enjoyed pursuing various topics in cybersecurity. Recently, my interests pertain to statistics, optimization, and machine learning, however, I still enjoy learning about a wide range of topics within math and computer science."
   },
   {
     "objectID": "about/index.html",
@@ -144,7 +144,7 @@
     "href": "index.html#github-quad-resume",
     "title": "Joseph Casey",
     "section": "Github \\(\\quad\\) Resume",
-    "text": "Github \\(\\quad\\) Resume\nRecent Additions\nMultilayer Perceptron From Scratch\n\nBuilding a basic neural network from the ground up using NumPy.\n\nview project \\(\\rightarrow\\)"
+    "text": "Github \\(\\quad\\) Resume\n\nRecent Additions\nMultilayer Perceptron From Scratch\n\nBuilding a basic neural network from the ground up using NumPy.\n\nview project \\(\\rightarrow\\)\nConvex Optimization Notes and Proofs\n\nWorks through theorems and notes from Introduct Lectures in Convex Optimization by Nesterov\n\nview notes \\(\\rightarrow\\)\n\n\nWorks in Progress \\(\\ldots\\)\n\nDecision Trees from scratch (with statistical analysis)\nLLM from scratch\nVarious other foundational machine learning algorithms from scratch"
   },
   {
     "objectID": "research/index.html",
@@ -194,5 +194,26 @@
     "title": "Teaching",
     "section": "Distributed Machine Learning",
     "text": "Distributed Machine Learning\nMaterial on distributed machine learning."
+  },
+  {
+    "objectID": "archive/index.html",
+    "href": "archive/index.html",
+    "title": "Joseph Casey",
+    "section": "",
+    "text": "This section contains selected coursework from a course in natural language processing. The assignments covered classical NLP materials through advanced transformer based LLMs.\nThe coursework includes work with tokenization and byte-pair encoding, language modeling, text classification, named entity recognition, and biomedical NLP. Later assignments involved transformer models and pretrained language models such as BERT and GPT..\nI also completed a project involving distributed machine learning for NLP, using BERT-based representations and comparing approaches for training models across distributed datasets.\nThe jupyter code files are on my Github just for archiving, containing some useful reminders and manual implementations of nlp tasks.\nView the NLP coursework on GitHub →"
+  },
+  {
+    "objectID": "archive/index.html#natural-language-processing",
+    "href": "archive/index.html#natural-language-processing",
+    "title": "Joseph Casey",
+    "section": "",
+    "text": "This section contains selected coursework from a course in natural language processing. The assignments covered classical NLP materials through advanced transformer based LLMs.\nThe coursework includes work with tokenization and byte-pair encoding, language modeling, text classification, named entity recognition, and biomedical NLP. Later assignments involved transformer models and pretrained language models such as BERT and GPT..\nI also completed a project involving distributed machine learning for NLP, using BERT-based representations and comparing approaches for training models across distributed datasets.\nThe jupyter code files are on my Github just for archiving, containing some useful reminders and manual implementations of nlp tasks.\nView the NLP coursework on GitHub →"
+  },
+  {
+    "objectID": "index.html#github-quad-resume-quad-linkedin",
+    "href": "index.html#github-quad-resume-quad-linkedin",
+    "title": "Joseph Casey",
+    "section": "Github \\(\\quad\\) Resume \\(\\quad\\) LinkedIn",
+    "text": "Github \\(\\quad\\) Resume \\(\\quad\\) LinkedIn\n\nRecent Additions\nMultilayer Perceptron From Scratch\n\nBuilding a basic neural network from the ground up using NumPy.\n\nview project \\(\\rightarrow\\)\nConvex Optimization Notes and Proofs\n\nWorks through theorems and notes from Introduct Lectures in Convex Optimization by Nesterov\n\nview notes \\(\\rightarrow\\)\n\n\nWorks in Progress \\(\\ldots\\)\n\nDecision Trees from scratch (with statistical analysis)\nLLM from scratch\nVarious other foundational machine learning algorithms from scratch"
   }
 ]

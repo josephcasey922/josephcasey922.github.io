@@ -1,0 +1,11 @@
+## Natural Language Processing
+
+This section contains selected coursework from a course in natural language processing. The assignments covered classical NLP materials through advanced transformer based LLMs.
+
+The coursework includes work with tokenization and byte-pair encoding, language modeling, text classification, named entity recognition, and biomedical NLP. Later assignments involved transformer models and pretrained language models such as BERT and GPT..
+
+I also completed a project involving distributed machine learning for NLP, using BERT-based representations and comparing approaches for training models across distributed datasets.
+
+The jupyter code files are on my Github just for archiving, containing some useful reminders and manual implementations of nlp tasks.
+
+[View the NLP coursework on GitHub →](https://github.com/josephcasey922/coursework-archive)

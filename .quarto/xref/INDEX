@@ -46,5 +46,20 @@
   },
   "notes/mathematics/convex-optimization/index.qmd": {
     "index.html": "82092c2a"
+  },
+  "archive/deep-learning/index.qmd": {
+    "index.html": "c02fceb0"
+  },
+  "archive/nlp/index.qmd": {
+    "index.html": "93f67d58"
+  },
+  "teaching/distributed-machine-learning/index.qmd": {
+    "index.html": "073a735c"
+  },
+  "teaching/optimization/index.qmd": {
+    "index.html": "fd558cae"
+  },
+  "teaching/support-vector-machines/index.qmd": {
+    "index.html": "1a93571f"
   }
 }
