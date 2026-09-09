@@ -1,10 +1,52 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
+    "objectID": "notes/mathematics/convex-optimization/index.html",
+    "href": "notes/mathematics/convex-optimization/index.html",
+    "title": "Convex Optimization",
     "section": "",
-    "text": "We will study important fields foundational to machine learing:\n\nOptimization\nStatistics\n\nWe will review important python packages related to scientific programming and machine learning:\n\nNumPy\nSciPy\npandas\nscikit-learn\nPyTorch\nTensorflow\n\nFinally, we can work on coding projects in python aimed at understanding\n\nFoundational ML Problems\nNeural Networks (MLP, CNN, RNN, LSTM, GAN)\nLLMs (Transformers)\n\nWith these understood, we can move towards research in NNs/LLMs/Transformers.\nLocally trained models are important to have, use of my research in distributed ML can facilitate working with multiple locally trained models between yourself or peers without need of a shared dataset. KD is a simple alternative."
+    "text": "These are my personal notes based on Nesterov’s Introductory Lectures on Convex Optimization. The notes were designed for my personal use in finding useful optimization results quickly using latex. In the book, I required a deeper explanation for the theorems and proofs, motivating my construction of these notes to add explanations for the theorems and certain proof steps.\n\nNote: These notes are currently a work in progress for Chapters 1 and Chapters 2 and may contain many errors. I plan to revise them and add substantially more exposition over time.\n\nDownload the current notes (PDF)"
+  },
+  {
+    "objectID": "notes/index.html",
+    "href": "notes/index.html",
+    "title": "Notes",
+    "section": "",
+    "text": "This section contains notes on mathematics, statistics, machine learning, and other various topics."
+  },
+  {
+    "objectID": "notes/index.html#mathematics",
+    "href": "notes/index.html#mathematics",
+    "title": "Notes",
+    "section": "Mathematics",
+    "text": "Mathematics\n\nConvex Optimization"
+  },
+  {
+    "objectID": "teaching/index.html",
+    "href": "teaching/index.html",
+    "title": "Teaching",
+    "section": "",
+    "text": "This page contains topics that I have developed lectures or other teaching material for during my graduate studies. The aim is to introduce readers to important topics related to my research. These topics include:\nIn the near future, I will upload and discuss materials relating to each in the sections below"
+  },
+  {
+    "objectID": "teaching/index.html#optimization",
+    "href": "teaching/index.html#optimization",
+    "title": "Teaching",
+    "section": "Optimization",
+    "text": "Optimization\nMaterial covering topics in mathematical optimization."
+  },
+  {
+    "objectID": "teaching/index.html#support-vector-machines",
+    "href": "teaching/index.html#support-vector-machines",
+    "title": "Teaching",
+    "section": "Support Vector Machines",
+    "text": "Support Vector Machines\nLectures covering the theory and implementation of support vector machines."
+  },
+  {
+    "objectID": "teaching/index.html#distributed-machine-learning",
+    "href": "teaching/index.html#distributed-machine-learning",
+    "title": "Teaching",
+    "section": "Distributed Machine Learning",
+    "text": "Distributed Machine Learning\nMaterial on distributed machine learning."
   },
   {
     "objectID": "research.html",
@@ -14,11 +56,11 @@
     "text": "Here we include work regarding Distributed Machine Learning."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Math and Coding Projects",
+    "objectID": "projects/index.html",
+    "href": "projects/index.html",
+    "title": "Projects",
     "section": "",
-    "text": "https://github.com/josephcasey922"
+    "text": "Projects ranging from basic statistical machine learning to modern Deep learning and NLP architectures. The goal is to create these implementations from scratch while my older implementations from scratch/popular packages will be included in the Archive Section.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMultilayer Perceptron From Scratch\n\n\nBuilding and training a neural network using NumPy, without PyTorch or TensorFlow.\n\n\n\n\n\nSep 7, 2026\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "mathematics.html",
@@ -26,5 +68,117 @@
     "title": "Mathematics",
     "section": "",
     "text": "Here we include foundational work in optimization and statistics most relevant to ML."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Joseph Casey",
+    "section": "",
+    "text": "Statistics \\(\\quad\\) Machine Learning \\(\\quad\\) Optimization\nMy name is Joseph Casey, and I recently obtained my PhD in Applied Mathematics from The University of Alabama at Birmingham. While pursuing my undergraduate degree in Mathematics from Auburn, I enjoyed pursuing various topics cybersecurity. Recently, my interests pertain to statistics, optimization, and machine learning, however, I still enjoy learning about a wide range of topics within math and computer science."
+  },
+  {
+    "objectID": "index.html#github-quad-resume",
+    "href": "index.html#github-quad-resume",
+    "title": "Joseph Casey",
+    "section": "Github \\(\\quad\\) Resume",
+    "text": "Github \\(\\quad\\) Resume\nRecent Additions\nMultilayer Perceptron From Scratch\n\nBuilding a basic neural network from the ground up using NumPy.\n\nview project \\(\\rightarrow\\)"
+  },
+  {
+    "objectID": "about/index.html",
+    "href": "about/index.html",
+    "title": "About",
+    "section": "",
+    "text": "We will study important fields foundational to machine learing:\n\nOptimization\nStatistics\n\nWe will review important python packages related to scientific programming and machine learning:\n\nNumPy\nSciPy\npandas\nscikit-learn\nPyTorch\nTensorflow\n\nFinally, we can work on coding projects in python aimed at understanding\n\nFoundational ML Problems\nNeural Networks (MLP, CNN, RNN, LSTM, GAN)\nLLMs (Transformers)\n\nWith these understood, we can move towards research in NNs/LLMs/Transformers.\nLocally trained models are important to have, use of my research in distributed ML can facilitate working with multiple locally trained models between yourself or peers without need of a shared dataset. KD is a simple alternative."
+  },
+  {
+    "objectID": "projects/mlp-from-scratch/index.html",
+    "href": "projects/mlp-from-scratch/index.html",
+    "title": "Multilayer Perceptron From Scratch",
+    "section": "",
+    "text": "Language: Python\nCore dependency: NumPy\nModels: MLP\nDatasets: Toy data, Make Moons, MNIST\nImplemented: Linear layers, activations, CE loss, SGD\nRepository: link"
+  },
+  {
+    "objectID": "projects/mlp-from-scratch/index.html#introduction",
+    "href": "projects/mlp-from-scratch/index.html#introduction",
+    "title": "Multilayer Perceptron From Scratch",
+    "section": "Introduction",
+    "text": "Introduction\nA multilayer perceptron (MLP) is one of the most basic neural networks architectures. The architecture consists of an input layer, hidden layer(s) and an output layer. The input layer contains a number of neurons equal to the dimension of the dataset, and the output layer will depend on the problem. For a \\(C\\)-classification problem, the output layer will contain \\(C\\) neurons.\nEach layer in the MLP consists of neurons, with adjacent layer’s neurons being fully connected. This can be seen in the following image with two hidden layers:\n\n\n\n\n\n\nFigure 1: MLP Architecture"
+  },
+  {
+    "objectID": "projects/mlp-from-scratch/index.html#motivation",
+    "href": "projects/mlp-from-scratch/index.html#motivation",
+    "title": "Multilayer Perceptron From Scratch",
+    "section": "Motivation",
+    "text": "Motivation\nOur goal for the project is to intricately understand the workings of a basic neural network before moving on to more complicated ones. We will manually code the linear layers, activation functions, and loss functions, including the respective derivatives. Only after this, we can see how to code a similar network in minutes using PyTorch."
+  },
+  {
+    "objectID": "projects/mlp-from-scratch/index.html#architecture",
+    "href": "projects/mlp-from-scratch/index.html#architecture",
+    "title": "Multilayer Perceptron From Scratch",
+    "section": "Architecture",
+    "text": "Architecture\n\nGeneral Network Structure\nThe architecture of our MLP will change depending on the experiment we are running. More complicated classification problems will require a more sophisticated network. The basic pattern of layers in the MLP goes like this:\nInput features \\(\\rightarrow\\) Linear Layer \\(\\rightarrow\\) Activation \\(\\ldots\\) Output Layer \\(\\rightarrow\\) Output Activation\nwhere \\(ldots\\) can be replaced by more Linear + Activation layers (more hidden layers), and the number of neurons in each linear layer will vary depending on the desired complexity.\nFor this project, we will be utilizing cross-entropy loss and performing classification tasks on various datasets.\n\n\nLayer Design\nFor coding neural networks in python, it is very useful to utilize classes. Each layer utilizes a linear function, activation function, or loss function. We will define each of these things using a python class that includes functions to handle the forward pass and backward pass through the network. For example, for a linear class instance, we can call linear.forward to move the data through the network and linear.backward to move the gradients backward from the linear layer.\n\n\nNetwork Container\nThe code to handle all of the forward and backward passes is contained in a network class.\nclass Network:\n    def __init__(self, layers):\n        self.layers = layers\n\n    def forward(self, x):\n        output = x\n        for layer in self.layers:\n            output = layer.forward(output)\n\n        return output\n\n    def backward(self, grad_output):\n        grad = grad_output\n        for layer in reversed(self.layers):\n            grad = layer.backward(grad)\n        return grad\nOnce we give the network our desired layer choices, it will handle the forward and backward processes by using the corresponding forward and backward functions defined in each layer class\n\n\nExample Network\nWe will run multiple experiments with our network at the end, but for now, we can see some example layers that we may choose: Our simplest network will have the following layers:\nnetwork = Network([\n    Linear(2, 4),\n    ReLU(),\n    Linear(4, 2),\n    Softmax()\n])\nThe network class takes in an ordered list of network layers, which is enough to compute the entire forward and backward processes by simply go through the list in order and then in reverse. In this example, we begin with an input layer accepting \\(2\\) dimensional data with an output in \\(4\\) dimensions. The output must match the input dimension of the next linear layer (hidden layer).\nAfter the linear layer, we use ReLU activation, preserving the dimensions and preparing for the next linear layer. The final linear layer is called the output layer. Since the output dimension is \\(2\\), we can see that this prepares us for an activation that will perform binary classification by using the final softmax classification. Each of these layers/classes will be explained below."
+  },
+  {
+    "objectID": "projects/mlp-from-scratch/index.html#forward-propagation",
+    "href": "projects/mlp-from-scratch/index.html#forward-propagation",
+    "title": "Multilayer Perceptron From Scratch",
+    "section": "Forward Propagation",
+    "text": "Forward Propagation\nLet’s follow this simple network above mathematically and show how the code handles it equivalently. We will start with the data matrix, and move all the way forward through our network.\nSuppose we have a “batch” of inputs \\(X \\in \\mathbb{R}^{B \\times 2}\\) (this matches the need for \\(2\\) dimensional data input). That is, we have \\(B\\) data samples, each with \\(2\\) “features”.\n\nLinear Layer\nThe first linear layer should be able to take in this batch of samples and map them to a linear function of the form:\n\\[\nZ_1 = XW_1 + b_1\n\\]\nwhere \\(W_1 \\in \\mathbb{R}^{2 \\times 4}\\), and \\(b_1 \\in \\mathbb{R}^4\\).\nLet’s see if this makes sense. Our first linear layer should take our \\(2\\) dimensional input and map to a \\(4\\) dimensional output (as indicated by Linear(2, 4)). We can see that \\(XW_1 \\in \\mathbb{R}^{B \\times 4}\\). Then \\(b_1 \\in \\mathbb{R}^{4}\\) is added, defining the bias for each neuron thus giving us that \\(Z_1 \\in \\mathbb{R}^{B \\times 4}\\).\nEach column of \\(W_1\\) is acting as linear weights for each of the \\(4\\) corresponding neurons in the first linear layer.\nLet’s check the code for this linear forward computation:\nclass Linear:\n    def __init__(self, input_dim, output_dim):\n        rng = np.random.default_rng()\n        self.input_dim = input_dim\n        self.output_dim = output_dim\n\n        # He initialization with ReLU\n        self.W = rng.normal(loc = 0.0, scale = np.sqrt(2.0 / self.input_dim),\n                            size = (self.input_dim, self.output_dim))\n\n\n        self.b = np.zeros(self.output_dim)\n\n\n    def forward(self, x):\n        #self.batch_size = x.shape[0]\n        self.x = x\n        z = self.x @ self.W + self.b\n        return z\nWe see that the linear class is initialized with intput and output dimensions (\\(2\\) and \\(4\\) in our case). The weight matrix \\(W\\) is initialized (ignore the way we initialized for now) with size using those dimensions while the bias \\(b\\) is initialized to \\(0\\) using the output dimension.\nThe forward function is then very simple, we simply compute \\(Z = XW + b\\) and return it. For efficient coding, we will need to save computations that are relevant to the derivative calculations we will do during backpropagation. I have excluded these for now, and we will discuss them later.\nRecall again our simple network we defined above:\nnetwork = Network([\n    Linear(2, 4),\n    ReLU(),\n    Linear(4, 2),\n    Softmax()\n])\nWe have finished the linear forward pass, now we pass our matrix \\(Z_1\\), containing the linear components from each of \\(4\\) neurons, into ReLU activation.\n\n\nActivation Layer\nReLU is a nonlinear function, performed element-wise on \\(Z_1\\) and takes the form\n\\[\nf(x) = \\operatorname{max}(0,x)\n\\]\n\n\n\n\n\n\nFigure 2: ReLU\n\n\n\nThis is one choice of activation included in the code and is defined with the class:\nclass ReLU:\n    def __init__(self):\n        self.mask = None\n\n    def forward(self, x):\n        return np.maximum(0, x)\nWe denote the ReLU output as:\n\\[\nA_1 = \\operatorname{ReLU}(Z_1)\n\\]\nwhere \\(A_1 \\in \\mathbb{R}^{B \\times 4}\\) is the same dimensions as \\(Z_1\\).\nNumPy is able to compute this very cleanly with the maximum function. We can ignore the class variable of mask for now as that wil be used later. Again, I have excluded anything to do with the backpropagation for now.\n\n\nHidden Layer\nNow we move on to the final linear layer which is called a “hidden layer”. This is because it has no direct access to the data matrix \\(X\\) that be inputted into the network at the start. This runs off the same linear class we introduced earlier, but now accepts an input dimension of \\(4\\) and outputs a dimension of \\(2\\). Since this is the final linear layer, setting us up for the final classification, it is also referred to as the “output layer”.\nThe first linear layer acted on \\(X\\), this second linear layer is now acting on the previous ReLU output \\(A_1\\). Mathematically, the linear class has not changed; We simply replace \\(X\\) with \\(A_1\\) and compute:\n\\[\nZ_2 = A_1 W_2 + b_2\n\\]\nwhere \\(W_2 \\in \\mathbb{R}^{4 \\times 2}\\) (as indicated by Linear(4, 2)) and \\(b_2 \\in \\mathbb{R}^{2}\\).\nSimilar to before, we can see \\(Z_2 \\in \\mathbb{R}^{B \\times 2}\\). It is necessary here that the output dimension is \\(2\\) in order for us to perform binary classification with the following final layer.\n\n\nSoftmax Layer\nThe final layer in our network is the softmax layer. This is also considered an activation layer but has the explicit purpose of preparing the previous linear output for classification. For a given vector \\(z = (z_0, z_1, \\ldots z_C)\\), it is defined by the function:\n\\[\n\\operatorname{softmax}(z) = \\frac{e^{z_i}}{\\sum_{j=0}^{C}e^{z_j}}\n\\]\nFrom each row of \\(Z_2\\), it takes each of the two elements and turns them into probabilities that add up to \\(1\\). We denote the matrix of softmax probabilites as\n\\[\n$P(Z_2) \\in \\mathbb{R}^{B \\times 2}$\n\\]\nWhen the first row component has a higher probability, our network believes the data vector should be classified as \\(0\\), and when the second probability value is higher, our network believes the sample to be from class \\(1\\). This is implemented in the code with the Softmax class:\nclass Softmax:\n    def __init__(self):\n        self.output = None\n\n    def forward(self, x):\n        shifted_x = x - np.max(x, axis=1, keepdims=True)\n        self.output = np.exp(shifted_x) / np.sum(np.exp(shifted_x), axis=1, keepdims=True)\n        return self.output\nFor numerical stability, we shift the data using the maximum value in order to prevent errors from large exponential values. You can check that shifting \\(z_i\\)’s in the softmax definition will not change the output.\nSince we need to sum each of the exponential of each row components, NumPy has the sum over axis \\(1\\). It is important to have keepdims=True so that once we use NumPy to sum the exponentials, it won’t collapse the dimensions along this axis.\n\n\nCross-Entropy Loss\nIn order to guide learning, we must provide ground truths (\\(0\\) or \\(1\\)) for each of our \\(B\\) data samples in \\(X \\in \\mathbb{R}^{B \\times 2}\\). So Let\n\\[\ny \\in \\mathbb{R}^{B \\times 2}\n\\]\nbe the one-hot matrix of labels for our data. For our example, each row of \\(y\\) is a vector of two numbers, \\(0\\) and \\(1\\), with the position of \\(1\\) indicating the true class label. For \\(C\\) classes, each row would contain a \\(1\\) at the true class position and the rest would be \\(0\\). We know that softmax will output probabilites for each sample to be of a certain class. In general, we can let \\(p_i\\) denote the probability for the \\(i\\)th component of the probability vector. We can penalize poor predictions from our network by using cross-entropy loss defined as:\n\\[\nCE = -\\sum_{i}y_i \\log{(p_i)}\n\\]\nThis is the loss on a single prediction vector. Based on how we defined \\(y\\), we have \\(y_i = 0\\) for any position \\(i\\) that is not corresponding to the true class label. However, this definition arises from information theory and is more generally defined between two probability distributions, so we keep this form.\nIn our example, each vector is of dimension \\(2\\) so that softmax turns each row into \\([p_1, p_2]\\) where \\(p_1 + p_2 = 1\\). Let’s check the code:\nclass CrossEntropyLoss:\n    def __init__(self):\n        self.correct_probs = None\n\n    def forward(self, pred, label):\n        self.num_classes = pred.shape[1]\n        self.label = label\n        self.batch_size = pred.shape[0]\n        clipped_pred = np.clip(pred, 1e-12, 1)\n        self.row_indices = np.arange(self.batch_size)\n        self.correct_probs = clipped_pred[self.row_indices, self.label]\n        loss = -np.sum(np.log(self.correct_probs))/self.batch_size\n        return loss\nThe key to understanding this code is noticing the two lines:\nself.row_indices = np.arange(self.batch_size)\nself.correct_probs = clipped_pred[self.row_indices, self.label]\nThe first line defines a vector of integers from \\(0\\) up to \\(B\\) to index through our data matrix. The second line indexes the position of the true label within our softmax matrix of predictions. This is all we need since cross-entropy loss only penalizes our probability for the true class position."
+  },
+  {
+    "objectID": "projects/mlp-from-scratch/index.html#backpropagation",
+    "href": "projects/mlp-from-scratch/index.html#backpropagation",
+    "title": "Multilayer Perceptron From Scratch",
+    "section": "Backpropagation",
+    "text": "Backpropagation\nNow that we have moved through each layer, the last step is to update our weight matrices \\(W_1, W_2\\) and biases \\(b_1, b_2\\) in order to minimize the cross-entropy loss on our predictions. To do this, we wish to use gradient descent by first computing the derivative of the loss with respect to each of our learned parameters:\n\\[\n\\frac{\\partial CE}{\\partial W_1}, \\frac{\\partial CE}{\\partial W_2}, \\frac{\\partial CE}{\\partial b_1}, \\frac{\\partial CE}{\\partial b_2}\n\\]"
+  },
+  {
+    "objectID": "projects/mlp-from-scratch/index.html#experiments",
+    "href": "projects/mlp-from-scratch/index.html#experiments",
+    "title": "Multilayer Perceptron From Scratch",
+    "section": "Experiments",
+    "text": "Experiments"
+  },
+  {
+    "objectID": "projects/mlp-from-scratch/index.html#github",
+    "href": "projects/mlp-from-scratch/index.html#github",
+    "title": "Multilayer Perceptron From Scratch",
+    "section": "GitHub",
+    "text": "GitHub"
+  },
+  {
+    "objectID": "research/index.html",
+    "href": "research/index.html",
+    "title": "Research",
+    "section": "",
+    "text": "My research focuses on Distributed Machine Learning (DML) and Federated Learning (FL). Soon I will include an introduction to this topic in the Teaching section \\(\\rightarrow\\)."
+  },
+  {
+    "objectID": "research/index.html#dissertation",
+    "href": "research/index.html#dissertation",
+    "title": "Research",
+    "section": "Dissertation",
+    "text": "Dissertation\n\nRepresentatives Learning for Distributed Support Vector Machines\nThe primary focus of this dissertation is modifying the standard SVM optimization problem to allow for stronger representatives (or pseudo data points) to be shared between nodes in DML. Further work should investigate applications of this research to SVMs involved in deep learning architectures.\nView Dissertation (PDF)"
+  },
+  {
+    "objectID": "research/index.html#publications",
+    "href": "research/index.html#publications",
+    "title": "Research",
+    "section": "Publications",
+    "text": "Publications\n\nDistributed Collaborative Learning with Representative Knowledge Sharing\nJoseph Casey, Qianjiao Chen, Mengchen Fan, Baocheng Geng, Roman Shterenberg, Zhong Chen, and Keren Li\nMathematics, 2025.\nView Publication"
+  },
+  {
+    "objectID": "notes/mathematics/index.html",
+    "href": "notes/mathematics/index.html",
+    "title": "Mathematics",
+    "section": "",
+    "text": "Notes on mathematical topics."
+  },
+  {
+    "objectID": "notes/mathematics/index.html#optimization",
+    "href": "notes/mathematics/index.html#optimization",
+    "title": "Mathematics",
+    "section": "Optimization",
+    "text": "Optimization\n\nConvex Optimization"
   }
 ]
