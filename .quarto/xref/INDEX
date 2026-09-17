@@ -61,5 +61,20 @@
   },
   "teaching/support-vector-machines/index.qmd": {
     "index.html": "1a93571f"
+  },
+  "lectures/distributed-machine-learning/index.qmd": {
+    "index.html": "65370db5"
+  },
+  "lectures/index.qmd": {
+    "index.html": "1f365cea"
+  },
+  "lectures/optimization/index.qmd": {
+    "index.html": "af97666d"
+  },
+  "lectures/support-vector-machines/index.qmd": {
+    "index.html": "999a1956"
+  },
+  "projects/decisiontrees-from-scratch/index.qmd": {
+    "index.html": "20b5a9ff"
   }
 }

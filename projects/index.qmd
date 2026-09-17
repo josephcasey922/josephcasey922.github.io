@@ -3,6 +3,7 @@ title: "Projects"
 listing:
   contents:
     - mlp-from-scratch/
+    - decisiontrees-from-scratch/
   type: default
   sort: "date desc"
 ---

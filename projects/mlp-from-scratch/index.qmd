@@ -13,11 +13,7 @@ categories:
 
 - Core dependency: NumPy
 
-- Models: MLP
-
 - Datasets: Toy data, Make Moons, MNIST
-
-- Implemented: Linear layers, activations, CE loss, SGD
 
 - Repository: [link](https://github.com/josephcasey922/MLP_from_scratch)
 
@@ -45,7 +41,7 @@ The basic pattern of layers in the MLP goes like this:
 
 **Input features** $\rightarrow$ **Linear Layer** $\rightarrow$ **Activation** $\ldots$ **Output Layer** $\rightarrow$ **Output Activation**
 
-where $ldots$ can be replaced by more Linear + Activation layers (more hidden layers), and the number of neurons in each linear layer will vary depending on the desired complexity.
+where $\ldots$ can be replaced by more Linear + Activation layers (more hidden layers), and the number of neurons in each linear layer will vary depending on the desired complexity.
 
 For this project, we will be utilizing cross-entropy loss and performing classification tasks on various datasets.
 
@@ -117,7 +113,7 @@ where $W_1 \in \mathbb{R}^{2 \times 4}$, and $b_1 \in \mathbb{R}^4$.
 Let's see if this makes sense. Our first linear layer should take our $2$ dimensional input and map to a $4$ dimensional output (as indicated by ```Linear(2, 4)```). We can see that $XW_1 \in \mathbb{R}^{B \times 4}$. Then $b_1 \in \mathbb{R}^{4}$ is added, defining the bias for each neuron thus giving us that
 $Z_1 \in \mathbb{R}^{B \times 4}$. 
 
-Each column of $W_1$ is acting as linear weights for each of the $4$ corresponding neurons in the first linear layer. 
+Each column of $W_1$ is acting as linear weights for each of the $4$ corresponding neurons in the first linear layer. Then, for example, column $1$ of $Z_1$ corresponds to all of the first neuron's linear outputs on the data.
 
 Let's check the code for this linear forward computation:
 
@@ -213,7 +209,9 @@ The final layer in our network is the **softmax** layer. This is also considered
 For a given vector $z = (z_0, z_1, \ldots z_C)$, it is defined by the function:
 
 $$
+\begin{equation}\label{eq:softmax}
 \operatorname{softmax}(z) = \frac{e^{z_i}}{\sum_{j=0}^{C}e^{z_j}}
+\end{equation}
 $$
 
 From each row of $Z_2$, it takes each of the two elements and turns them into probabilities that add up to $1$. We denote the matrix of softmax probabilites as 
@@ -292,6 +290,72 @@ $$
 \frac{\partial CE}{\partial W_1}, \frac{\partial CE}{\partial W_2}, \frac{\partial CE}{\partial b_1}, \frac{\partial CE}{\partial b_2}
 $$
 
+Computing the cross-entropy loss required computing many intermediate nested functions (our layers), thus these derivatives are computed using the chain rule, beginning from our final network layer and moving backward.
+So, let's revisit each layer and look at the full class which includes the backward pass. 
+
+
+### Cross Entropy Loss
+The first derivative to compute during backpropagation is cross entropy loss with respect to the output of the previous layer (softmax). Recall, that for a one-hot vector y corresponding to a single data vector, this loss simplifies to
+
+$$
+CE = -y_c \log(p_c)
+$$
+
+where $c$ is the true class. Since $y_c = 1$, The derivative is then computed with respect to each of the class probability outputs, but only 
+the component for class $c$ will be non-zero, for a single softmax row input $p$, this is:
+
+$$
+\frac{\partial CE}{\partial p} = [0, \dots, -\frac{1}{p_c}, \ldots 0]
+$$
+
+Notice that this output is also a vector, this is because the gradients corresponding to each probability $p_i$ do not depend on the other probabilities $p_j$ for $j \neq i$.
+Let's check the class to see how this is gradient is done in the backward function.
+
+```python
+class CrossEntropyLoss:
+    def __init__(self):
+        self.correct_probs = None
+
+    def forward(self, pred, label):
+        self.num_classes = pred.shape[1]
+        self.label = label
+        self.batch_size = pred.shape[0]
+        clipped_pred = np.clip(pred, 1e-12, 1)
+        self.row_indices = np.arange(self.batch_size)
+        self.correct_probs = clipped_pred[self.row_indices, self.label]
+        loss = -np.sum(np.log(self.correct_probs))/self.batch_size
+        return loss
+
+    def backward(self):
+        grad_input = np.zeros((self.batch_size, self.num_classes), dtype=np.float64)
+        grad_input[self.row_indices, self.label] = (-1 / self.correct_probs)
+        return grad_input / self.batch_size
+```
+
+We've seen the forward part previously, and the backward portion uses the indexing strategy we saw before in order to index the correct probability element using the label which is an integer from $0$ to $C$ rather than a one-hot encoding.
+Since this loss is over the entire batch of rows $B$, we divide by the batch size for the average loss gradient.
+
+There is another important coding concept here which I won't spend too much time on. Notice that in the forward part we save multiple class variables. For example, consider ``` correct_probs ```. We chose to save this variable from initialization and in the forward part, so that once
+we perform backpropagation, we do not need to compute it again. We will see this repeated idea of saving computations from the forward pass which will be re-used during backpropagation.
+
+
+### Softmax
+The previously computed gradient $\frac{\partial CE}{\partial p}$ is now sent back from the cross entropy loss layer to the softmax layer and "multiplied" with the softmax layer gradient (chain rule).
+Now we need $\frac{\partial p}{\partial z}$ where $p$ is softmax and $z$ is the output from the previous linear layer.
+
+$$ 
+
+$$
+
+
+
+### Linear (Hidden)
+
+
+### ReLU
+
+
+### Linear (Input)
 
 
 ## Experiments

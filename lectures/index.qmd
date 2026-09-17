@@ -1,5 +1,12 @@
 ---
-title: "Teaching"
+title: "Lectures"
+listing:
+  contents:
+    - distributed-machine-learning/
+    - optimization
+    - support-vector-machines
+  type: default
+  sort: "date desc"
 ---
 
 This page contains topics that I have developed lectures or other teaching material for during my graduate studies. The aim is to introduce readers to important topics related to my research.
