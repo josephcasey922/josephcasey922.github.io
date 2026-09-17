@@ -178,7 +178,7 @@ window.Quarto = {
 <span class="menu-text">Research</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../teaching/index.html"> 
+    <a class="nav-link" href="../../teaching/index.qmd"> 
 <span class="menu-text">Teaching</span></a>
   </li>  
   <li class="nav-item">
@@ -221,7 +221,14 @@ window.Quarto = {
   <li><a href="#softmax-layer" id="toc-softmax-layer" class="nav-link" data-scroll-target="#softmax-layer">Softmax Layer</a></li>
   <li><a href="#cross-entropy-loss" id="toc-cross-entropy-loss" class="nav-link" data-scroll-target="#cross-entropy-loss">Cross-Entropy Loss</a></li>
   </ul></li>
-  <li><a href="#backpropagation" id="toc-backpropagation" class="nav-link" data-scroll-target="#backpropagation">Backpropagation</a></li>
+  <li><a href="#backpropagation" id="toc-backpropagation" class="nav-link" data-scroll-target="#backpropagation">Backpropagation</a>
+  <ul class="collapse">
+  <li><a href="#cross-entropy-loss-1" id="toc-cross-entropy-loss-1" class="nav-link" data-scroll-target="#cross-entropy-loss-1">Cross Entropy Loss</a></li>
+  <li><a href="#softmax" id="toc-softmax" class="nav-link" data-scroll-target="#softmax">Softmax</a></li>
+  <li><a href="#linear-hidden" id="toc-linear-hidden" class="nav-link" data-scroll-target="#linear-hidden">Linear (Hidden)</a></li>
+  <li><a href="#relu" id="toc-relu" class="nav-link" data-scroll-target="#relu">ReLU</a></li>
+  <li><a href="#linear-input" id="toc-linear-input" class="nav-link" data-scroll-target="#linear-input">Linear (Input)</a></li>
+  </ul></li>
   <li><a href="#experiments" id="toc-experiments" class="nav-link" data-scroll-target="#experiments">Experiments</a></li>
   <li><a href="#github" id="toc-github" class="nav-link" data-scroll-target="#github">GitHub</a></li>
   </ul></li>
@@ -271,9 +278,7 @@ window.Quarto = {
 <ul>
 <li><p>Language: Python</p></li>
 <li><p>Core dependency: NumPy</p></li>
-<li><p>Models: MLP</p></li>
 <li><p>Datasets: Toy data, Make Moons, MNIST</p></li>
-<li><p>Implemented: Linear layers, activations, CE loss, SGD</p></li>
 <li><p>Repository: <a href="https://github.com/josephcasey922/MLP_from_scratch">link</a></p></li>
 </ul>
 </section>
@@ -304,7 +309,7 @@ Figure&nbsp;1: MLP Architecture
 <h3 class="anchored" data-anchor-id="general-network-structure">General Network Structure</h3>
 <p>The architecture of our MLP will change depending on the experiment we are running. More complicated classification problems will require a more sophisticated network. The basic pattern of layers in the MLP goes like this:</p>
 <p><strong>Input features</strong> <span class="math inline">\(\rightarrow\)</span> <strong>Linear Layer</strong> <span class="math inline">\(\rightarrow\)</span> <strong>Activation</strong> <span class="math inline">\(\ldots\)</span> <strong>Output Layer</strong> <span class="math inline">\(\rightarrow\)</span> <strong>Output Activation</strong></p>
-<p>where <span class="math inline">\(ldots\)</span> can be replaced by more Linear + Activation layers (more hidden layers), and the number of neurons in each linear layer will vary depending on the desired complexity.</p>
+<p>where <span class="math inline">\(\ldots\)</span> can be replaced by more Linear + Activation layers (more hidden layers), and the number of neurons in each linear layer will vary depending on the desired complexity.</p>
 <p>For this project, we will be utilizing cross-entropy loss and performing classification tasks on various datasets.</p>
 </section>
 <section id="layer-design" class="level3">
@@ -357,7 +362,7 @@ Z_1 = XW_1 + b_1
 \]</span></p>
 <p>where <span class="math inline">\(W_1 \in \mathbb{R}^{2 \times 4}\)</span>, and <span class="math inline">\(b_1 \in \mathbb{R}^4\)</span>.</p>
 <p>Let’s see if this makes sense. Our first linear layer should take our <span class="math inline">\(2\)</span> dimensional input and map to a <span class="math inline">\(4\)</span> dimensional output (as indicated by <code>Linear(2, 4)</code>). We can see that <span class="math inline">\(XW_1 \in \mathbb{R}^{B \times 4}\)</span>. Then <span class="math inline">\(b_1 \in \mathbb{R}^{4}\)</span> is added, defining the bias for each neuron thus giving us that <span class="math inline">\(Z_1 \in \mathbb{R}^{B \times 4}\)</span>.</p>
-<p>Each column of <span class="math inline">\(W_1\)</span> is acting as linear weights for each of the <span class="math inline">\(4\)</span> corresponding neurons in the first linear layer.</p>
+<p>Each column of <span class="math inline">\(W_1\)</span> is acting as linear weights for each of the <span class="math inline">\(4\)</span> corresponding neurons in the first linear layer. Then, for example, column <span class="math inline">\(1\)</span> of <span class="math inline">\(Z_1\)</span> corresponds to all of the first neuron’s linear outputs on the data.</p>
 <p>Let’s check the code for this linear forward computation:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Linear:</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, input_dim, output_dim):</span>
@@ -433,7 +438,9 @@ Z_2 = A_1 W_2 + b_2
 <h3 class="anchored" data-anchor-id="softmax-layer">Softmax Layer</h3>
 <p>The final layer in our network is the <strong>softmax</strong> layer. This is also considered an activation layer but has the explicit purpose of preparing the previous linear output for classification. For a given vector <span class="math inline">\(z = (z_0, z_1, \ldots z_C)\)</span>, it is defined by the function:</p>
 <p><span class="math display">\[
+\begin{equation}\label{eq:softmax}
 \operatorname{softmax}(z) = \frac{e^{z_i}}{\sum_{j=0}^{C}e^{z_j}}
+\end{equation}
 \]</span></p>
 <p>From each row of <span class="math inline">\(Z_2\)</span>, it takes each of the two elements and turns them into probabilities that add up to <span class="math inline">\(1\)</span>. We denote the matrix of softmax probabilites as</p>
 <p><span class="math display">\[
@@ -488,6 +495,54 @@ CE = -\sum_{i}y_i \log{(p_i)}
 <p><span class="math display">\[
 \frac{\partial CE}{\partial W_1}, \frac{\partial CE}{\partial W_2}, \frac{\partial CE}{\partial b_1}, \frac{\partial CE}{\partial b_2}
 \]</span></p>
+<p>Computing the cross-entropy loss required computing many intermediate nested functions (our layers), thus these derivatives are computed using the chain rule, beginning from our final network layer and moving backward. So, let’s revisit each layer and look at the full class which includes the backward pass.</p>
+<section id="cross-entropy-loss-1" class="level3">
+<h3 class="anchored" data-anchor-id="cross-entropy-loss-1">Cross Entropy Loss</h3>
+<p>The first derivative to compute during backpropagation is cross entropy loss with respect to the output of the previous layer (softmax). Recall, that for a one-hot vector y corresponding to a single data vector, this loss simplifies to</p>
+<p><span class="math display">\[
+CE = -y_c \log(p_c)
+\]</span></p>
+<p>where <span class="math inline">\(c\)</span> is the true class. Since <span class="math inline">\(y_c = 1\)</span>, The derivative is then computed with respect to each of the class probability outputs, but only the component for class <span class="math inline">\(c\)</span> will be non-zero, for a single softmax row input <span class="math inline">\(p\)</span>, this is:</p>
+<p><span class="math display">\[
+\frac{\partial CE}{\partial p} = [0, \dots, -\frac{1}{p_c}, \ldots 0]
+\]</span></p>
+<p>Notice that this output is also a vector, this is because the gradients corresponding to each probability <span class="math inline">\(p_i\)</span> do not depend on the other probabilities <span class="math inline">\(p_j\)</span> for <span class="math inline">\(j \neq i\)</span>. Let’s check the class to see how this is gradient is done in the backward function.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CrossEntropyLoss:</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.correct_probs <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, pred, label):</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.num_classes <span class="op">=</span> pred.shape[<span class="dv">1</span>]</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.label <span class="op">=</span> label</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.batch_size <span class="op">=</span> pred.shape[<span class="dv">0</span>]</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        clipped_pred <span class="op">=</span> np.clip(pred, <span class="fl">1e-12</span>, <span class="dv">1</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.row_indices <span class="op">=</span> np.arange(<span class="va">self</span>.batch_size)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.correct_probs <span class="op">=</span> clipped_pred[<span class="va">self</span>.row_indices, <span class="va">self</span>.label]</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        loss <span class="op">=</span> <span class="op">-</span>np.<span class="bu">sum</span>(np.log(<span class="va">self</span>.correct_probs))<span class="op">/</span><span class="va">self</span>.batch_size</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> loss</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> backward(<span class="va">self</span>):</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        grad_input <span class="op">=</span> np.zeros((<span class="va">self</span>.batch_size, <span class="va">self</span>.num_classes), dtype<span class="op">=</span>np.float64)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        grad_input[<span class="va">self</span>.row_indices, <span class="va">self</span>.label] <span class="op">=</span> (<span class="op">-</span><span class="dv">1</span> <span class="op">/</span> <span class="va">self</span>.correct_probs)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> grad_input <span class="op">/</span> <span class="va">self</span>.batch_size</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We’ve seen the forward part previously, and the backward portion uses the indexing strategy we saw before in order to index the correct probability element using the label which is an integer from <span class="math inline">\(0\)</span> to <span class="math inline">\(C\)</span> rather than a one-hot encoding. Since this loss is over the entire batch of rows <span class="math inline">\(B\)</span>, we divide by the batch size for the average loss gradient.</p>
+<p>There is another important coding concept here which I won’t spend too much time on. Notice that in the forward part we save multiple class variables. For example, consider <code>correct_probs</code>. We chose to save this variable from initialization and in the forward part, so that once we perform backpropagation, we do not need to compute it again. We will see this repeated idea of saving computations from the forward pass which will be re-used during backpropagation.</p>
+</section>
+<section id="softmax" class="level3">
+<h3 class="anchored" data-anchor-id="softmax">Softmax</h3>
+<p>The previously computed gradient <span class="math inline">\(\frac{\partial CE}{\partial p}\)</span> is now sent back from the cross entropy loss layer to the softmax layer and “multiplied” with the softmax layer gradient (chain rule). Now we need <span class="math inline">\(\frac{\partial p}{\partial z}\)</span> where <span class="math inline">\(p\)</span> is softmax and <span class="math inline">\(z\)</span> is the output from the previous linear layer.</p>
+<p>$$</p>
+<p>$$</p>
+</section>
+<section id="linear-hidden" class="level3">
+<h3 class="anchored" data-anchor-id="linear-hidden">Linear (Hidden)</h3>
+</section>
+<section id="relu" class="level3">
+<h3 class="anchored" data-anchor-id="relu">ReLU</h3>
+</section>
+<section id="linear-input" class="level3">
+<h3 class="anchored" data-anchor-id="linear-input">Linear (Input)</h3>
+</section>
 </section>
 <section id="experiments" class="level2">
 <h2 class="anchored" data-anchor-id="experiments">Experiments</h2>

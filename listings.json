@@ -1,7 +1,16 @@
 [
   {
+    "listing": "/lectures/index.html",
+    "items": [
+      "/lectures/distributed-machine-learning/index.html",
+      "/lectures/optimization/index.html",
+      "/lectures/support-vector-machines/index.html"
+    ]
+  },
+  {
     "listing": "/projects/index.html",
     "items": [
+      "/projects/decisiontrees-from-scratch/index.html",
       "/projects/mlp-from-scratch/index.html"
     ]
   }
