@@ -208,8 +208,15 @@ window.Quarto = {
   <li><a href="#motivation" id="toc-motivation" class="nav-link" data-scroll-target="#motivation">Motivation</a></li>
   <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation">Implementation</a></li>
   <li><a href="#experiments" id="toc-experiments" class="nav-link" data-scroll-target="#experiments">Experiments</a></li>
-  <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a></li>
   </ul></li>
+  <li><a href="#analysis" id="toc-analysis" class="nav-link" data-scroll-target="#analysis">Analysis</a>
+  <ul class="collapse">
+  <li><a href="#confusion-matrix-precision-recall-and-f1" id="toc-confusion-matrix-precision-recall-and-f1" class="nav-link" data-scroll-target="#confusion-matrix-precision-recall-and-f1">Confusion matrix: Precision, Recall, and F1</a></li>
+  <li><a href="#model-complexity-underfitting-vs-overfitting" id="toc-model-complexity-underfitting-vs-overfitting" class="nav-link" data-scroll-target="#model-complexity-underfitting-vs-overfitting">Model Complexity: Underfitting vs Overfitting</a></li>
+  <li><a href="#cross-validation" id="toc-cross-validation" class="nav-link" data-scroll-target="#cross-validation">Cross-validation</a></li>
+  <li><a href="#pruning" id="toc-pruning" class="nav-link" data-scroll-target="#pruning">Pruning</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
     </div>
@@ -257,7 +264,7 @@ window.Quarto = {
 <ul>
 <li><p>Language: Python</p></li>
 <li><p>Core dependency: NumPy</p></li>
-<li><p>Datasets: Toy data, Make Moons, MNIST</p></li>
+<li><p>Datasets: Toy data, Wisconsin breast cancer dataset</p></li>
 <li><p>Repository: <a href="https://github.com/josephcasey922/decision-tree-from-scratch">link</a></p></li>
 </ul>
 </section>
@@ -437,56 +444,249 @@ Figure&nbsp;1: Decision Tree
 <section id="experiments" class="level2">
 <h2 class="anchored" data-anchor-id="experiments">Experiments</h2>
 <p>For now, we only include a small toy example to show that this works. Let</p>
-<p><span class="math display">\[
-x = np.array([[1.0, 2.0],[2.0,1.0],[3.0,3.0],[6.0,2.0],[7.0,1.0],[8.0,3.0]])
-y = np.array([0,0,0,1,1,1])
-\]</span></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.array([[<span class="fl">1.0</span>, <span class="fl">2.0</span>],[<span class="fl">2.0</span>,<span class="fl">1.0</span>],[<span class="fl">3.0</span>,<span class="fl">3.0</span>],[<span class="fl">6.0</span>,<span class="fl">2.0</span>],[<span class="fl">7.0</span>,<span class="fl">1.0</span>],[<span class="fl">8.0</span>,<span class="fl">3.0</span>]])</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>so that we have <span class="math inline">\(6\)</span> data points and two classes. In order to evaluate the tree we construct, we will use the two functions in the tree class:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _predict_row(<span class="va">self</span>, x, node):</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># only leaf nodes have a value != None</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> node.value <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> node.value</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x[node.feature] <span class="op">&lt;=</span> node.threshold:</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._predict_row(x, node.left_node)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._predict_row(x, node.right_node)</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># returns leaf prediction</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> predict(<span class="va">self</span>, x):</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># go sample by sample</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    predictions <span class="op">=</span> []</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(x.shape[<span class="dv">0</span>]):</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        predictions.append(<span class="va">self</span>._predict_row(x[i,:], <span class="va">self</span>.root))</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(predictions)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _predict_row(<span class="va">self</span>, x, node):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># only leaf nodes have a value != None</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> node.value <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> node.value</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x[node.feature] <span class="op">&lt;=</span> node.threshold:</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._predict_row(x, node.left_node)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>._predict_row(x, node.right_node)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co"># returns leaf prediction</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> predict(<span class="va">self</span>, x):</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># go sample by sample</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    predictions <span class="op">=</span> []</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(x.shape[<span class="dv">0</span>]):</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        predictions.append(<span class="va">self</span>._predict_row(x[i,:], <span class="va">self</span>.root))</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.array(predictions)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This initially takes in a data point and root node and continually progresses down the tree by checking <code>node.value</code> which is only “not None” for leaf nodes to return the majority class.</p>
 <p>For the toy example, the full training is just these few lines:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>tree <span class="op">=</span> DecisionTree(impurity <span class="op">=</span> <span class="st">"gini"</span>, max_depth<span class="op">=</span><span class="dv">3</span>, min_split<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>tree.fit(x,y)</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>predictions <span class="op">=</span> tree.predict(x)</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Training Accuracy:"</span>, np.mean(predictions <span class="op">==</span> y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>tree <span class="op">=</span> DecisionTree(impurity <span class="op">=</span> <span class="st">"gini"</span>, max_depth<span class="op">=</span><span class="dv">3</span>, min_split<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>tree.fit(x,y)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>predictions <span class="op">=</span> tree.predict(x)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Training Accuracy:"</span>, np.mean(predictions <span class="op">==</span> y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>And for predicting on some test data:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>x_new <span class="op">=</span> np.array([</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">1.5</span>, <span class="fl">2.5</span>],</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">7.5</span>, <span class="fl">2.5</span>],</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">4.0</span>, <span class="fl">1.0</span>]</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>])</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>new_predictions <span class="op">=</span> tree.predict(x_new)</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">New predictions:"</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(new_predictions)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>x_new <span class="op">=</span> np.array([</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">1.5</span>, <span class="fl">2.5</span>],</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">7.5</span>, <span class="fl">2.5</span>],</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    [<span class="fl">4.0</span>, <span class="fl">1.0</span>]</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>new_predictions <span class="op">=</span> tree.predict(x_new)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">New predictions:"</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(new_predictions)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>If done correctly, training and testing accuracy on this toy data should be perfect.</p>
 </section>
-<section id="analysis" class="level2">
-<h2 class="anchored" data-anchor-id="analysis">Analysis</h2>
-<p>There are a handful of important concepts from machine learning which apply to analyzing decision trees. We will look into these by first applying our decision tree to the Iris classification dataset.</p>
-
-
 </section>
+<section id="analysis" class="level1">
+<h1>Analysis</h1>
+<p>One of the most important questions in machine learning is “How do we know if we trained a good model”? While we briefly mentioned test accuracy, we can go a bit further while analysing our tree’s performance on a more complicated classification dataset.</p>
+<p>Below we will experiment on the Wisconsin breast cancer dataset and discuss the following concepts:</p>
+<ul>
+<li>Confusion matrix</li>
+<li>Precision, recall, and F1</li>
+<li>Overfitting</li>
+<li>Cross-validation</li>
+<li>Bootstrapping</li>
+<li>Pruning</li>
+</ul>
+<p>Now let’s consider the code in the <code>breastcancer.py</code> experiment. This will look similar to the toy example except we load this dataste from sci-kit learn:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> load_breast_cancer()</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> data.data</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> data.target</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># change 1 to be malignant tumors and 0 to be benign tumors</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.array([<span class="bu">int</span>(<span class="kw">not</span> <span class="bu">bool</span>(x)) <span class="cf">for</span> x <span class="kw">in</span> y])</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#print(x.shape, y.shape)</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(x, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>tree <span class="op">=</span> DecisionTree(impurity<span class="op">=</span><span class="st">"gini"</span>, max_depth<span class="op">=</span><span class="dv">5</span>, min_split <span class="op">=</span> <span class="dv">2</span>)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>tree.fit(X_train, y_train)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>training_predictions <span class="op">=</span> tree.predict(X_train)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>test_predictions <span class="op">=</span> tree.predict(X_test)</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Training Accuracy:"</span>, np.mean(training_predictions <span class="op">==</span> y_train))</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Testing Accuracy:"</span>, np.mean(test_predictions <span class="op">==</span> y_test))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>which gives the following results:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>Training Accuracy: <span class="fl">0.9956043956043956</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>Testing Accuracy: <span class="fl">0.9385964912280702</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The results seem good, but accuracy alone does not tell us the full picture. For example, is the dataset heavily imbalanced and we are just predicting a single class? Are we predicting malignant tumors to be benign more than vice versa? Since our training accuracy is much higher, are we overfitting to the data?</p>
+<p>Let’s try to answer these questions by looking a bit deeper.</p>
+<section id="confusion-matrix-precision-recall-and-f1" class="level2">
+<h2 class="anchored" data-anchor-id="confusion-matrix-precision-recall-and-f1">Confusion matrix: Precision, Recall, and F1</h2>
+<p>The confusion matrix for our model is defined by the following counts:</p>
+<ul>
+<li>True Positive: model predicts positive, and the sample is positive</li>
+<li>True Negative: model predicts negative, and the sample is negative</li>
+<li>False Positive: model predicts positive, and the sample is negative</li>
+<li>False Negative: model predicts negative, and the sample is positive</li>
+</ul>
+<p>We compute these in the code by finding the samples corresponding to each category, and then summing them up:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>TP <span class="op">=</span> (y_test <span class="op">==</span> <span class="dv">1</span>) <span class="op">&amp;</span> (test_predictions <span class="op">==</span> <span class="dv">1</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>TN <span class="op">=</span> (y_test <span class="op">==</span> <span class="dv">0</span>) <span class="op">&amp;</span> (test_predictions <span class="op">==</span> <span class="dv">0</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>FP <span class="op">=</span> (y_test <span class="op">==</span> <span class="dv">0</span>) <span class="op">&amp;</span> (test_predictions <span class="op">==</span> <span class="dv">1</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>FN <span class="op">=</span> (y_test <span class="op">==</span> <span class="dv">1</span>) <span class="op">&amp;</span> (test_predictions <span class="op">==</span> <span class="dv">0</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>TP: <span class="dv">40</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>TN: <span class="dv">67</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>FP: <span class="dv">4</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>FN: <span class="dv">3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For breast cancer prediction, we may be more worried about false negatives than false positives, since a false negative means we predict no malignancy but the tumor was actually malignant. Different machine learning algorithms may require different approaches to emphasize making fewer of these mistakes. Based on the confusion matrix, we consider three metrics with different interpretations:</p>
+<ul>
+<li>Precision = TP / (TP + FP)</li>
+<li>Recall = TP / (TP + FN)</li>
+<li>F1 = 2 * (Precision * Recall) / (Precision + Recall)</li>
+</ul>
+<p><strong>Precision</strong> tells us the fraction of tumors that were malignant our of all the observations our model predicted were malignant.</p>
+<p><strong>Recall</strong> tells us the fraction of malignant tumors that our identified, out of all observations that were actually malignant. This is of particular importance for this problem.</p>
+<p><strong>F1</strong> balances the precision and recall, if either one is low, the F1 score will be brought down substantially.</p>
+<p>Since we have the precision matrix, we can easily compute these metrics from the code:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>precision <span class="op">=</span> np.<span class="bu">sum</span>(TP) <span class="op">/</span> (np.<span class="bu">sum</span>(TP) <span class="op">+</span> np.<span class="bu">sum</span>(FP))</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>recall <span class="op">=</span> np.<span class="bu">sum</span>(TP) <span class="op">/</span> (np.<span class="bu">sum</span>(TP) <span class="op">+</span> np.<span class="bu">sum</span>(FN))</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>F1 <span class="op">=</span> (<span class="dv">2</span> <span class="op">*</span> precision <span class="op">*</span> recall) <span class="op">/</span> (precision <span class="op">+</span> recall)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>Precision: <span class="fl">0.9090909090909091</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>Recall: <span class="fl">0.9302325581395349</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>F1: <span class="fl">0.9195402298850575</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="model-complexity-underfitting-vs-overfitting" class="level2">
+<h2 class="anchored" data-anchor-id="model-complexity-underfitting-vs-overfitting">Model Complexity: Underfitting vs Overfitting</h2>
+<p>A choice we have to make with each decision tree is the depth. We saw how this was done above by choosing the <code>max_depth</code> and <code>min_samples</code> in the code, where the maximum depth is the primary variable determining tree complexity.</p>
+<p>When the tree is too simply, we risk <strong>underfitting</strong> the data, and when the tree is too complex, we risk <strong>overfitting</strong>. To see this, let’s see the training and testing accuracy for our tree at increasingly larger depths.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Max Depth</th>
+<th style="text-align: right;">Train Accuracy</th>
+<th style="text-align: right;">Test Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.921</td>
+<td style="text-align: right;">0.895</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.930</td>
+<td style="text-align: right;">0.930</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.978</td>
+<td style="text-align: right;">0.939</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.996</td>
+<td style="text-align: right;">0.939</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.996</td>
+<td style="text-align: right;">0.939</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0.998</td>
+<td style="text-align: right;">0.939</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7+</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.939</td>
+</tr>
+</tbody>
+</table>
+<div id="fig-accuracies" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-accuracies-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Figure_1.png" class="img-fluid figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-accuracies-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Training and Testing Accuracy vs Maximum Depth
+</figcaption>
+</figure>
+</div>
+<p>At depth <span class="math inline">\(1\)</span>, we see we have a very simply tree that fails to attain the required complexity to accurately predict on unseen data. Beginning with a maximum depth of <span class="math inline">\(2\)</span>, we see that the training accuracy is <span class="math inline">\(93\%\)</span> with test accuracy of <span class="math inline">\(93\%\)</span>. From here, the training accuracy increases up to <span class="math inline">\(100\%\)</span> while the test accuracy mostly stays the same. This may indicate that we are training an overly complex model, which understands the training data very well but can’t extrapolate any better on the test data.</p>
+<p>Unfortunately, we cannot make any concrete conclusions based on these results. Generally, choosing the depth which achieves highest test accuracy would be using the test data to train our model. Let’s move on to the next section to see a better way to handle this issue.</p>
+</section>
+<section id="cross-validation" class="level2">
+<h2 class="anchored" data-anchor-id="cross-validation">Cross-validation</h2>
+<p>The idea with cross-validation is to use ideas from the previous sections, but actually leave the test set alone. This helps us choose a model with genuine generalizability. Cross-validation works by splitting the training dataset into <span class="math inline">\(K\)</span> pieces (K-fold cross-validation) and then repeatedly train on <span class="math inline">\(K-1\)</span> pieces while using the last as the “validation” set. The cross-validation performance is then the average of these validation accuracies. This gives us a more reasonable way to determine the proper tree depth.</p>
+<p>In the code, we can run cross-validation for each of the max depth choices. We start by shuffling indices and using NumPy’s <code>array_split</code> function to make the folds. Then for each fixed depth, we run through all folds and produce a validation accuracy for each, averaging them at the end to return a single validation accuracy for the depth.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">42</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>indices <span class="op">=</span> np.arange(<span class="bu">len</span>(y_train))</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>rng.shuffle(indices)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>X_train_cv <span class="op">=</span> X_train[indices]</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>y_train_cv <span class="op">=</span> y_train[indices]</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>num_folds <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>fold_indices <span class="op">=</span> np.array_split(np.arange(<span class="bu">len</span>(y_train_cv)), num_folds)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>depth_cv_accuracies <span class="op">=</span> []</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> depth <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>,<span class="dv">16</span>):</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    validation_accuracies <span class="op">=</span> []</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k <span class="kw">in</span> <span class="bu">range</span>(num_folds):</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>        training_indices <span class="op">=</span> np.concatenate([fold_indices[j] <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(num_folds)</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>                                           <span class="cf">if</span> j <span class="op">!=</span> k])</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>        X_train_fold <span class="op">=</span> X_train_cv[training_indices, :]</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>        X_val_fold <span class="op">=</span> X_train_cv[fold_indices[k], :]</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>        y_train_fold <span class="op">=</span> y_train_cv[training_indices]</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>        y_val_fold <span class="op">=</span> y_train_cv[fold_indices[k]]</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>        tree <span class="op">=</span> DecisionTree(impurity<span class="op">=</span><span class="st">"gini"</span>, max_depth<span class="op">=</span>depth, min_split<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>        tree.fit(X_train_fold, y_train_fold)</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>        val_predictions <span class="op">=</span> tree.predict(X_val_fold)</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>        val_acc <span class="op">=</span> np.mean(val_predictions <span class="op">==</span> y_val_fold)</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>        validation_accuracies.append(val_acc)</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>    mean_val_acc <span class="op">=</span> np.mean(validation_accuracies)</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Validation Accuracy:"</span>, mean_val_acc)</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>    depth_cv_accuracies.append(mean_val_acc)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Running the code will find two categories of depth with the highest validation accuracy: max depth <span class="math inline">\(3\)</span> and max depth <span class="math inline">\(9+\)</span>, each returning <code>Validation Accuracy: 0.9274725274725275</code>. Often it is best to choose the simplest model when performance is equivalent, so we would believe a maximum depth of <span class="math inline">\(3\)</span> is the best choice for this analysis.</p>
+<p>In future projects, we will discuss improvements over this basic cross-validation by considering two questions:</p>
+<ol type="1">
+<li>What is the variance of my validation accuracies?</li>
+<li>What if the cross-validation folds contain different class proportions than my original data?</li>
+</ol>
+<p>For now, we will move on to the last topic in the decision trees project which is pruning.</p>
+</section>
+<section id="pruning" class="level2">
+<h2 class="anchored" data-anchor-id="pruning">Pruning</h2>
+<p>Previously, we focused on the parameter <code>max_depth</code> for our tree and used cross-validation to inform our choice. This is a useful strategy to proactively avoid overfitting by deciding the best parameter value. Pruning is a technique (not unique to decision trees) which retroactively handles overfitting.</p>
+<p>The idea is this: grow a relatively large decision tree and remove the branches that don’t offer enough improvement for the added complexity.</p>
+<p>While regularization methods exist to penalize complexity (“CART weakest link” pruning), we will do something relatively simple. Let’s check each subtree and ask the question: “What if I replace this subtree with a single leaf?”. This replaces further splitting with a leaf that predicts the majority class.</p>
+<p>The goal is to sacrifice some training accuracy for improved validation accuracy (yes, we can use this AND cross-validation!).</p>
+<p>(Stay tuned for a code update to perform pruning).</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>In this project, we saw how to utilize recursive coding to implement decision trees on a real dataset. We then considered some standard statistical techniques for analyzing the performance of our trees.</p>
+<p>In a future project, we will discuss the high variance of decision trees, leading us to explore ideas such at bootstrapping and bagging, and eventually discover random forests.</p>
+
+
 </section>
 
 </main> <!-- /main -->

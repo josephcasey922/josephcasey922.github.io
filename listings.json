@@ -10,6 +10,8 @@
   {
     "listing": "/projects/index.html",
     "items": [
+      "/projects/linear-logistic-regression/index.html",
+      "/projects/random-forests/index.html",
       "/projects/decisiontrees-from-scratch/index.html",
       "/projects/mlp-from-scratch/index.html"
     ]
