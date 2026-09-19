@@ -15,21 +15,23 @@ I also obtained my Bachelor's degree in Mathematics from Auburn in 2020, where I
 
 ### Recent Additions
 
-**Multilayer Perceptron From Scratch**
+**Decision Tree from scratch**
 
-- Building a basic neural network from the ground up using NumPy.
+[view project $\rightarrow$](projects/decisiontrees-from-scratch)
+
+**Multilayer Perceptron from scratch**
 
 [view project $\rightarrow$](projects/mlp-from-scratch)
 
 **Convex Optimization Notes and Proofs**
-
-- Works through theorems and notes from Introduct Lectures in Convex Optimization by Nesterov
 
 [view notes $\rightarrow$](notes/mathematics/convex-optimization)
 
 
 ### Works in Progress $\ldots$
  
-- Decision Trees from scratch (with statistical analysis)
-- LLM from scratch
-- Various other foundational machine learning algorithms from scratch
+- Linear and Logistic regression
+- Random forests
+- LLM from scratch series
+- CNN from scratch
+- GAN from scratch

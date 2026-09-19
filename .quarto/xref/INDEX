@@ -76,5 +76,8 @@
   },
   "projects/decisiontrees-from-scratch/index.qmd": {
     "index.html": "20b5a9ff"
+  },
+  "projects/linear-logistic-regression/index.qmd": {
+    "index.html": "210c89b9"
   }
 }

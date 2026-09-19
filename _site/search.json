@@ -46,7 +46,7 @@
     "href": "projects/index.html",
     "title": "Projects",
     "section": "",
-    "text": "Projects ranging from basic statistical machine learning to modern Deep learning and NLP architectures. The goal is to create these implementations from scratch while my older implementations from scratch/popular packages will be included in the Archive Section.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDecision Tree From Scratch\n\n\nBuilding and training a decision tree from scratch using NumPy\n\n\n\n\n\nSep 13, 2026\n\n\n\n\n\n\n\n\n\n\n\n\nMultilayer Perceptron From Scratch\n\n\nBuilding and training a neural network using NumPy, without PyTorch or TensorFlow.\n\n\n\n\n\nSep 7, 2026\n\n\n\n\n\nNo matching items"
+    "text": "Projects ranging from basic statistical machine learning to modern Deep learning and NLP architectures. The goal is to create these implementations from scratch while my older implementations from scratch/popular packages will be included in the Archive Section.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nLinear and Logistic Regression\n\n\nImplement linear and logistic regression algorithms from scratch and learn some of the most important statistical analysis techniques\n\n\n\n\n\nSep 19, 2026\n\n\n\n\n\n\n\n\n\n\n\n\nRandom Forests\n\n\nReturn to decision trees to motivate the random forest algorithm (with code from scratch)\n\n\n\n\n\nSep 19, 2026\n\n\n\n\n\n\n\n\n\n\n\n\nDecision Tree From Scratch\n\n\nBuilding and training a decision tree from scratch using NumPy\n\n\n\n\n\nSep 13, 2026\n\n\n\n\n\n\n\n\n\n\n\n\nMultilayer Perceptron From Scratch\n\n\nBuilding and training a neural network using NumPy, without PyTorch or TensorFlow.\n\n\n\n\n\nSep 7, 2026\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "projects/mlp-from-scratch/index.html#introduction",
@@ -214,7 +214,7 @@
     "href": "index.html#github-quad-resume-quad-linkedin",
     "title": "Joseph Casey",
     "section": "Github \\(\\quad\\) Resume \\(\\quad\\) LinkedIn",
-    "text": "Github \\(\\quad\\) Resume \\(\\quad\\) LinkedIn\n\nRecent Additions\nMultilayer Perceptron From Scratch\n\nBuilding a basic neural network from the ground up using NumPy.\n\nview project \\(\\rightarrow\\)\nConvex Optimization Notes and Proofs\n\nWorks through theorems and notes from Introduct Lectures in Convex Optimization by Nesterov\n\nview notes \\(\\rightarrow\\)\n\n\nWorks in Progress \\(\\ldots\\)\n\nDecision Trees from scratch (with statistical analysis)\nLLM from scratch\nVarious other foundational machine learning algorithms from scratch"
+    "text": "Github \\(\\quad\\) Resume \\(\\quad\\) LinkedIn\n\nRecent Additions\nDecision Tree from scratch\nview project \\(\\rightarrow\\)\nMultilayer Perceptron from scratch\nview project \\(\\rightarrow\\)\nConvex Optimization Notes and Proofs\nview notes \\(\\rightarrow\\)\n\n\nWorks in Progress \\(\\ldots\\)\n\nLinear and Logistic regression\nRandom forests\nLLM from scratch series\nCNN from scratch\nGAN from scratch"
   },
   {
     "objectID": "lectures/index.html",
@@ -249,7 +249,7 @@
     "href": "projects/decisiontrees-from-scratch/index.html",
     "title": "Decision Tree From Scratch",
     "section": "",
-    "text": "Language: Python\nCore dependency: NumPy\nDatasets: Toy data, Make Moons, MNIST\nRepository: link"
+    "text": "Language: Python\nCore dependency: NumPy\nDatasets: Toy data, Wisconsin breast cancer dataset\nRepository: link"
   },
   {
     "objectID": "projects/decisiontrees-from-scratch/index.html#motivation",
@@ -277,7 +277,7 @@
     "href": "projects/decisiontrees-from-scratch/index.html#experiments",
     "title": "Decision Tree From Scratch",
     "section": "Experiments",
-    "text": "Experiments\nFor now, we only include a small toy example to show that this works. Let\n\\[\nx = np.array([[1.0, 2.0],[2.0,1.0],[3.0,3.0],[6.0,2.0],[7.0,1.0],[8.0,3.0]])\ny = np.array([0,0,0,1,1,1])\n\\]\nso that we have \\(6\\) data points and two classes. In order to evaluate the tree we construct, we will use the two functions in the tree class:\ndef _predict_row(self, x, node):\n    # only leaf nodes have a value != None\n    if node.value is not None:\n        return node.value\n\n    if x[node.feature] &lt;= node.threshold:\n        return self._predict_row(x, node.left_node)\n    else:\n        return self._predict_row(x, node.right_node)\n\n# returns leaf prediction\ndef predict(self, x):\n    # go sample by sample\n    predictions = []\n\n    for i in range(x.shape[0]):\n        predictions.append(self._predict_row(x[i,:], self.root))\n    return np.array(predictions)\nThis initially takes in a data point and root node and continually progresses down the tree by checking node.value which is only “not None” for leaf nodes to return the majority class.\nFor the toy example, the full training is just these few lines:\ntree = DecisionTree(impurity = \"gini\", max_depth=3, min_split=2)\n\ntree.fit(x,y)\n\npredictions = tree.predict(x)\nprint(\"Training Accuracy:\", np.mean(predictions == y))\nAnd for predicting on some test data:\nx_new = np.array([\n    [1.5, 2.5],\n    [7.5, 2.5],\n    [4.0, 1.0]\n])\n\nnew_predictions = tree.predict(x_new)\n\nprint(\"\\nNew predictions:\")\nprint(new_predictions)\nIf done correctly, training and testing accuracy on this toy data should be perfect."
+    "text": "Experiments\nFor now, we only include a small toy example to show that this works. Let\nx = np.array([[1.0, 2.0],[2.0,1.0],[3.0,3.0],[6.0,2.0],[7.0,1.0],[8.0,3.0]])\ny = np.array([0,0,0,1,1,1])\nso that we have \\(6\\) data points and two classes. In order to evaluate the tree we construct, we will use the two functions in the tree class:\ndef _predict_row(self, x, node):\n    # only leaf nodes have a value != None\n    if node.value is not None:\n        return node.value\n\n    if x[node.feature] &lt;= node.threshold:\n        return self._predict_row(x, node.left_node)\n    else:\n        return self._predict_row(x, node.right_node)\n\n# returns leaf prediction\ndef predict(self, x):\n    # go sample by sample\n    predictions = []\n\n    for i in range(x.shape[0]):\n        predictions.append(self._predict_row(x[i,:], self.root))\n    return np.array(predictions)\nThis initially takes in a data point and root node and continually progresses down the tree by checking node.value which is only “not None” for leaf nodes to return the majority class.\nFor the toy example, the full training is just these few lines:\ntree = DecisionTree(impurity = \"gini\", max_depth=3, min_split=2)\n\ntree.fit(x,y)\n\npredictions = tree.predict(x)\nprint(\"Training Accuracy:\", np.mean(predictions == y))\nAnd for predicting on some test data:\nx_new = np.array([\n    [1.5, 2.5],\n    [7.5, 2.5],\n    [4.0, 1.0]\n])\n\nnew_predictions = tree.predict(x_new)\n\nprint(\"\\nNew predictions:\")\nprint(new_predictions)\nIf done correctly, training and testing accuracy on this toy data should be perfect."
   },
   {
     "objectID": "projects/decisiontrees-from-scratch/index.html#analysis",
@@ -285,5 +285,68 @@
     "title": "Decision Tree From Scratch",
     "section": "Analysis",
     "text": "Analysis\nThere are a handful of important concepts from machine learning which apply to analyzing decision trees. We will look into these by first applying our decision tree to the Iris classification dataset."
+  },
+  {
+    "objectID": "projects/decisiontrees-from-scratch/index.html#confusion-matrix-prediction-recall-and-f1",
+    "href": "projects/decisiontrees-from-scratch/index.html#confusion-matrix-prediction-recall-and-f1",
+    "title": "Decision Tree From Scratch",
+    "section": "Confusion matrix, Prediction, Recall, and F1",
+    "text": "Confusion matrix, Prediction, Recall, and F1\nThe confusion matrix for our model is defined by the following counts:\n\nTrue Positive: model predicts positive, and the sample is positive\nTrue Negative: model predicts negative, and the sample is negative\nFalse Positive: model predicts positive, and the sample is negative\nFalse Negative: model predicts negative, and the sample is positive\n\nWe compute these in the code simply:\nTP = (y_test == 1) & (test_predictions == 1)\nTN = (y_test == 0) & (test_predictions == 0)\nFP = (y_test == 0) & (test_predictions == 1)\nFN = (y_test == 1) & (test_predictions == 0)\n\nTP: 40\nTN: 67\nFP: 4\nFN: 3\nBased on the confusion matrix, we have three metrics with different interpretations."
+  },
+  {
+    "objectID": "projects/decisiontrees-from-scratch/index.html#confusion-matrix-precision-recall-and-f1",
+    "href": "projects/decisiontrees-from-scratch/index.html#confusion-matrix-precision-recall-and-f1",
+    "title": "Decision Tree From Scratch",
+    "section": "Confusion matrix: Precision, Recall, and F1",
+    "text": "Confusion matrix: Precision, Recall, and F1\nThe confusion matrix for our model is defined by the following counts:\n\nTrue Positive: model predicts positive, and the sample is positive\nTrue Negative: model predicts negative, and the sample is negative\nFalse Positive: model predicts positive, and the sample is negative\nFalse Negative: model predicts negative, and the sample is positive\n\nWe compute these in the code by finding the samples corresponding to each category, and then summing them up:\nTP = (y_test == 1) & (test_predictions == 1)\nTN = (y_test == 0) & (test_predictions == 0)\nFP = (y_test == 0) & (test_predictions == 1)\nFN = (y_test == 1) & (test_predictions == 0)\n\nTP: 40\nTN: 67\nFP: 4\nFN: 3\nFor breast cancer prediction, we may be more worried about false negatives than false positives, since a false negative means we predict no malignancy but the tumor was actually malignant. Different machine learning algorithms may require different approaches to emphasize making fewer of these mistakes. Based on the confusion matrix, we consider three metrics with different interpretations:\n\nPrecision = TP / (TP + FP)\nRecall = TP / (TP + FN)\nF1 = 2 * (Precision * Recall) / (Precision + Recall)\n\nPrecision tells us the fraction of tumors that were malignant our of all the observations our model predicted were malignant.\nRecall tells us the fraction of malignant tumors that our identified, out of all observations that were actually malignant. This is of particular importance for this problem.\nF1 balances the precision and recall, if either one is low, the F1 score will be brought down substantially.\nSince we have the precision matrix, we can easily compute these metrics from the code:\nprecision = np.sum(TP) / (np.sum(TP) + np.sum(FP))\nrecall = np.sum(TP) / (np.sum(TP) + np.sum(FN))\nF1 = (2 * precision * recall) / (precision + recall)\n\nPrecision: 0.9090909090909091\nRecall: 0.9302325581395349\nF1: 0.9195402298850575"
+  },
+  {
+    "objectID": "projects/decisiontrees-from-scratch/index.html#overfitting-and-cross-validation",
+    "href": "projects/decisiontrees-from-scratch/index.html#overfitting-and-cross-validation",
+    "title": "Decision Tree From Scratch",
+    "section": "Overfitting and Cross-validation",
+    "text": "Overfitting and Cross-validation\nA choice we have to make with each decision tree is the depth. We saw how this was done above by choosing the max_depth and min_samples in the code, where the maximum depth is the primary variable deciding the tree depth."
+  },
+  {
+    "objectID": "projects/decisiontrees-from-scratch/index.html#pruning-and-bootstrapping",
+    "href": "projects/decisiontrees-from-scratch/index.html#pruning-and-bootstrapping",
+    "title": "Decision Tree From Scratch",
+    "section": "Pruning and Bootstrapping",
+    "text": "Pruning and Bootstrapping"
+  },
+  {
+    "objectID": "projects/decisiontrees-from-scratch/index.html#model-complexity-overfitting-and-cross-validation",
+    "href": "projects/decisiontrees-from-scratch/index.html#model-complexity-overfitting-and-cross-validation",
+    "title": "Decision Tree From Scratch",
+    "section": "Model Complexity, Overfitting, and Cross-validation",
+    "text": "Model Complexity, Overfitting, and Cross-validation\nA choice we have to make with each decision tree is the depth. We saw how this was done above by choosing the max_depth and min_samples in the code, where the maximum depth is the primary variable determining tree complexity.\nWhen the tree is too simply, we risk underfitting the data, and when the tree is too complex, we risk overfitting. To see this, let’s see the training and testing accuracy for our tree at increasingly larger depths.\n\n\n\nMax Depth\nTrain Accuracy\nTest Accuracy\n\n\n\n\n1\n0.921\n0.895\n\n\n2\n0.930\n0.930\n\n\n3\n0.978\n0.939\n\n\n4\n0.996\n0.939\n\n\n5\n0.996\n0.939\n\n\n6\n0.998\n0.939\n\n\n7+\n1.000\n0.939\n\n\n\n\n\n\n\n\n\nFigure 2: Training and Testing Accuracy vs Maximum Depth\n\n\n\nAt depth \\(1\\), we see we have a very simply tree that fails to attain the required complexity to accurately predict on unseen data. Beginning with a maximum depth of \\(2\\), we see that the training accuracy is \\(93\\%\\) with test accuracy of \\(93\\%\\). From here, the training accuracy increases up to \\(100\\%\\) while the test accuracy mostly stays the same. This may indicate that we are training an overly complex model, which understands the training data very well but can’t extrapolate any better on the test data.\nUnfortunately, we cannot make any concrete conclusions based on these results. Generally, choosing the depth which achieves highest test accuracy would be using the test data to train our model."
+  },
+  {
+    "objectID": "projects/decisiontrees-from-scratch/index.html#max-depth-train-accuracy-test-accuracy",
+    "href": "projects/decisiontrees-from-scratch/index.html#max-depth-train-accuracy-test-accuracy",
+    "title": "Decision Tree From Scratch",
+    "section": "| Max Depth | Train Accuracy | Test Accuracy |",
+    "text": "| Max Depth | Train Accuracy | Test Accuracy |\n1 | 0.921 | 0.895 |"
+  },
+  {
+    "objectID": "projects/decisiontrees-from-scratch/index.html#model-complexity-underfitting-vs-overfitting",
+    "href": "projects/decisiontrees-from-scratch/index.html#model-complexity-underfitting-vs-overfitting",
+    "title": "Decision Tree From Scratch",
+    "section": "Model Complexity: Underfitting vs Overfitting",
+    "text": "Model Complexity: Underfitting vs Overfitting\nA choice we have to make with each decision tree is the depth. We saw how this was done above by choosing the max_depth and min_samples in the code, where the maximum depth is the primary variable determining tree complexity.\nWhen the tree is too simply, we risk underfitting the data, and when the tree is too complex, we risk overfitting. To see this, let’s see the training and testing accuracy for our tree at increasingly larger depths.\n\n\n\nMax Depth\nTrain Accuracy\nTest Accuracy\n\n\n\n\n1\n0.921\n0.895\n\n\n2\n0.930\n0.930\n\n\n3\n0.978\n0.939\n\n\n4\n0.996\n0.939\n\n\n5\n0.996\n0.939\n\n\n6\n0.998\n0.939\n\n\n7+\n1.000\n0.939\n\n\n\n\n\n\n\n\n\nFigure 2: Training and Testing Accuracy vs Maximum Depth\n\n\n\nAt depth \\(1\\), we see we have a very simply tree that fails to attain the required complexity to accurately predict on unseen data. Beginning with a maximum depth of \\(2\\), we see that the training accuracy is \\(93\\%\\) with test accuracy of \\(93\\%\\). From here, the training accuracy increases up to \\(100\\%\\) while the test accuracy mostly stays the same. This may indicate that we are training an overly complex model, which understands the training data very well but can’t extrapolate any better on the test data.\nUnfortunately, we cannot make any concrete conclusions based on these results. Generally, choosing the depth which achieves highest test accuracy would be using the test data to train our model. Let’s move on to the next section to see a better way to handle this issue."
+  },
+  {
+    "objectID": "projects/decisiontrees-from-scratch/index.html#cross-validation",
+    "href": "projects/decisiontrees-from-scratch/index.html#cross-validation",
+    "title": "Decision Tree From Scratch",
+    "section": "Cross-validation",
+    "text": "Cross-validation\nThe idea with cross-validation is to use ideas from the previous sections, but actually leave the test set alone. This helps us choose a model with genuine generalizability. Cross-validation works by splitting the training dataset into \\(K\\) pieces (K-fold cross-validation) and then repeatedly train on \\(K-1\\) pieces while using the last as the “validation” set. The cross-validation performance is then the average of these validation accuracies. This gives us a more reasonable way to determine the proper tree depth.\nIn the code, we can run cross-validation for each of the max depth choices. We start by shuffling indices and using NumPy’s array_split function to make the folds. Then for each fixed depth, we run through all folds and produce a validation accuracy for each, averaging them at the end to return a single validation accuracy for the depth.\nrng = np.random.default_rng(42)\n\nindices = np.arange(len(y_train))\nrng.shuffle(indices)\n\nX_train_cv = X_train[indices]\ny_train_cv = y_train[indices]\n\nnum_folds = 5\nfold_indices = np.array_split(np.arange(len(y_train_cv)), num_folds)\n\ndepth_cv_accuracies = []\n\nfor depth in range(1,16):\n    validation_accuracies = []\n    for k in range(num_folds):\n        training_indices = np.concatenate([fold_indices[j] for j in range(num_folds)\n                                           if j != k])\n        X_train_fold = X_train_cv[training_indices, :]\n        X_val_fold = X_train_cv[fold_indices[k], :]\n        y_train_fold = y_train_cv[training_indices]\n        y_val_fold = y_train_cv[fold_indices[k]]\n\n        tree = DecisionTree(impurity=\"gini\", max_depth=depth, min_split=2)\n        tree.fit(X_train_fold, y_train_fold)\n\n        val_predictions = tree.predict(X_val_fold)\n        val_acc = np.mean(val_predictions == y_val_fold)\n\n        validation_accuracies.append(val_acc)\n\n    mean_val_acc = np.mean(validation_accuracies)\n    print(\"\\nValidation Accuracy:\", mean_val_acc)\n    depth_cv_accuracies.append(mean_val_acc)\nRunning the code will find two categories of depth with the highest validation accuracy: max depth \\(3\\) and max depth \\(9+\\), each returning Validation Accuracy: 0.9274725274725275. Often it is best to choose the simplest model when performance is equivalent, so we would believe a maximum depth of \\(3\\) is the best choice for this analysis.\nIn future projects, we will discuss improvements over this basic cross-validation by considering two questions:\n\nWhat is the variance of my validation accuracies?\nWhat if the cross-validation folds contain different class proportions than my original data?\n\nFor now, we will move on to the last topic in the decision trees project which is pruning."
+  },
+  {
+    "objectID": "projects/decisiontrees-from-scratch/index.html#pruning",
+    "href": "projects/decisiontrees-from-scratch/index.html#pruning",
+    "title": "Decision Tree From Scratch",
+    "section": "Pruning",
+    "text": "Pruning\nPreviously, we focused on the parameter max_depth for our tree and used cross-validation to inform our choice. This is a useful strategy to proactively avoid overfitting by deciding the best parameter value. Pruning is a technique (not unique to decision trees) which retroactively handles overfitting.\nThe idea is this: grow a relatively large decision tree and remove the branches that don’t offer enough improvement for the added complexity.\nWhile regularization methods exist to penalize complexity (“CART weakest link” pruning), we will do something relatively simple. Let’s check each subtree and ask the question: “What if I replace this subtree with a single leaf?”. This replaces further splitting with a leaf that predicts the majority class.\nThe goal is to sacrifice some training accuracy for improved validation accuracy (yes, we can use this AND cross-validation!).\n(Stay tuned for a code update to perform pruning)."
   }
 ]

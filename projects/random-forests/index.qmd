@@ -1,0 +1,11 @@
+---
+title: "Random Forests"
+description: "Return to decision trees to motivate the random forest algorithm (with code from scratch)"
+date: 2026-09-19
+categories:
+  - Decision Tree
+  - Random Forest
+  - Bootstrapping
+  - Bagging
+  - NumPy
+---

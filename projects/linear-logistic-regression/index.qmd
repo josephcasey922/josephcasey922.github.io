@@ -1,0 +1,11 @@
+---
+title: "Linear and Logistic Regression"
+description: "Implement linear and logistic regression algorithms from scratch and 
+learn some of the most important statistical analysis techniques"
+date: 2026-09-19
+categories:
+  - Linear Regression
+  - Logistic Regression
+  - Machine Learning
+  - NumPy
+---

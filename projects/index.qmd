@@ -4,6 +4,8 @@ listing:
   contents:
     - mlp-from-scratch/
     - decisiontrees-from-scratch/
+    - linear-logistic-regression/
+    - random-forests/
   type: default
   sort: "date desc"
 ---
