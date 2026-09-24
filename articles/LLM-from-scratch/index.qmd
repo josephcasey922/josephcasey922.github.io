@@ -1,0 +1,38 @@
+---
+title: "LLM From Scratch (series)"
+description: "This will be a multi-part series building up a modern, transformer-based large language model from scratch."
+---
+
+## Series
+
+### Part 1: Tokenization
+
+Coming soon.
+
+### Part 2: Embeddings
+
+Coming soon.
+
+### Part 3: Positional Encoding
+
+Coming soon.
+
+### Part 4: Self-Attention
+
+Coming soon.
+
+### Part 5: Multi-Head Attention
+
+Coming soon.
+
+### Part 6: Transformer Blocks
+
+Coming soon.
+
+### Part 7: Building the Language Model
+
+Coming soon.
+
+## Future 
+
+With a deeper understanding of LLMs, we can look to use deep learning packages alongside pretrained components with the aim of making an LLM capable of implementing as an AI agent in other projects.

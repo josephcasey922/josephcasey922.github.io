@@ -1,21 +1,5 @@
 ---
 title: "Projects"
-listing:
-  contents:
-    - mlp-from-scratch/
-    - decisiontrees-from-scratch/
-    - linear-logistic-regression/
-    - random-forests/
-  type: default
-  sort: "date desc"
 ---
 
-
-
-
-
-
-
-Projects ranging from basic statistical machine learning to modern Deep learning and NLP architectures.
-The goal is to create these implementations from scratch while my older implementations from scratch/popular
-packages will be included in the [Archive Section](../archive/index.qmd).
+Here we include projects related to LLMs and deep neural networks

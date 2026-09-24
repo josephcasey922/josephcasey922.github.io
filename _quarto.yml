@@ -9,14 +9,12 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: articles/index.qmd
+        text: Articles
       - href: projects/index.qmd
         text: Projects
-      - href: notes/index.qmd
-        text: Notes
       - href: research/index.qmd
         text: Research
-      - href: teaching/index.qmd
-        text: Teaching
       - href: archive/index.qmd
         text: Archive
       # - href: about/index.qmd

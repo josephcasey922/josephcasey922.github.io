@@ -1,1 +1,16 @@
-/* css styles */
+.homepage-intro {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+}
+
+.profile-photo img {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.homepage-text {
+    flex: 1;
+}/* css styles */

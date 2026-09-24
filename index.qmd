@@ -2,36 +2,39 @@
 title: "Joseph Casey"
 ---
 
+::: {.homepage-intro}
 
----
+::: {.profile-photo}
+![](images/picture.jpg){width=180px}
+:::
+
+
+
+::: {.homepage-text}
 
 ***Statistics*** $\quad$ ***Machine Learning*** $\quad$ ***Optimization***
 
 My name is Joseph Casey, and I recently obtained my PhD in Applied Mathematics from The University of Alabama at Birmingham.
-I also obtained my Bachelor's degree in Mathematics from Auburn in 2020, where I also enjoyed pursuing various topics in cybersecurity. Recently, my interests pertain to statistics, optimization, and machine learning, however, I still enjoy learning about a wide range of topics within math and computer science.
+I obtained my Bachelor's degree in Mathematics from Auburn in 2020, where I enjoyed pursuing my interests in cybersecurity. Recently, my interests pertain to statistics, optimization, and machine learning, however, I still enjoy learning about a wide range of topics within math and computer science.
 
 [[Github](https://github.com/josephcasey922)]{style="font-size: 15px;"} $\quad$ [[Resume](files/joseph-casey-resume.pdf)]{style="font-size: 15px;"} $\quad$ [LinkedIn](https://www.linkedin.com/in/joseph-casey-bbb396435){style="font-size: 15px;"}
 ---
 
-### Recent Additions
+:::
+
+:::
+
+## Recent Articles
 
 **Decision Tree from scratch**
 
-[view project $\rightarrow$](projects/decisiontrees-from-scratch)
+[view project $\rightarrow$](articles/decisiontrees-from-scratch)
 
 **Multilayer Perceptron from scratch**
 
-[view project $\rightarrow$](projects/mlp-from-scratch)
-
-**Convex Optimization Notes and Proofs**
-
-[view notes $\rightarrow$](notes/mathematics/convex-optimization)
+[view project $\rightarrow$](articles/mlp-from-scratch)
 
 
-### Works in Progress $\ldots$
+## Recent Projectse
  
-- Linear and Logistic regression
-- Random forests
-- LLM from scratch series
-- CNN from scratch
-- GAN from scratch
+

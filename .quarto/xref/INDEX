@@ -79,5 +79,47 @@
   },
   "projects/linear-logistic-regression/index.qmd": {
     "index.html": "210c89b9"
+  },
+  "projects/LLM-from-scratch/index.qmd": {
+    "index.html": "6075fa3e"
+  },
+  "projects/LLM-from-scratch/tokenization/index.qmd": {
+    "index.html": "f2712491"
+  },
+  "projects/random-forests/index.qmd": {
+    "index.html": "d0d8fc95"
+  },
+  "projects/generalized-linear-models/index.qmd": {
+    "index.html": "ada71306"
+  },
+  "projects/generalized-linear-models/linear-logistic-regression/index.qmd": {
+    "index.html": "ca317681"
+  },
+  "articles/decisiontrees-from-scratch/index.qmd": {
+    "index.html": "7a73538a"
+  },
+  "articles/generalized-linear-models/index.qmd": {
+    "index.html": "7cb8ca43"
+  },
+  "articles/generalized-linear-models/linear-logistic-regression/index.qmd": {
+    "index.html": "5231bc75"
+  },
+  "articles/index.qmd": {
+    "index.html": "eb337a46"
+  },
+  "articles/linear-logistic-regression/index.qmd": {
+    "index.html": "c6315311"
+  },
+  "articles/LLM-from-scratch/index.qmd": {
+    "index.html": "17dc5d1f"
+  },
+  "articles/LLM-from-scratch/tokenization/index.qmd": {
+    "index.html": "f1299509"
+  },
+  "articles/mlp-from-scratch/index.qmd": {
+    "index.html": "d2e25bf5"
+  },
+  "articles/random-forests/index.qmd": {
+    "index.html": "c1f75c96"
   }
 }

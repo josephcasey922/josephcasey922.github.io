@@ -36,8 +36,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-listing/list.min.js"></script>
-<script src="../site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -75,65 +73,7 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -160,20 +100,16 @@ window.Quarto = {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="../articles/index.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link active" href="../projects/index.html" aria-current="page"> 
 <span class="menu-text">Projects</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../notes/index.html"> 
-<span class="menu-text">Notes</span></a>
-  </li>  
-  <li class="nav-item">
     <a class="nav-link" href="../research/index.html"> 
 <span class="menu-text">Research</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../teaching/index.qmd"> 
-<span class="menu-text">Teaching</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../archive/index.html"> 
@@ -215,104 +151,11 @@ window.Quarto = {
 </header>
 
 
-<p>Projects ranging from basic statistical machine learning to modern Deep learning and NLP architectures. The goal is to create these implementations from scratch while my older implementations from scratch/popular packages will be included in the <a href="../archive/index.html">Archive Section</a>.</p>
+<p>Here we include projects related to LLMs and deep neural networks</p>
 
 
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="TGluZWFyJTIwUmVncmVzc2lvbiUyQ0xvZ2lzdGljJTIwUmVncmVzc2lvbiUyQ01hY2hpbmUlMjBMZWFybmluZyUyQ051bVB5" data-listing-date-sort="1789794000000" data-listing-file-modified-sort="1789842495287" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="1">
-<div class="thumbnail"><a href="../projects/linear-logistic-regression/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="../projects/linear-logistic-regression/index.html" class="no-external">Linear and Logistic Regression</a>
-</h3>
-<div class="delink listing-description"><a href="../projects/linear-logistic-regression/index.html" class="no-external">
-<p>Implement linear and logistic regression algorithms from scratch and learn some of the most important statistical analysis techniques</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="../projects/linear-logistic-regression/index.html" class="no-external">
-<div class="listing-date">
-Sep 19, 2026
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="RGVjaXNpb24lMjBUcmVlJTJDUmFuZG9tJTIwRm9yZXN0JTJDQm9vdHN0cmFwcGluZyUyQ0JhZ2dpbmclMkNOdW1QeQ==" data-listing-date-sort="1789794000000" data-listing-file-modified-sort="1789842613735" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="1">
-<div class="thumbnail"><a href="../projects/random-forests/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="../projects/random-forests/index.html" class="no-external">Random Forests</a>
-</h3>
-<div class="delink listing-description"><a href="../projects/random-forests/index.html" class="no-external">
-<p>Return to decision trees to motivate the random forest algorithm (with code from scratch)</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="../projects/random-forests/index.html" class="no-external">
-<div class="listing-date">
-Sep 19, 2026
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="RGVjaXNpb24lMjBUcmVlcyUyQ01hY2hpbmUlMjBMZWFybmluZyUyQ051bVB5JTJDU3RhdGlzdGljYWwlMjBBbmFseXNpcw==" data-listing-date-sort="1789275600000" data-listing-file-modified-sort="1789841992196" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3942">
-<div class="thumbnail"><a href="../projects/decisiontrees-from-scratch/index.html" class="no-external">
-
-<p class="card-img-top"><img loading='lazy' src="decisiontrees-from-scratch\decision-tree.svg"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="../projects/decisiontrees-from-scratch/index.html" class="no-external">Decision Tree From Scratch</a>
-</h3>
-<div class="delink listing-description"><a href="../projects/decisiontrees-from-scratch/index.html" class="no-external">
-<p>Building and training a decision tree from scratch using NumPy</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="../projects/decisiontrees-from-scratch/index.html" class="no-external">
-<div class="listing-date">
-Sep 13, 2026
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="TmV1cmFsJTIwTmV0d29ya3MlMkNNYWNoaW5lJTIwTGVhcm5pbmclMkNOdW1QeQ==" data-listing-date-sort="1788757200000" data-listing-file-modified-sort="1789575106236" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2731">
-<div class="thumbnail"><a href="../projects/mlp-from-scratch/index.html" class="no-external">
-
-<p class="card-img-top"><img loading='lazy' src="mlp-from-scratch\mlp-architecture.svg"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="../projects/mlp-from-scratch/index.html" class="no-external">Multilayer Perceptron From Scratch</a>
-</h3>
-<div class="delink listing-description"><a href="../projects/mlp-from-scratch/index.html" class="no-external">
-<p>Building and training a neural network using NumPy, without PyTorch or TensorFlow.</p>
-</a></div>
-</div>
-<div class="metadata">
-<a href="../projects/mlp-from-scratch/index.html" class="no-external">
-<div class="listing-date">
-Sep 7, 2026
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
