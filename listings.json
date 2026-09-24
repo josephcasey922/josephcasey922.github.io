@@ -1,19 +1,20 @@
 [
   {
+    "listing": "/articles/index.html",
+    "items": [
+      "/articles/generalized-linear-models/index.html",
+      "/articles/random-forests/index.html",
+      "/articles/LLM-from-scratch/index.html",
+      "/articles/decisiontrees-from-scratch/index.html",
+      "/articles/mlp-from-scratch/index.html"
+    ]
+  },
+  {
     "listing": "/lectures/index.html",
     "items": [
       "/lectures/distributed-machine-learning/index.html",
       "/lectures/optimization/index.html",
       "/lectures/support-vector-machines/index.html"
-    ]
-  },
-  {
-    "listing": "/projects/index.html",
-    "items": [
-      "/projects/linear-logistic-regression/index.html",
-      "/projects/random-forests/index.html",
-      "/projects/decisiontrees-from-scratch/index.html",
-      "/projects/mlp-from-scratch/index.html"
     ]
   }
 ]

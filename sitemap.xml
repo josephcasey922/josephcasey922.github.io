@@ -1,67 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://josephcasey922.github.io/notes/mathematics/convex-optimization/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.611Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/notes/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.610Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/lectures/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.598Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/archive/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.597Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/research.html</loc>
-    <lastmod>2026-09-19T18:35:06.613Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/projects/linear-logistic-regression/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.612Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/projects/mlp-from-scratch/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.613Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/about/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.597Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.598Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/mathematics.html</loc>
-    <lastmod>2026-09-19T18:35:06.610Z</lastmod>
-  </url>
-  <url>
     <loc>https://josephcasey922.github.io/projects/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.612Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/projects/random-forests/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.613Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/projects/decisiontrees-from-scratch/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.612Z</lastmod>
-  </url>
-  <url>
-    <loc>https://josephcasey922.github.io/projects.html</loc>
-    <lastmod>2026-09-19T18:35:06.612Z</lastmod>
+    <lastmod>2026-09-24T16:17:23.309Z</lastmod>
   </url>
   <url>
     <loc>https://josephcasey922.github.io/research/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.644Z</lastmod>
+    <lastmod>2026-09-24T16:17:23.330Z</lastmod>
   </url>
   <url>
-    <loc>https://josephcasey922.github.io/notes/mathematics/index.html</loc>
-    <lastmod>2026-09-19T18:35:06.611Z</lastmod>
+    <loc>https://josephcasey922.github.io/articles/decisiontrees-from-scratch/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.299Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/articles/LLM-from-scratch/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.298Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/articles/generalized-linear-models/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.299Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/articles/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.299Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/articles/linear-logistic-regression/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.299Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/lectures/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.301Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.301Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/articles/random-forests/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.300Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/articles/generalized-linear-models/linear-logistic-regression/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.299Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/articles/mlp-from-scratch/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.300Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/about/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.297Z</lastmod>
+  </url>
+  <url>
+    <loc>https://josephcasey922.github.io/archive/index.html</loc>
+    <lastmod>2026-09-24T16:17:23.298Z</lastmod>
   </url>
 </urlset>
