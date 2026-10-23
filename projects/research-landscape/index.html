@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.10.18">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Convex Optimization – Joseph Casey</title>
+<title>Research Landscape – Joseph Casey</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -29,23 +29,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
-<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-172ba59bd5e0b52282274ba0c0cc16fc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-55617497126496852ff9f5a59253c640.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -75,7 +75,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="../../../styles.css">
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed quarto-light">
@@ -85,7 +85,7 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../../../index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Joseph Casey</span>
     </a>
   </div>
@@ -96,27 +96,23 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../../index.html"> 
+    <a class="nav-link" href="../../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../../projects/index.html"> 
+    <a class="nav-link" href="../../articles/index.html"> 
+<span class="menu-text">Articles</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../projects/index.html"> 
 <span class="menu-text">Projects</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../../notes/index.html"> 
-<span class="menu-text">Notes</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../../research/index.html"> 
+    <a class="nav-link" href="../../research/index.html"> 
 <span class="menu-text">Research</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../../teaching/index.html"> 
-<span class="menu-text">Teaching</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../../archive/index.html"> 
+    <a class="nav-link" href="../../archive/index.html"> 
 <span class="menu-text">Archive</span></a>
   </li>  
 </ul>
@@ -130,15 +126,34 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#version-0.1" id="toc-version-0.1" class="nav-link" data-scroll-target="#version-0.1">Version 0.1</a>
+  <ul class="collapse">
+  <li><a href="#current-features" id="toc-current-features" class="nav-link" data-scroll-target="#current-features">Current Features</a></li>
+  </ul></li>
+  <li><a href="#app" id="toc-app" class="nav-link" data-scroll-target="#app">App</a>
+  <ul class="collapse">
+  <li><a href="#paper-selection-and-comparison" id="toc-paper-selection-and-comparison" class="nav-link" data-scroll-target="#paper-selection-and-comparison">Paper Selection and Comparison</a></li>
+  <li><a href="#interactive-visualization" id="toc-interactive-visualization" class="nav-link" data-scroll-target="#interactive-visualization">Interactive Visualization</a></li>
+  <li><a href="#sample-output" id="toc-sample-output" class="nav-link" data-scroll-target="#sample-output">Sample Output</a></li>
+  </ul></li>
+  <li><a href="#limitations-and-future-development" id="toc-limitations-and-future-development" class="nav-link" data-scroll-target="#limitations-and-future-development">Limitations and Future Development</a></li>
+  <li><a href="#source-code" id="toc-source-code" class="nav-link" data-scroll-target="#source-code">Source Code</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Convex Optimization</h1>
+<h1 class="title">Research Landscape</h1>
+<p class="subtitle lead">An experimental tool for exploring relationships between academic papers</p>
 </div>
 
 
@@ -155,13 +170,94 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>These are my personal notes based on Nesterov’s <em>Introductory Lectures on Convex Optimization</em>. The notes were designed for my personal use in finding useful optimization results quickly using latex. In the book, I required a deeper explanation for the theorems and proofs, motivating my construction of these notes to add explanations for the theorems and certain proof steps.</p>
-<blockquote class="blockquote">
-<p><strong>Note:</strong> These notes are currently a work in progress for Chapters 1 and Chapters 2 and may contain many errors. I plan to revise them and add substantially more exposition over time.</p>
-</blockquote>
-<p><a href="convex-optimiation-notes.pdf">Download the current notes (PDF)</a></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/icon.png" class="img-fluid figure-img"></p>
+<figcaption>Source and target paper</figcaption>
+</figure>
+</div>
+<p><strong>Version:</strong> 0.1<br>
+<strong>Status:</strong> Early development</p>
+<p><a href="https://github.com/josephcasey922/research-landscape">GitHub Repository</a></p>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>Research Landscape is a project exploring how language models can be used to analyze and compare academic research.</p>
+<p>The primary goal is to identify ways in which existing research might contribute to or strengthen another paper. Rather than simply finding papers on similar topics, the project focuses on differences in research methods, experimental approaches, and other components.</p>
+<p>The longer-term objective is to develop an interactive representation of a research landscape, allowing users to explore relationships between papers and identify potentially useful contributions.</p>
+</section>
+<section id="version-0.1" class="level2">
+<h2 class="anchored" data-anchor-id="version-0.1">Version 0.1</h2>
+<p>The first version focuses on comparing individual pairs of research papers.</p>
+<p>Given a <strong>target paper</strong> and a <strong>source paper</strong>, the system attempts to identify:</p>
+<ul>
+<li>Research components present in each paper.</li>
+<li>Components in the source paper that may strengthen existing components of the target.</li>
+<li>Components that may introduce new approaches or perspectives.</li>
+<li>Supporting evidence from the papers for these comparisons.</li>
+</ul>
+<p>The application uses a locally running language model to perform the analysis and presents the results through an interactive visualization.</p>
+<section id="current-features" class="level3">
+<h3 class="anchored" data-anchor-id="current-features">Current Features</h3>
+<ul>
+<li>A searchable paper library backed by PostgreSQL.</li>
+<li>PDF retrieval and local caching.</li>
+<li>Research component extraction using a local language model.</li>
+<li>Evidence-linked comparisons and suggested contributions.</li>
+<li>Saved paper comparisons.</li>
+<li>An interactive, draggable graph for visualizing relationships.</li>
+</ul>
+</section>
+</section>
+<section id="app" class="level2">
+<h2 class="anchored" data-anchor-id="app">App</h2>
+<section id="paper-selection-and-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="paper-selection-and-comparison">Paper Selection and Comparison</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/paper-selection-interface.png" class="img-fluid figure-img"></p>
+<figcaption>Paper selection interface</figcaption>
+</figure>
+</div>
+</section>
+<section id="interactive-visualization" class="level3">
+<h3 class="anchored" data-anchor-id="interactive-visualization">Interactive Visualization</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/connection-graphic.png" class="img-fluid figure-img"></p>
+<figcaption>Interactive research graph</figcaption>
+</figure>
+</div>
+</section>
+<section id="sample-output" class="level3">
+<h3 class="anchored" data-anchor-id="sample-output">Sample Output</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/coverage-example.png" class="img-fluid figure-img"></p>
+<figcaption>Sample coverage extraction</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="limitations-and-future-development" class="level2">
+<h2 class="anchored" data-anchor-id="limitations-and-future-development">Limitations and Future Development</h2>
+<p>Version 0.1 is an initial prototype, and its generated comparisons should be considered provisional rather than definitive assessments of academic research.</p>
+<p>In particular, identifying a potentially useful contribution does not necessarily imply that one paper is better than another.</p>
+<p>Some possible directions for future development include:</p>
+<ul>
+<li>Expanding from pairwise comparisons to larger collections of papers.</li>
+<li>Identifying clusters of related research.</li>
+<li>Developing more systematic measures of research component coverage.</li>
+<li>Improving the accuracy and consistency of model-generated comparisons.</li>
+<li>Expanding the interactive visualization.</li>
+</ul>
+</section>
+<section id="source-code" class="level2">
+<h2 class="anchored" data-anchor-id="source-code">Source Code</h2>
+<p>The code and implementation details are available on GitHub.</p>
+<p><a href="https://github.com/josephcasey922/research-landscape">View the Project on GitHub</a></p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -237,7 +333,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/josephcasey922\.github\.io\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

@@ -1,12 +1,9 @@
 [
   {
-    "listing": "/articles/index.html",
+    "listing": "/projects/index.html",
     "items": [
-      "/articles/generalized-linear-models/index.html",
-      "/articles/random-forests/index.html",
-      "/articles/LLM-from-scratch/index.html",
-      "/articles/decisiontrees-from-scratch/index.html",
-      "/articles/mlp-from-scratch/index.html"
+      "/projects/research-landscape/index.html",
+      "/projects/chessAI/index.html"
     ]
   },
   {
@@ -15,6 +12,16 @@
       "/lectures/distributed-machine-learning/index.html",
       "/lectures/optimization/index.html",
       "/lectures/support-vector-machines/index.html"
+    ]
+  },
+  {
+    "listing": "/articles/index.html",
+    "items": [
+      "/articles/random-forests/index.html",
+      "/articles/LLM-from-scratch/index.html",
+      "/articles/generalized-linear-models/index.html",
+      "/articles/decisiontrees-from-scratch/index.html",
+      "/articles/mlp-from-scratch/index.html"
     ]
   }
 ]
