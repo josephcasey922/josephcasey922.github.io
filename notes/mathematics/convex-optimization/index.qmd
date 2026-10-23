@@ -1,0 +1,12 @@
+---
+title: "Convex Optimization"
+---
+
+These are my personal notes based on Nesterov's *Introductory Lectures
+on Convex Optimization*. The notes were designed for my personal use in finding useful optimization results quickly using latex. In the book, I required a deeper explanation for the theorems and proofs, motivating my construction of these notes to add explanations
+for the theorems and certain proof steps.
+
+> **Note:** These notes are currently a work in progress for Chapters 1 and Chapters 2 and may contain many
+> errors. I plan to revise them and add substantially more exposition over time.
+
+[Download the current notes (PDF)](convex-optimization-notes.pdf)

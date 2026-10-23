@@ -1,0 +1,19 @@
+---
+title: "Chess AI"
+---
+
+![Chessboard](images/chessboard.svg){width="50%"}
+
+**Coming soon**
+
+## Play against the bot
+
+An experimental collection of chess agents
+developed using reinforcement learning.
+
+<div id="chess-board"></div>
+
+## About the project
+
+This project investigates different approaches
+to training chess-playing agents.

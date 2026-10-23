@@ -1,29 +1,19 @@
 [
   {
-    "listing": "/projects/mlp-from-scratch/index.html",
-    "items": []
-  },
-  {
     "listing": "/projects/index.html",
     "items": [
-      "/projects/generalized-linear-models/index.html",
-      "/projects/random-forests/index.html",
-      "/projects/LLM-from-scratch/index.html",
-      "/projects/decisiontrees-from-scratch/index.html",
-      "/projects/mlp-from-scratch/index.html"
+      "/projects/research-landscape/index.html",
+      "/projects/chessAI/index.html"
     ]
   },
   {
-    "listing": "/notes/index.html",
+    "listing": "/articles/index.html",
     "items": [
-      "/notes/mathematics/convex-optimization/index.html",
-      "/notes/mathematics/index.html"
-    ]
-  },
-  {
-    "listing": "/notes/mathematics/index.html",
-    "items": [
-      "/notes/mathematics/convex-optimization/index.html"
+      "/articles/random-forests/index.html",
+      "/articles/LLM-from-scratch/index.html",
+      "/articles/generalized-linear-models/index.html",
+      "/articles/decisiontrees-from-scratch/index.html",
+      "/articles/mlp-from-scratch/index.html"
     ]
   },
   {
@@ -32,16 +22,6 @@
       "/lectures/distributed-machine-learning/index.html",
       "/lectures/optimization/index.html",
       "/lectures/support-vector-machines/index.html"
-    ]
-  },
-  {
-    "listing": "/articles/index.html",
-    "items": [
-      "/articles/generalized-linear-models/index.html",
-      "/articles/random-forests/index.html",
-      "/articles/LLM-from-scratch/index.html",
-      "/articles/decisiontrees-from-scratch/index.html",
-      "/articles/mlp-from-scratch/index.html"
     ]
   }
 ]

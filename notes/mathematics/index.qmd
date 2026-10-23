@@ -1,0 +1,9 @@
+---
+title: "Mathematics"
+---
+
+Notes on mathematical topics.
+
+## Optimization
+
+- [Convex Optimization](convex-optimization/)

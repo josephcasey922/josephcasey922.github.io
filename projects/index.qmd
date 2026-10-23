@@ -1,5 +1,11 @@
 ---
 title: "Projects"
+listing:
+  contents:
+    - research-landscape/index.qmd
+    - chessAI/index.qmd
+  type: default
+  sort: "date desc"
 ---
 
-Here we include projects related to LLMs and deep neural networks
+Projects ranging from data analysis to data science utilizing Python, SQL, Excel, and Power BI. 

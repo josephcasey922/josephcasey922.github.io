@@ -24,17 +24,51 @@ I obtained my Bachelor's degree in Mathematics from Auburn in 2020, where I enjo
 
 :::
 
+## Featured Project
+
+**Research Landscape**
+
+An AI assisted system for exploring relationships, methodologies, contributions, and potential connections across scientific literature.
+
+![](projects/research-landscape/images/connection-graphic.png)
+
+[view project v0.1 $\rightarrow$](projects/research-landscape/)
+
 ## Recent Articles
 
-**Decision Tree from scratch**
+**Generalized Linear Models**
 
-[view project $\rightarrow$](articles/decisiontrees-from-scratch)
+An introduction to the GLM framework and statistical modeling
+
+![](articles/generalized-linear-models/GLM.svg){width="30%"}
+
+[View Overview $\rightarrow$](articles/generalized-linear-models)
+
+---
+
+**Decision Trees**
+
+A from-scratch implementation of decision trees in Python (NumPy)
+
+![](articles/decisiontrees-from-scratch/decision-tree.svg){width="30%"}
+
+[View Article $\rightarrow$](articles/decisiontrees-from-scratch)
+
+---
 
 **Multilayer Perceptron from scratch**
 
-[view project $\rightarrow$](articles/mlp-from-scratch)
+A from-scratch implementation of a basic neural network in Python
 
+![](articles/mlp-from-scratch/mlp-architecture.svg){width="30%"}
 
-## Recent Projectse
+[View Article $\rightarrow$](articles/mlp-from-scratch)
+
+---
+
+::: {.center data-latex=""}
+[View All Articles](articles/)
+:::
+
  
 

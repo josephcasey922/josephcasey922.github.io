@@ -121,5 +121,11 @@
   },
   "articles/random-forests/index.qmd": {
     "index.html": "c1f75c96"
+  },
+  "projects/chessAI/index.qmd": {
+    "index.html": "230de4ec"
+  },
+  "projects/research-landscape/index.qmd": {
+    "index.html": "68a6f170"
   }
 }
